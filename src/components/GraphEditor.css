@@ -280,10 +280,6 @@
   pointer-events: none;
 }
 
-.graph-editor__hint > span {
-  font-size: 16px;
-}
-
 .graph-editor__empty {
   position: absolute;
   inset: 0;
@@ -297,12 +293,9 @@
   pointer-events: none;
 }
 
-.graph-editor__empty > span {
+.graph-editor__empty > svg {
   margin-bottom: 10px;
   color: #9eafcc;
-  font-family: Georgia, serif;
-  font-size: 50px;
-  line-height: 1;
 }
 
 .graph-editor__empty > strong {
@@ -334,6 +327,27 @@
   }
 }
 
+@media (max-width: 849px) {
+  .graph-editor .react-flow__controls-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .graph-editor .automaton-state__handle::after {
+    inset: -18px;
+  }
+
+  .automaton-transition__label {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .graph-editor__hint {
+    max-width: calc(100% - 175px);
+    font-size: 10px;
+  }
+}
+
 @media (max-width: 640px) {
   .graph-editor {
     height: 350px;
@@ -341,12 +355,7 @@
 
   .graph-editor__hint {
     bottom: 19px;
-    max-width: calc(100% - 145px);
-    font-size: 9px;
-  }
-
-  .automaton-transition__label {
-    min-height: 32px;
+    font-size: 10px;
   }
 }
 

@@ -9,3 +9,6 @@ STORY: Try one prepared chain; inspect its rule; edit a state or transition; tes
 FIRST VIEWPORT: Compact header and model navigation, a two-column graph/inspector workspace, then simulation controls and symbol strip. Canvas dominates; the initial example and next-step action are immediately usable on a small laptop. On mobile the inspector follows the canvas.
 FORM: User-pinned academic laboratory, code-led; no random direction selection or image mockups. Signature interaction is synchronized graph/configuration/rule highlighting.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+
+## Finish evidence
+2026-10-15: independent finish reviewer marked all five material fixes resolved (ship at the scope of that fix list). Desktop, tablet, mobile, PDA and Turing captures inspected; no shipping rasters. Mechanical detector returned no findings. DESIGN.md and the token sidecar describe the built interface. Validation: 53 unit tests, 10 browser tests and production build passed. Mobile testing was emulated in Chrome; no physical-device or remote Pages deployment verification.

@@ -71,6 +71,7 @@ export default function App() {
     setMachines(current => ({ ...current, [next.kind]: next }));
     const error = saveDraft(next);
     if (error) setNotice(error);
+    return error;
   }
   function selectState(id: string | null) { setSelectedStateId(id); setSelectedTransitionId(null); setAddingTransition(false); setNewConnection(null); }
   function selectTransition(id: string | null) { setSelectedTransitionId(id); setSelectedStateId(null); setAddingTransition(false); setNewConnection(null); }
@@ -79,9 +80,9 @@ export default function App() {
   }
   function replaceMachine(action: 'blank' | 'example') {
     const next = action === 'blank' ? createBlankMachine(kind) : structuredClone(EXAMPLES[kind]);
-    changeMachine(next); setSelectedStateId(null); setSelectedTransitionId(null); setAddingTransition(false); setConfirmReplace(null);
+    const saveError = changeMachine(next); setSelectedStateId(null); setSelectedTransitionId(null); setAddingTransition(false); setConfirmReplace(null);
     if (action === 'example') setInputs(current => ({ ...current, [kind]: EXAMPLE_INPUTS[kind] }));
-    setNotice(action === 'blank' ? 'Lienzo nuevo. Agrega un estado para comenzar.' : 'Ejemplo restaurado. Puedes editarlo libremente.');
+    setNotice(saveError ?? (action === 'blank' ? 'Lienzo nuevo. Agrega un estado para comenzar.' : 'Ejemplo restaurado. Puedes editarlo libremente.'));
   }
   function addState() {
     if (machine.states.length >= 50) return setNotice('El documento permite hasta 50 estados.');
@@ -120,7 +121,7 @@ export default function App() {
       const imported = parseMachineJson(await file.text());
       // Preserve the current draft before replacing it with an imported document.
       exportMachine(machines[imported.kind]);
-      changeMachine(imported); selectModel(imported.kind); setNotice('Archivo importado. Se descargó una copia del borrador anterior.');
+      const saveError = changeMachine(imported); selectModel(imported.kind); setNotice(saveError ?? 'Archivo importado. Se descargó una copia del borrador anterior.');
     } catch (error) { setNotice(error instanceof Error ? error.message : 'No se pudo leer el archivo JSON.'); }
     if (importRef.current) importRef.current.value = '';
   }

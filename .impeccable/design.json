@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T23:58:09.053Z",
+  "title": "Design System: Autómata",
+  "extensions": {
+    "colorMeta": {
+      "cobalt": {
+        "role": "primary",
+        "displayName": "Cobalto",
+        "tonalRamp": [
+          "oklch(15% 0.2186 263.64)",
+          "oklch(25% 0.2186 263.64)",
+          "oklch(35% 0.2186 263.64)",
+          "oklch(45% 0.2186 263.64)",
+          "oklch(60% 0.2186 263.64)",
+          "oklch(75% 0.2186 263.64)",
+          "oklch(85% 0.2186 263.64)",
+          "oklch(95% 0.2186 263.64)"
+        ]
+      },
+      "cobalt-hover": {
+        "role": "primary",
+        "displayName": "Cobalto en hover",
+        "tonalRamp": [
+          "oklch(15% 0.2106 263.58)",
+          "oklch(25% 0.2106 263.58)",
+          "oklch(35% 0.2106 263.58)",
+          "oklch(45% 0.2106 263.58)",
+          "oklch(60% 0.2106 263.58)",
+          "oklch(75% 0.2106 263.58)",
+          "oklch(85% 0.2106 263.58)",
+          "oklch(95% 0.2106 263.58)"
+        ]
+      },
+      "cobalt-ink": {
+        "role": "primary",
+        "displayName": "Tinta de cobalto",
+        "tonalRamp": [
+          "oklch(15% 0.1989 263.44)",
+          "oklch(25% 0.1989 263.44)",
+          "oklch(35% 0.1989 263.44)",
+          "oklch(45% 0.1989 263.44)",
+          "oklch(60% 0.1989 263.44)",
+          "oklch(75% 0.1989 263.44)",
+          "oklch(85% 0.1989 263.44)",
+          "oklch(95% 0.1989 263.44)"
+        ]
+      },
+      "cobalt-wash": {
+        "role": "primary",
+        "displayName": "Lavado de cobalto",
+        "tonalRamp": [
+          "oklch(15% 0.0212 268.43)",
+          "oklch(25% 0.0212 268.43)",
+          "oklch(35% 0.0212 268.43)",
+          "oklch(45% 0.0212 268.43)",
+          "oklch(60% 0.0212 268.43)",
+          "oklch(75% 0.0212 268.43)",
+          "oklch(85% 0.0212 268.43)",
+          "oklch(95% 0.0212 268.43)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "tonalRamp": [
+          "oklch(15% 0.0541 262.54)",
+          "oklch(25% 0.0541 262.54)",
+          "oklch(35% 0.0541 262.54)",
+          "oklch(45% 0.0541 262.54)",
+          "oklch(60% 0.0541 262.54)",
+          "oklch(75% 0.0541 262.54)",
+          "oklch(85% 0.0541 262.54)",
+          "oklch(95% 0.0541 262.54)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Tinta secundaria",
+        "tonalRamp": [
+          "oklch(15% 0.0371 255.70)",
+          "oklch(25% 0.0371 255.70)",
+          "oklch(35% 0.0371 255.70)",
+          "oklch(45% 0.0371 255.70)",
+          "oklch(60% 0.0371 255.70)",
+          "oklch(75% 0.0371 255.70)",
+          "oklch(85% 0.0371 255.70)",
+          "oklch(95% 0.0371 255.70)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Borde frío",
+        "tonalRamp": [
+          "oklch(15% 0.0180 261.34)",
+          "oklch(25% 0.0180 261.34)",
+          "oklch(35% 0.0180 261.34)",
+          "oklch(45% 0.0180 261.34)",
+          "oklch(60% 0.0180 261.34)",
+          "oklch(75% 0.0180 261.34)",
+          "oklch(85% 0.0180 261.34)",
+          "oklch(95% 0.0180 261.34)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Papel",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(25% 0.0000 0.00)",
+          "oklch(35% 0.0000 0.00)",
+          "oklch(45% 0.0000 0.00)",
+          "oklch(60% 0.0000 0.00)",
+          "oklch(75% 0.0000 0.00)",
+          "oklch(85% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "shell": {
+        "role": "neutral",
+        "displayName": "Fondo frío",
+        "tonalRamp": [
+          "oklch(15% 0.0074 260.73)",
+          "oklch(25% 0.0074 260.73)",
+          "oklch(35% 0.0074 260.73)",
+          "oklch(45% 0.0074 260.73)",
+          "oklch(60% 0.0074 260.73)",
+          "oklch(75% 0.0074 260.73)",
+          "oklch(85% 0.0074 260.73)",
+          "oklch(95% 0.0074 260.73)"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Lienzo",
+        "tonalRamp": [
+          "oklch(15% 0.0041 271.37)",
+          "oklch(25% 0.0041 271.37)",
+          "oklch(35% 0.0041 271.37)",
+          "oklch(45% 0.0041 271.37)",
+          "oklch(60% 0.0041 271.37)",
+          "oklch(75% 0.0041 271.37)",
+          "oklch(85% 0.0041 271.37)",
+          "oklch(95% 0.0041 271.37)"
+        ]
+      },
+      "inspector": {
+        "role": "neutral",
+        "displayName": "Inspector",
+        "tonalRamp": [
+          "oklch(15% 0.0045 258.32)",
+          "oklch(25% 0.0045 258.32)",
+          "oklch(35% 0.0045 258.32)",
+          "oklch(45% 0.0045 258.32)",
+          "oklch(60% 0.0045 258.32)",
+          "oklch(75% 0.0045 258.32)",
+          "oklch(85% 0.0045 258.32)",
+          "oklch(95% 0.0045 258.32)"
+        ]
+      },
+      "accepted": {
+        "role": "secondary",
+        "displayName": "Aceptación",
+        "tonalRamp": [
+          "oklch(15% 0.1058 158.32)",
+          "oklch(25% 0.1058 158.32)",
+          "oklch(35% 0.1058 158.32)",
+          "oklch(45% 0.1058 158.32)",
+          "oklch(60% 0.1058 158.32)",
+          "oklch(75% 0.1058 158.32)",
+          "oklch(85% 0.1058 158.32)",
+          "oklch(95% 0.1058 158.32)"
+        ]
+      },
+      "rejected": {
+        "role": "secondary",
+        "displayName": "Rechazo",
+        "tonalRamp": [
+          "oklch(15% 0.1684 17.55)",
+          "oklch(25% 0.1684 17.55)",
+          "oklch(35% 0.1684 17.55)",
+          "oklch(45% 0.1684 17.55)",
+          "oklch(60% 0.1684 17.55)",
+          "oklch(75% 0.1684 17.55)",
+          "oklch(85% 0.1684 17.55)",
+          "oklch(95% 0.1684 17.55)"
+        ]
+      },
+      "inconclusive": {
+        "role": "secondary",
+        "displayName": "Inconcluso",
+        "tonalRamp": [
+          "oklch(15% 0.0998 70.56)",
+          "oklch(25% 0.0998 70.56)",
+          "oklch(35% 0.0998 70.56)",
+          "oklch(45% 0.0998 70.56)",
+          "oklch(60% 0.0998 70.56)",
+          "oklch(75% 0.0998 70.56)",
+          "oklch(85% 0.0998 70.56)",
+          "oklch(95% 0.0998 70.56)"
+        ]
+      },
+      "danger": {
+        "role": "secondary",
+        "displayName": "Peligro",
+        "tonalRamp": [
+          "oklch(15% 0.1790 19.48)",
+          "oklch(25% 0.1790 19.48)",
+          "oklch(35% 0.1790 19.48)",
+          "oklch(45% 0.1790 19.48)",
+          "oklch(60% 0.1790 19.48)",
+          "oklch(75% 0.1790 19.48)",
+          "oklch(85% 0.1790 19.48)",
+          "oklch(95% 0.1790 19.48)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Encabezado del modelo",
+        "purpose": "Manrope en el encabezado principal; la marca usa también Manrope."
+      },
+      "title": {
+        "displayName": "Título de herramienta",
+        "purpose": "Encabezados de sección con la familia de interfaz."
+      },
+      "body": {
+        "displayName": "Texto de interfaz",
+        "purpose": "Texto general y explicaciones locales."
+      },
+      "label": {
+        "displayName": "Etiqueta",
+        "purpose": "Campos y herramientas compactas."
+      },
+      "notation": {
+        "displayName": "Notación",
+        "purpose": "Tuplas, fórmulas y representación de símbolos."
+      },
+      "state": {
+        "displayName": "Nombre matemático",
+        "purpose": "Nombre de nodo en serif cursiva con subíndice numérico."
+      }
+    },
+    "shadows": [
+      {
+        "name": "navigation-selected",
+        "value": "0 2px 4px #21355706",
+        "purpose": "Selección del modelo."
+      },
+      {
+        "name": "graph-controls",
+        "value": "0 2px 5px #18264105",
+        "purpose": "Controles de zoom y ajuste a vista."
+      },
+      {
+        "name": "node-selected",
+        "value": "0 0 0 5px #245de817",
+        "purpose": "Anillo de selección del nodo."
+      },
+      {
+        "name": "node-active",
+        "value": "0 0 0 5px #245de810",
+        "purpose": "Anillo de actividad del nodo."
+      },
+      {
+        "name": "inset-selected",
+        "value": "inset 0 -2px var(--accent)",
+        "purpose": "Pestaña de inspector y símbolo actual."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.23, 1, .32, 1)",
+        "purpose": "Desplazamiento de 1px en pulsación de botón."
+      },
+      {
+        "name": "button-color",
+        "value": "150ms ease",
+        "purpose": "Cambios de fondo y borde de los botones."
+      },
+      {
+        "name": "button-press",
+        "value": "100ms",
+        "purpose": "Respuesta de pulsación; eliminada con movimiento reducido."
+      },
+      {
+        "name": "graph-state",
+        "value": "140ms ease",
+        "purpose": "Fondo, borde y anillo de nodo; fondo y texto de etiqueta."
+      },
+      {
+        "name": "playback-slow",
+        "value": "1400ms",
+        "purpose": "Intervalo de reproducción lenta."
+      },
+      {
+        "name": "playback-normal",
+        "value": "800ms",
+        "purpose": "Intervalo de reproducción normal."
+      },
+      {
+        "name": "playback-fast",
+        "value": "300ms",
+        "purpose": "Intervalo de reproducción rápida."
+      },
+      {
+        "name": "viewport",
+        "value": "0ms",
+        "purpose": "Ajuste del lienzo y recentrado del estado activo sin animación."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-labels",
+        "value": "1150px"
+      },
+      {
+        "name": "stacked-inspector",
+        "value": "850px"
+      },
+      {
+        "name": "graph-touch-targets",
+        "value": "849px"
+      },
+      {
+        "name": "readable-canvas-width",
+        "value": "650px"
+      },
+      {
+        "name": "mobile-canvas",
+        "value": "640px"
+      },
+      {
+        "name": "mobile-layout",
+        "value": "600px"
+      },
+      {
+        "name": "laptop-height",
+        "value": "850px",
+        "purpose": "Con min-width:851px; reduce cabecera y lienzos AFD/AFN."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Paso siguiente",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Paso siguiente",
+      "html": "<button class=\"ds-button-primary\" type=\"button\">Paso siguiente</button>",
+      "css": ".ds-button-primary{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.23,1,.32,1));color:#fff;background:var(--accent,#245de8);border-color:var(--accent,#245de8);}@media(hover:hover) and (pointer:fine){.ds-button-primary:hover:not(:disabled){background:#164bcf;border-color:#164bcf;}}.ds-button-primary:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-primary:active:not(:disabled){transform:translateY(1px)}.ds-button-primary:disabled{cursor:not-allowed;background:#d9e2f5;color:#526484;border-color:#d9e2f5;}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none}.ds-button-primary:active:not(:disabled){transform:none}}"
+    },
+    {
+      "name": "Acción secundaria",
+      "kind": "button",
+      "refersTo": "button-neutral",
+      "description": "Agregar estado",
+      "html": "<button class=\"ds-button-neutral\" type=\"button\">Agregar estado</button>",
+      "css": ".ds-button-neutral{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.23,1,.32,1));color:#344563;background:#fff;}@media(hover:hover) and (pointer:fine){.ds-button-neutral:hover:not(:disabled){background:#f0f4fc;border-color:#bccce5;}}.ds-button-neutral:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-neutral:active:not(:disabled){transform:translateY(1px)}.ds-button-neutral:disabled{cursor:not-allowed;color:#66758a;background:#f0f3f8;border-color:#e1e6ef;}@media(prefers-reduced-motion:reduce){.ds-button-neutral{transition:none}.ds-button-neutral:active:not(:disabled){transform:none}}"
+    },
+    {
+      "name": "Acción de texto",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Cargar ejemplo",
+      "html": "<button class=\"ds-button-text\" type=\"button\">Cargar ejemplo</button>",
+      "css": ".ds-button-text{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.23,1,.32,1));padding-inline:9px;color:#344563;background:transparent;border-color:transparent;}@media(hover:hover) and (pointer:fine){.ds-button-text:hover:not(:disabled){background:#edf2fc;border-color:transparent;}}.ds-button-text:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-text:active:not(:disabled){transform:translateY(1px)}.ds-button-text:disabled{cursor:not-allowed;color:#66758a;background:#f0f3f8;border-color:#e1e6ef;}@media(prefers-reduced-motion:reduce){.ds-button-text{transition:none}.ds-button-text:active:not(:disabled){transform:none}}"
+    },
+    {
+      "name": "Campo del inspector",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Etiqueta y campo de edición local.",
+      "html": "<label class=\"ds-field\">Nombre del autómata<input class=\"ds-field-input\" value=\"Termina en 01\" /></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;margin:0 0 15px;color:#344563;font:600 12px/1.5 'Segoe UI Variable','Segoe UI',system-ui,sans-serif}.ds-field-input{box-sizing:border-box;width:100%;min-height:42px;padding:9px 11px;border:1px solid #cbd5e4;border-radius:7px;color:var(--ink,#182641);background:#fff;font:400 14px/1.5 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;caret-color:var(--accent,#245de8)}.ds-field-input::placeholder{color:#68758a}.ds-field-input:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-field-input[aria-invalid=true]{border-color:#b42338}"
+    },
+    {
+      "name": "Navegación de modelos",
+      "kind": "nav",
+      "refersTo": "model-navigation",
+      "description": "Cuatro modelos y selección persistente en una banda clara.",
+      "html": "<nav class=\"ds-model-nav\" aria-label=\"Tipo de autómata\"><button class=\"ds-model-tab ds-model-active\" aria-current=\"page\">AFD</button><button class=\"ds-model-tab\">AFN</button><button class=\"ds-model-tab\">AP</button><button class=\"ds-model-tab\">MT</button></nav>",
+      "css": ".ds-model-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:5px;border:1px solid var(--border,#dce3ef);border-radius:11px;background:#eaf0f8}.ds-model-tab{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.23,1,.32,1));gap:12px;min-height:48px;padding:9px 16px;border-color:transparent;background:transparent;color:var(--muted,#536276);font-size:15px;font-weight:750;letter-spacing:-.015em}.ds-model-active{color:#194bc8;background:#fff;border-color:#d3def1;box-shadow:0 2px 4px #21355706}@media(hover:hover) and (pointer:fine){.ds-model-tab:hover:not(.ds-model-active){background:#f5f8fd}}.ds-model-tab:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-model-tab:active{transform:translateY(1px)}@media(max-width:600px){.ds-model-nav{padding:4px;gap:3px}.ds-model-tab{padding:8px 5px;min-height:44px;font-size:13px}}@media(prefers-reduced-motion:reduce){.ds-model-tab{transition:none}.ds-model-tab:active{transform:none}}"
+    },
+    {
+      "name": "Estado de configuración",
+      "kind": "chip",
+      "refersTo": "state-chip",
+      "description": "Notación del estado activo; elemento informativo.",
+      "html": "<span class=\"ds-state-chip\">q1</span>",
+      "css": ".ds-state-chip{display:inline-flex;align-items:center;justify-content:center;padding:5px 11px;border:1px solid #cddbf8;border-radius:5px;background:#eff4ff;color:#2454c8;font:400 14px/1.5 Consolas,monospace}"
+    },
+    {
+      "name": "Panel de simulación",
+      "kind": "card",
+      "refersTo": "laboratory-panel",
+      "description": "Superficie plana delimitada para herramientas y resultados.",
+      "html": "<section class=\"ds-panel\"><h2 class=\"ds-panel-title\">Prueba una cadena</h2><p class=\"ds-panel-help\">Símbolos de Σ = {0, 1}. Vacío = ε.</p></section>",
+      "css": ".ds-panel{padding:20px 22px;border:1px solid var(--border,#dce3ef);border-radius:12px;background:#fff;color:var(--ink,#182641);font-family:'Segoe UI Variable','Segoe UI',system-ui,sans-serif}.ds-panel-title{margin:0;font-size:16px;font-weight:650;line-height:1.5;letter-spacing:-.015em}.ds-panel-help{margin:5px 0 0;color:var(--muted,#536276);font-size:11px;line-height:1.65}@media(max-width:600px){.ds-panel{padding:18px 15px}.ds-panel-help{font-size:12px}}"
+    },
+    {
+      "name": "Estado activo del grafo",
+      "kind": "custom",
+      "refersTo": "graph-state",
+      "description": "Círculo de estado activo, con indicador de aceptación y etiqueta textual.",
+      "html": "<div class=\"ds-graph-state-wrap\"><div class=\"ds-graph-state\" tabindex=\"0\" role=\"button\" aria-label=\"Estado q1, de aceptación, activo\"><span class=\"ds-graph-state-name\">q<sub>1</sub></span><span class=\"ds-graph-state-status\">Activo</span></div></div>",
+      "css": ".ds-graph-state-wrap{padding:8px 8px 34px}.ds-graph-state{box-sizing:border-box;position:relative;display:grid;place-items:center;width:60px;height:60px;border:2px solid var(--accent,#245de8);border-radius:50%;color:#174ac5;background:#eaf0ff;box-shadow:0 0 0 5px #245de810;cursor:grab;transition:background-color 140ms ease,border-color 140ms ease,box-shadow 140ms ease}.ds-graph-state::after{content:'';position:absolute;inset:4px;border:1.5px solid currentColor;border-radius:50%;pointer-events:none}.ds-graph-state:focus-visible{outline:3px solid var(--accent,#245de8);outline-offset:7px}.ds-graph-state:active{cursor:grabbing}.ds-graph-state-name{font:italic 23px/1.2 'STIX Two Text',Georgia,serif}.ds-graph-state-name sub{position:relative;bottom:-.1em;font-size:.65em;font-style:normal;vertical-align:baseline}.ds-graph-state-status{position:absolute;top:calc(100% + 7px);padding:2px 6px;border-radius:4px;color:#174ac5;background:#eaf0ff;font:700 10px/1.4 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;letter-spacing:.03em;white-space:nowrap}@media(prefers-reduced-motion:reduce){.ds-graph-state{transition:none}}"
+    },
+    {
+      "name": "Símbolo actual",
+      "kind": "custom",
+      "refersTo": "input-symbol",
+      "description": "Celda de entrada con índice y señal inferior de posición.",
+      "html": "<span class=\"ds-input-symbol\"><small class=\"ds-input-symbol-index\">1</small>0</span>",
+      "css": ".ds-input-symbol{box-sizing:border-box;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:40px;padding:5px;border:1px solid var(--accent,#245de8);border-radius:6px;color:#194bc8;background:#ecf2ff;box-shadow:inset 0 -2px var(--accent,#245de8);font:600 19px/1.5 Consolas,monospace}.ds-input-symbol-index{font:400 9px/1.5 'Segoe UI',sans-serif;color:#66758a}@media(max-width:600px){.ds-input-symbol{width:36px}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Laboratorio claro de cobalto",
+    "overview": "El sistema presenta un laboratorio universitario de trabajo directo. Superficies blancas y frías, tinta oscura y cobalto dan prioridad al grafo y a su configuración actual. La densidad permite construir, inspeccionar y ejecutar un modelo dentro de una misma herramienta.\n\nLa identidad se expresa mediante tipografía, controles y diagramas funcionales. El grafo, la configuración y la regla se actualizan juntos; el color acompaña ese vínculo y el texto explica cada paso. El grafo combina trazos SVG con nodos y etiquetas HTML interactivos, sin imágenes raster de decoración.",
+    "keyCharacteristics": [
+      "Superficies claras delimitadas por bordes finos.",
+      "Cobalto para acciones principales, selección y ejecución activa.",
+      "Interfaz sans, notación monoespaciada y nombres matemáticos en serif cursiva.",
+      "Inspector contextual y configuración junto al área de trabajo.",
+      "Controles y representación textual para complementar los gestos del grafo."
+    ],
+    "rules": [
+      {
+        "name": "The Synchronized Cobalt Rule",
+        "body": "Una configuración activa se reconoce en el grafo y en la simulación mediante la misma familia de cobalto y una descripción textual de su estado.",
+        "section": "colors"
+      },
+      {
+        "name": "The Explicit Result Rule",
+        "body": "Aceptación, rechazo e inconclusión siempre llevan una etiqueta; el color no sustituye su significado.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do vincular el grafo, la configuración y el mensaje de paso mediante estados de cobalto y texto explícito.",
+      "Do mantener la notación separada del texto de interfaz y conservar los indicadores formales de inicio y aceptación.",
+      "Do acompañar los gestos del lienzo con edición por formulario y representación textual.",
+      "Do preservar los cambios de disposición del inspector y de la simulación en pantallas pequeñas.",
+      "Do usar SVG para los diagramas funcionales y conservar foco visible y movimiento reducido."
+    ],
+    "donts": [
+      "Don't usar solo color para distinguir aceptación, rechazo e inconclusión.",
+      "Don't sustituir el lienzo funcional por una imagen del grafo.",
+      "Don't convertir las ayudas o metadatos en encabezados de mayor jerarquía que el modelo.",
+      "Don't añadir sombras grandes a los paneles de trabajo."
+    ]
+  }
+}
