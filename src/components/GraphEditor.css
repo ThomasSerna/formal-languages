@@ -1,0 +1,358 @@
+.graph-editor {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  overflow: hidden;
+  background: #fbfcff;
+  isolation: isolate;
+}
+
+.graph-editor .react-flow__node-state {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.graph-editor .react-flow__node-state:focus-visible {
+  outline: 3px solid #245de8;
+  outline-offset: 7px;
+}
+
+.automaton-state {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  box-sizing: border-box;
+  border: 2px solid #536276;
+  border-radius: 50%;
+  color: #182641;
+  background: #fff;
+  cursor: grab;
+  transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.automaton-state:active {
+  cursor: grabbing;
+}
+
+.automaton-state.is-accepting::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.automaton-state.is-selected {
+  border-color: #245de8;
+  box-shadow: 0 0 0 5px #245de817;
+}
+
+.automaton-state.is-active {
+  color: #174ac5;
+  border-color: #245de8;
+  background: #eaf0ff;
+  box-shadow: 0 0 0 5px #245de810;
+}
+
+.automaton-state__name {
+  max-width: 48px;
+  overflow: hidden;
+  font-family: 'STIX Two Text', Georgia, serif;
+  font-size: 23px;
+  font-style: italic;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.automaton-state__name sub {
+  position: relative;
+  bottom: -0.1em;
+  font-size: 0.65em;
+  font-style: normal;
+  vertical-align: baseline;
+}
+
+.automaton-state__initial {
+  position: absolute;
+  top: 18px;
+  right: calc(100% + 3px);
+  overflow: visible;
+  color: #536276;
+  pointer-events: none;
+}
+
+.automaton-state__initial path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.automaton-state__role {
+  position: absolute;
+  right: -4px;
+  top: -8px;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border: 1px solid #dce3ef;
+  border-radius: 50%;
+  background: #fff;
+  color: #536276;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.automaton-state__status {
+  position: absolute;
+  top: calc(100% + 7px);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #174ac5;
+  background: #eaf0ff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.graph-editor .automaton-state__handle {
+  z-index: 3;
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  border: 2px solid #fff;
+  background: #9aaac2;
+  cursor: crosshair;
+}
+
+.graph-editor .automaton-state__handle::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+}
+
+.graph-editor .automaton-state__handle.connecting,
+.graph-editor .automaton-state__handle.valid {
+  background: #245de8;
+}
+
+.graph-editor .automaton-transition {
+  stroke: #687991;
+  stroke-width: 1.7;
+}
+
+.graph-editor .automaton-transition.is-active,
+.graph-editor .automaton-transition.is-selected {
+  stroke: #245de8;
+  stroke-width: 2.4;
+}
+
+.graph-editor .react-flow__edge:focus-visible {
+  outline: none;
+}
+
+.graph-editor .react-flow__edge:focus-visible .automaton-transition {
+  stroke: #245de8;
+  stroke-width: 3;
+  stroke-dasharray: 5 3;
+}
+
+.automaton-transition__labels {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 235px;
+  max-height: 164px;
+  padding: 2px;
+  overflow: auto;
+  border-radius: 6px;
+  background: #fbfcfff2;
+  pointer-events: all;
+  scrollbar-width: thin;
+}
+
+.automaton-transition__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 28px;
+  padding: 3px 7px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #344563;
+  background: transparent;
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.automaton-transition__label.is-selected {
+  border-color: #adc3fa;
+  color: #174ac5;
+  background: #f0f4ff;
+}
+
+.automaton-transition__label.is-active {
+  color: #174ac5;
+  background: #eaf0ff;
+}
+
+.automaton-transition__label:focus-visible {
+  outline: 2px solid #245de8;
+  outline-offset: -2px;
+}
+
+.automaton-transition__label:active {
+  background: #dce7ff;
+}
+
+.automaton-transition__status {
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.graph-editor .react-flow__controls {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  margin: 16px;
+  border: 1px solid #dce3ef;
+  border-radius: 7px;
+  box-shadow: 0 2px 5px #18264105;
+}
+
+.graph-editor .react-flow__controls-button {
+  width: 35px;
+  height: 35px;
+  padding: 8px;
+  border-right: 1px solid #dce3ef;
+  border-bottom: 0;
+  color: #536276;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.graph-editor .react-flow__controls-button:last-child {
+  border-right: 0;
+}
+
+.graph-editor .react-flow__controls-button svg {
+  fill: currentColor;
+}
+
+.graph-editor .react-flow__controls-button:focus-visible {
+  z-index: 1;
+  outline: 2px solid #245de8;
+  outline-offset: -3px;
+}
+
+.graph-editor__hint {
+  position: absolute;
+  left: 17px;
+  bottom: 17px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100% - 150px);
+  margin: 0;
+  color: #6b7890;
+  font-size: 10px;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+.graph-editor__hint > span {
+  font-size: 16px;
+}
+
+.graph-editor__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  color: #536276;
+  text-align: center;
+  pointer-events: none;
+}
+
+.graph-editor__empty > span {
+  margin-bottom: 10px;
+  color: #9eafcc;
+  font-family: Georgia, serif;
+  font-size: 50px;
+  line-height: 1;
+}
+
+.graph-editor__empty > strong {
+  color: #182641;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.graph-editor__empty > p {
+  max-width: 245px;
+  margin: 7px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .automaton-transition__label:hover {
+    color: #174ac5;
+    background: #edf2ff;
+  }
+
+  .graph-editor .react-flow__controls-button:hover {
+    color: #245de8;
+    background: #f0f4ff;
+  }
+
+  .graph-editor .automaton-state__handle:hover {
+    background: #245de8;
+  }
+}
+
+@media (max-width: 640px) {
+  .graph-editor {
+    height: 350px;
+  }
+
+  .graph-editor__hint {
+    bottom: 19px;
+    max-width: calc(100% - 145px);
+    font-size: 9px;
+  }
+
+  .automaton-transition__label {
+    min-height: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .automaton-state,
+  .automaton-transition__label {
+    transition: none;
+  }
+}
