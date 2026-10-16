@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Machine, State, Transition } from '../domain';
 import { MODEL_SHORT, ruleLabel, stateName, symbolsFromField, tuple, word } from '../format';
 
@@ -99,9 +99,18 @@ export default function Inspector(props: Props) {
   const state = machine.states.find(item => item.id === selectedStateId);
   const transition = machine.transitions.find(item => item.id === selectedTransitionId);
   const edit = tab === 'edit' || addingTransition;
+  const body = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (!body.current || !expanded || preference.matches) return;
+    const animation = body.current.animate([{ opacity: 0.65 }, { opacity: 1 }], { duration: 160, easing: 'ease-out' });
+    const stopMotion = () => { if (preference.matches) animation.cancel(); };
+    preference.addEventListener('change', stopMotion);
+    return () => { animation.cancel(); preference.removeEventListener('change', stopMotion); };
+  }, [selectedStateId, selectedTransitionId, addingTransition, edit, expanded]);
   return <aside className={`inspector${expanded ? ' is-expanded' : ''}`} aria-label="Inspector del autómata">
     <div className="inspector-tabs" role="group" aria-label="Vista del inspector"><button className={edit ? 'selected' : ''} onClick={() => { setExpanded(tab === 'edit' ? value => !value : true); setTab('edit'); }}>Inspector</button><button className={!edit ? 'selected' : ''} onClick={() => { setExpanded(true); props.onCancelTransition(); setTab('formal'); }}>Definición formal</button><button className="collapse-inspector text-button" onClick={() => setExpanded(false)} hidden={!expanded}>Cerrar panel</button></div>
-    <div className="inspector-body">
+    <div ref={body} className="inspector-body">
       {!edit ? <>
         <h2>Del dibujo a la definición</h2><p className="explanation">Cada parte del grafo tiene un lugar en la tupla de {MODEL_SHORT[machine.kind]}.</p>
         <p className="formula">{tuple(machine)}</p>

@@ -32,6 +32,8 @@ Las pruebas de navegador locales usan Google Chrome instalado. En CI se instala 
 
 Los estados admiten Tab, Enter/Espacio y las flechas del teclado. El formulario permite crear también autolazos. En pila, inspecciona cada rama por separado: estado, pila y posición de entrada no se comparten entre ramas.
 
+La navegación y el inspector usan transiciones breves. Cada paso resalta los estados y las reglas utilizados y acompaña los cambios de entrada, pila y cinta; los datos se actualizan inmediatamente. En AFN y pila las reglas del paso se muestran a la vez. Las preferencias de movimiento reducido del sistema eliminan los efectos y conservan los indicadores estáticos, incluso al cambiar la preferencia con el laboratorio abierto.
+
 Los borradores se guardan por modelo en este navegador. **Exportar JSON** permite conservarlos o llevarlos a otro equipo. Importar valida el archivo antes de reemplazar el modelo y descarga una copia del borrador anterior. Los borradores con errores matemáticos se conservan; el simulador indica qué completar antes de ejecutarlos. No se guardan los historiales de ejecución.
 
 ## Convenciones matemáticas

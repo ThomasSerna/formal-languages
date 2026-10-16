@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-16T11:06:54.031Z",
+  "generatedAt": "2026-10-16T11:09:33.814Z",
   "title": "Design System: Autómata",
   "extensions": {
     "colorMeta": {
@@ -213,6 +213,20 @@
           "oklch(85% 0.1790 19.48)",
           "oklch(95% 0.1790 19.48)"
         ]
+      },
+      "cobalt-trace": {
+        "role": "primary",
+        "displayName": "Trazo de cobalto",
+        "tonalRamp": [
+          "oklch(15% 0.1399 263.53)",
+          "oklch(25% 0.1399 263.53)",
+          "oklch(35% 0.1399 263.53)",
+          "oklch(45% 0.1399 263.53)",
+          "oklch(60% 0.1399 263.53)",
+          "oklch(75% 0.1399 263.53)",
+          "oklch(85% 0.1399 263.53)",
+          "oklch(95% 0.1399 263.53)"
+        ]
       }
     },
     "typographyMeta": {
@@ -239,6 +253,10 @@
       "state": {
         "displayName": "Nombre matemático",
         "purpose": "Nombre de nodo en serif cursiva con subíndice numérico."
+      },
+      "transition": {
+        "displayName": "Regla del grafo",
+        "purpose": "Notación de cada regla en monoespaciada; usa las fuentes alternativas locales si IBM Plex Mono no está instalada."
       }
     },
     "shadows": [
@@ -328,6 +346,11 @@
         "name": "field-feedback",
         "value": "140ms ease",
         "purpose": "Borde y fondo de campos al interactuar."
+      },
+      {
+        "name": "contextual-appearance",
+        "value": "160ms ease-out",
+        "purpose": "Inspector y avisos aparecen desde opacidad 0.65; se omite o cancela con movimiento reducido, sin remontar campos."
       }
     ],
     "breakpoints": [

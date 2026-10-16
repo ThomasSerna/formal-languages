@@ -170,3 +170,39 @@ test('el movimiento reducido funciona al cargar y al cambiar la preferencia, con
   expect(await nav.evaluate(element => getComputedStyle(element, '::before').transform)).not.toBe(before);
   expect(await nav.evaluate(element => getComputedStyle(element, '::before').transitionDuration)).toBe('0s');
 });
+
+test('el inspector conserva el campo al escribir y cancela su aparición al reducir el movimiento', async ({ page }) => {
+  await page.addInitScript(() => {
+    const recorder = window as typeof window & { inspectorAnimations: Animation[] };
+    recorder.inspectorAnimations = [];
+    const animate = Element.prototype.animate;
+    Element.prototype.animate = function (keyframes, options) {
+      const animation = animate.call(this, keyframes, options);
+      if (this.classList.contains('inspector-body')) {
+        animation.pause();
+        recorder.inspectorAnimations.push(animation);
+      }
+      return animation;
+    };
+  });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('');
+  await page.locator('.react-flow__node[data-id="q0"]').click();
+  const name = page.getByLabel('Nombre del estado', { exact: true });
+  await name.fill('memoria');
+  const field = await name.elementHandle();
+  await name.pressSequentially('0');
+  expect(await field!.evaluate(element => element.isConnected && element === document.activeElement)).toBe(true);
+  await expect(name).toHaveValue('memoria0');
+  expect(await page.evaluate(() => (window as typeof window & { inspectorAnimations: Animation[] }).inspectorAnimations.length)).toBe(0);
+
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.getByRole('button', { name: 'Definición formal', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => (window as typeof window & { inspectorAnimations: Animation[] }).inspectorAnimations.length)).toBe(1);
+  await expect(page.getByRole('heading', { name: 'Del dibujo a la definición' })).toBeVisible();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect.poll(() => page.evaluate(() => (window as typeof window & { inspectorAnimations: Animation[] }).inspectorAnimations[0].playState)).toBe('idle');
+  await page.getByRole('button', { name: 'Inspector', exact: true }).click();
+  await expect(name).toHaveValue('memoria0');
+  expect(await page.evaluate(() => (window as typeof window & { inspectorAnimations: Animation[] }).inspectorAnimations.length)).toBe(1);
+});

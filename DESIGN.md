@@ -6,6 +6,7 @@ colors:
   cobalt-hover: "#164bcf"
   cobalt-ink: "#174ac5"
   cobalt-wash: "#eaf0ff"
+  cobalt-trace: "#79a5ff"
   ink: "#182641"
   muted: "#536276"
   border: "#dce3ef"
@@ -43,6 +44,11 @@ typography:
   notation:
     fontFamily: "'SFMono-Regular', Consolas, 'Liberation Mono', monospace"
     fontSize: "12px"
+    lineHeight: 1.5
+  transition:
+    fontFamily: "'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace"
+    fontSize: "12px"
+    fontWeight: 500
     lineHeight: 1.5
   state:
     fontFamily: "'STIX Two Text', Georgia, serif"
@@ -135,6 +141,7 @@ La paleta combina papel frío y tinta azul oscura con un acento de cobalto; los 
 
 ### Primary
 - **Cobalto:** acciones principales, foco de interacción, estado seleccionado y reglas activas. Su variante oscura sirve al hover de la acción principal; la tinta y el lavado de cobalto distinguen estados activos y etiquetas del grafo.
+- **Trazo de cobalto:** acento luminoso de las capas decorativas que recorren una regla aplicada; el trazo base y su etiqueta conservan la información de actividad.
 
 ### Secondary
 - **Aceptación:** verde en el resultado aceptado de la simulación.
@@ -237,6 +244,7 @@ Cuatro modelos en una banda clara.
 - El modelo activo se identifica también mediante `aria-current`.
 - Una única superficie blanca se desliza entre modelos en (220ms), con desaceleración `cubic-bezier(.16, 1, .3, 1)`. Sus medidas siguen las cuatro columnas también en móvil; el foco permanece en el botón elegido.
 - Los campos responden al foco y al puntero mediante el borde en (140ms). El encabezado del documento usa papel ligeramente frío y la etiqueta Editable un lavado de cobalto; la explicación del paso usa (13px), tinta secundaria y un máximo de (75ch).
+- El inspector acompaña los cambios de selección y de vista con una aparición de (160ms) desde una opacidad de (0.65), sin remontar el panel ni sus campos. Editar un valor no vuelve a disparar la aparición. Activar movimiento reducido cancela un efecto en curso. Guía, avisos, validación, confirmación de reemplazo y contenido desplegable usan la misma duración; cerrar un panel sigue siendo inmediato.
 
 ### Graph and simulation
 
