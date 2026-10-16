@@ -41,6 +41,7 @@ test('cada regla agrupada se selecciona por separado y los puntos crean una cone
   await expect(group.getByRole('button', { name: 'Regla 1', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('heading', { name: 'Editar transición', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Lee', exact: true })).toHaveValue('1');
+  await page.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
 
   const source = graph.locator('.react-flow__node[data-id="s"] .react-flow__handle[data-handleid="out"]');
   const target = graph.locator('.react-flow__node[data-id="q2"] .react-flow__handle[data-handleid="in"]');
@@ -52,6 +53,7 @@ test('cada regla agrupada se selecciona por separado y los puntos crean una cone
   await page.getByRole('button', { name: 'Crear transición', exact: true }).click();
   await expect(graph.locator('.react-flow__edge')).toHaveCount(5);
   await expect(page.getByRole('heading', { name: 'Editar transición', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
 
   await source.dragTo(target);
   await expect(page.getByRole('heading', { name: 'Una nueva conexión', exact: true })).toBeVisible();

@@ -1,17 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Machine, State, Transition } from '../domain';
-import { MODEL_SHORT, ruleLabel, stateName, symbolsFromField, tuple, word } from '../format';
+import { MODEL_SHORT, stateName, symbolsFromField } from '../format';
+import FormalDefinition from './FormalDefinition';
 
 interface Props {
   machine: Machine;
   selectedStateId: string | null;
   selectedTransitionId: string | null;
   addingTransition: boolean;
+  tab: 'edit' | 'formal';
+  onTabChange: (tab: 'edit' | 'formal') => void;
   connection?: { from: string; to: string } | null;
   onChange: (machine: Machine) => void;
   onSelectState: (id: string | null) => void;
   onSelectTransition: (id: string | null) => void;
   onCancelTransition: () => void;
+  onShowModel: () => void;
+  onClose: () => void;
 }
 
 function TransitionForm({ machine, transition, initialFrom, initialTo, onSave, onCancel }: {
@@ -77,7 +82,7 @@ function TransitionForm({ machine, transition, initialFrom, initialTo, onSave, o
   </form>;
 }
 
-function StateProperties({ machine, state, onChange }: {machine: Machine; state: State; onChange: (machine: Machine) => void}) {
+function StateProperties({ machine, state, onChange, onDelete }: {machine: Machine; state: State; onChange: (machine: Machine) => void; onDelete: () => void}) {
   const initial = machine.initialStateIds.includes(state.id);
   const final = machine.acceptingStateIds.includes(state.id);
   return <div className="inspector-form">
@@ -87,52 +92,40 @@ function StateProperties({ machine, state, onChange }: {machine: Machine; state:
     <label className="check-label"><input type="checkbox" checked={final} onChange={event => onChange({ ...machine, acceptingStateIds: event.target.checked ? machine.kind === 'tm' ? [state.id] : [...machine.acceptingStateIds, state.id] : machine.acceptingStateIds.filter(id => id !== state.id) })} />{machine.kind === 'tm' ? 'Estado de aceptación · t' : 'Estado de aceptación'}</label>
     <p className="field-hint">{machine.kind === 'tm' ? 'Entrar en t termina la simulación con aceptación.' : 'El doble círculo marca aceptación. La entrada debe haberse consumido por completo.'}</p>
     {machine.kind === 'tm' && <label className="check-label"><input type="checkbox" checked={machine.rejectStateId === state.id} onChange={event => onChange({ ...machine, rejectStateId: event.target.checked ? state.id : '' })} />Estado de rechazo · r</label>}
-    <button className="danger subtle" onClick={() => onChange({ ...machine, states: machine.states.filter(item => item.id !== state.id), transitions: machine.transitions.filter(rule => rule.from !== state.id && rule.to !== state.id), initialStateIds: machine.initialStateIds.filter(id => id !== state.id), acceptingStateIds: machine.acceptingStateIds.filter(id => id !== state.id), ...(machine.kind === 'tm' && machine.rejectStateId === state.id ? { rejectStateId: '' } : {}) } as Machine)}>Eliminar estado y sus conexiones</button>
+    <button className="danger subtle" onClick={() => { onChange({ ...machine, states: machine.states.filter(item => item.id !== state.id), transitions: machine.transitions.filter(rule => rule.from !== state.id && rule.to !== state.id), initialStateIds: machine.initialStateIds.filter(id => id !== state.id), acceptingStateIds: machine.acceptingStateIds.filter(id => id !== state.id), ...(machine.kind === 'tm' && machine.rejectStateId === state.id ? { rejectStateId: '' } : {}) } as Machine); onDelete(); }}>Eliminar estado y sus conexiones</button>
   </div>;
 }
 
 export default function Inspector(props: Props) {
   const { machine, selectedStateId, selectedTransitionId, addingTransition, onChange } = props;
-  const [tab, setTab] = useState<'edit' | 'formal'>('edit');
-  const [expanded, setExpanded] = useState(false);
-  useEffect(() => { if (selectedStateId || selectedTransitionId || addingTransition) { setTab('edit'); setExpanded(true); } }, [selectedStateId, selectedTransitionId, addingTransition]);
+  const { tab, onTabChange: setTab } = props;
   const state = machine.states.find(item => item.id === selectedStateId);
   const transition = machine.transitions.find(item => item.id === selectedTransitionId);
   const edit = tab === 'edit' || addingTransition;
   const body = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (!body.current || !expanded || preference.matches) return;
+    if (!body.current || preference.matches) return;
     const animation = body.current.animate([{ opacity: 0.65 }, { opacity: 1 }], { duration: 160, easing: 'ease-out' });
     const stopMotion = () => { if (preference.matches) animation.cancel(); };
     preference.addEventListener('change', stopMotion);
     return () => { animation.cancel(); preference.removeEventListener('change', stopMotion); };
-  }, [selectedStateId, selectedTransitionId, addingTransition, edit, expanded]);
-  return <aside className={`inspector${expanded ? ' is-expanded' : ''}`} aria-label="Inspector del autómata">
-    <div className="inspector-tabs" role="group" aria-label="Vista del inspector"><button className={edit ? 'selected' : ''} onClick={() => { setExpanded(tab === 'edit' ? value => !value : true); setTab('edit'); }}>Inspector</button><button className={!edit ? 'selected' : ''} onClick={() => { setExpanded(true); props.onCancelTransition(); setTab('formal'); }}>Definición formal</button><button className="collapse-inspector text-button" onClick={() => setExpanded(false)} hidden={!expanded}>Cerrar panel</button></div>
+  }, [selectedStateId, selectedTransitionId, addingTransition, edit]);
+  return <div className="inspector">
+    <div className="inspector-tabs" role="group" aria-label="Vista del inspector"><button className={edit ? 'selected' : ''} aria-pressed={edit} onClick={() => setTab('edit')}>Inspector</button><button className={!edit ? 'selected' : ''} aria-pressed={!edit} onClick={() => { props.onCancelTransition(); setTab('formal'); }}>Definición formal</button><button className="text-button close-inspector" onClick={props.onClose}>Cerrar inspector</button></div>
     <div ref={body} className="inspector-body">
       {!edit ? <>
         <h2>Del dibujo a la definición</h2><p className="explanation">Cada parte del grafo tiene un lugar en la tupla de {MODEL_SHORT[machine.kind]}.</p>
-        <p className="formula">{tuple(machine)}</p>
-        <dl className="definition-list">
-          <div><dt>Q</dt><dd>Estados<br /><code>{'{'}{machine.states.map(item => item.name).join(', ')}{'}'}</code></dd></div>
-          <div><dt>Σ</dt><dd>Alfabeto de entrada<br /><code>{'{'}{machine.alphabet.join(', ')}{'}'}</code></dd></div>
-          <div><dt>{machine.kind === 'nfa' ? 'S' : 's'}</dt><dd>{machine.kind === 'nfa' ? 'Estados iniciales' : 'Estado inicial'}<br /><code>{machine.initialStateIds.map(id => stateName(machine, id)).join(', ') || '∅'}</code></dd></div>
-          {machine.kind !== 'tm' && <div><dt>F</dt><dd>Estados de aceptación<br /><code>{machine.acceptingStateIds.map(id => stateName(machine, id)).join(', ') || '∅'}</code></dd></div>}
-          {(machine.kind === 'pda' || machine.kind === 'tm') && <div><dt>Γ</dt><dd>Alfabeto de {machine.kind === 'pda' ? 'pila' : 'cinta'}<br /><code>{(machine.kind === 'pda' ? machine.stackAlphabet : machine.tapeAlphabet).join(', ')}</code></dd></div>}
-          {machine.kind === 'pda' && <div><dt>⊥</dt><dd>Símbolo inicial de la pila: <code>{machine.initialStackSymbol}</code></dd></div>}
-          {machine.kind === 'tm' && <><div><dt>t / r</dt><dd>Acepta: {machine.acceptingStateIds.map(id => stateName(machine, id)).join('') || 'sin definir'}<br />Rechaza: {stateName(machine, machine.rejectStateId) || 'sin definir'}</dd></div><div><dt>⊢ / ␣</dt><dd>Marcador izquierdo / blanco<br /><code>{machine.leftMarker} / {machine.blankSymbol}</code></dd></div></>}
-        </dl>
-        <p className="field-hint">{machine.kind === 'dfa' ? 'δ: Q × Σ → Q. Cada par estado–símbolo debe tener exactamente un destino.' : machine.kind === 'nfa' ? 'Δ: Q × Σ → 2^Q. Un símbolo puede llevar a varios estados. Aquí también puedes explorar la extensión con ε.' : machine.kind === 'pda' ? 'δ ⊆ (Q × (Σ ∪ {ε}) × Γ) × (Q × Γ*). Aceptamos por estado final con toda la entrada consumida.' : 'δ: Q × Γ → Q × Γ × {L, R}. Las reglas omitidas van a r, conservan el símbolo y mueven R. t y r son absorbentes.'}</p>
+        <FormalDefinition machine={machine} compact />
       </> : addingTransition || transition ? <>
         <h2>{transition ? 'Editar transición' : 'Una nueva conexión'}</h2>
         <p className="explanation">{machine.kind === 'pda' ? 'Lee la entrada, retira el tope y escribe su reemplazo.' : machine.kind === 'tm' ? 'Lee y escribe una celda; después mueve el cabezal.' : 'Una transición indica a qué estado ir al leer un símbolo.'}</p>
-        <TransitionForm key={`${machine.kind}-${transition?.id ?? 'new'}-${props.connection?.from ?? ''}-${props.connection?.to ?? ''}`} machine={machine} transition={transition} initialFrom={props.connection?.from ?? selectedStateId ?? undefined} initialTo={props.connection?.to} onCancel={() => { props.onSelectTransition(null); props.onCancelTransition(); }} onSave={rule => { onChange({ ...machine, transitions: transition ? machine.transitions.map(item => item.id === rule.id ? rule : item) : [...machine.transitions, rule] } as Machine); props.onCancelTransition(); props.onSelectTransition(rule.id); }} />
-        {transition && <button className="danger subtle" onClick={() => { onChange({ ...machine, transitions: machine.transitions.filter(rule => rule.id !== transition.id) } as Machine); props.onSelectTransition(null); }}>Eliminar transición</button>}
+        <TransitionForm key={`${machine.kind}-${transition?.id ?? 'new'}-${props.connection?.from ?? ''}-${props.connection?.to ?? ''}`} machine={machine} transition={transition} initialFrom={props.connection?.from ?? selectedStateId ?? undefined} initialTo={props.connection?.to} onCancel={() => { props.onSelectTransition(null); props.onCancelTransition(); props.onClose(); }} onSave={rule => { onChange({ ...machine, transitions: transition ? machine.transitions.map(item => item.id === rule.id ? rule : item) : [...machine.transitions, rule] } as Machine); props.onCancelTransition(); props.onSelectTransition(rule.id); }} />
+        {transition && <button className="danger subtle" onClick={() => { onChange({ ...machine, transitions: machine.transitions.filter(rule => rule.id !== transition.id) } as Machine); props.onSelectTransition(null); props.onClose(); }}>Eliminar transición</button>}
       </> : state ? <>
-        <div className="inspector-title"><h2>Estado {state.name || 'sin nombre'}</h2><button className="text-button" onClick={() => props.onSelectState(null)}>Ver modelo</button></div>
+        <div className="inspector-title"><h2>Estado {state.name || 'sin nombre'}</h2><button className="text-button" onClick={props.onShowModel}>Ver modelo</button></div>
         <p className="explanation">Un estado resume lo que la máquina necesita recordar hasta este punto.</p>
-        <StateProperties machine={machine} state={state} onChange={onChange} />
+        <StateProperties machine={machine} state={state} onChange={onChange} onDelete={() => { props.onSelectState(null); props.onClose(); }} />
       </> : <>
         <h2>Tu modelo, por dentro</h2><p className="explanation">Selecciona un estado o una flecha para entenderlo y editar sus propiedades.</p>
         <label>Nombre del autómata<input value={machine.name} maxLength={100} onChange={event => onChange({ ...machine, name: event.target.value })} /></label>
@@ -143,5 +136,5 @@ export default function Inspector(props: Props) {
         <div className="context-note"><strong>Prueba una idea</strong><p>{machine.kind === 'dfa' ? 'Un solo estado resume el prefijo leído. Pregúntate qué necesita recordar tu autómata y qué símbolo cambia esa información.' : machine.kind === 'nfa' ? 'El AFN explora varios caminos a la vez. Basta que uno termine aceptando toda la cadena.' : machine.kind === 'pda' ? 'La pila permite recordar símbolos pendientes. Observa cómo crece y se vacía en cada rama.' : 'El cabezal puede regresar y escribir marcas. Cada paso es una transición, no necesariamente una letra nueva.'}</p></div>
       </>}
     </div>
-  </aside>;
+  </div>;
 }

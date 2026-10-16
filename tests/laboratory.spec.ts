@@ -4,8 +4,12 @@ test('el ejemplo AFD avanza, retrocede y acepta; la entrada inválida explica el
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('');
   await expect(page.getByRole('heading', { name: 'Autómata finito determinista', exact: true })).toBeVisible();
-  const nextButton = await page.getByRole('button', { name: 'Paso siguiente' }).boundingBox();
-  expect(nextButton!.y + nextButton!.height).toBeLessThanOrEqual(768);
+  const graph = await page.locator('.graph-editor').boundingBox();
+  expect(graph!.width).toBeGreaterThanOrEqual(1300);
+  expect(graph!.height).toBeGreaterThan(384);
+  expect(graph!.y + graph!.height).toBeLessThanOrEqual(768);
+  const simulator = await page.locator('.simulator').boundingBox();
+  expect(simulator!.y).toBeGreaterThanOrEqual(768);
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('11');
   await page.getByRole('button', { name: 'Paso siguiente' }).click();
   await expect(page.locator('.step-count')).toContainText('1 de 2');

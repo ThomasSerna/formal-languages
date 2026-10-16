@@ -132,8 +132,8 @@ La identidad se expresa mediante tipografía, controles y diagramas funcionales.
 - Superficies claras delimitadas por bordes finos.
 - Cobalto para acciones principales, selección y ejecución activa.
 - Interfaz sans, notación monoespaciada y nombres matemáticos en serif cursiva.
-- Inspector contextual y configuración junto al área de trabajo.
-- Controles y representación textual para complementar los gestos del grafo.
+- Inspector contextual en un popup no modal junto al elemento seleccionado.
+- Controles y definición formal con ecuaciones para complementar los gestos del grafo.
 
 ## Colors
 
@@ -179,13 +179,13 @@ La paleta combina papel frío y tinta azul oscura con un acento de cobalto; los 
 
 ## Layout
 
-El contenedor central tiene un máximo de (1496px), con márgenes laterales de (28px). La navegación de modelos ocupa cuatro columnas. El editor divide el ancho en un lienzo flexible y un inspector de (302px); a (1150px) el inspector pasa a (280px), se ocultan descripciones de navegación y se simplifican los metadatos.
+La primera pantalla ocupa la altura disponible del navegador. La cabecera, la navegación de cuatro modelos y las herramientas se compactan para dejar al grafo todo el ancho y el resto de la altura. El lienzo crece con la ventana y no reserva espacio para una barra lateral.
 
-A (850px) o menos, el inspector sigue al grafo en una sola columna y comienza contraído. Seleccionar un estado o una regla, o crear una conexión, abre la edición contextual. Debajo del grafo aparece un control compacto para avanzar, consultar la configuración y llegar al campo de entrada. La explicación completa de la simulación permanece en su panel.
+Seleccionar un estado o una regla, o crear una conexión, abre un popup no modal anclado al elemento. Su posición y altura se ajustan para permanecer dentro del lienzo, con desplazamiento interno cuando hace falta. La configuración del modelo se abre desde la barra de herramientas; el inspector comienza cerrado y se descarta con su botón, Escape o un clic en el fondo del grafo.
 
-A (600px) o menos, los márgenes de página pasan a (12px), los controles de reproducción forman dos columnas y la configuración se coloca bajo la tira de símbolos. Las tiras de entrada, cinta y tabla permiten desplazamiento horizontal dentro de su área. Los controles principales de reproducción e inspector alcanzan (44px) de altura en móvil.
+La guía, la validación, la prueba de cadenas y las referencias siguen debajo de la primera pantalla. El pie del grafo enlaza directamente con «Probar cadena». La definición formal presenta tupla, conjuntos y ecuaciones de transición; agrupa los resultados no deterministas y conserva controles para editar cada regla.
 
-El lienzo normal mide (380px) de alto y en pantallas de hasta (640px), (350px). En portátil, con ancho desde (851px) y altura hasta (850px), la cabecera, navegación y espacios verticales se compactan; los lienzos AFD y AFN miden (280px). El ritmo recurrente se apoya en espacios de (4–28px), según los tokens del frontmatter.
+A (600px) o menos, los controles se acomodan al ancho disponible, la reproducción forma dos columnas y la configuración se coloca bajo la tira de símbolos. Las tiras de entrada y cinta permiten desplazamiento horizontal dentro de su área; las fórmulas se ajustan al ancho. Los controles principales de reproducción e inspector alcanzan (44px) de altura en móvil. El ritmo recurrente se apoya en espacios de (4–28px), según los tokens del frontmatter.
 
 ## Elevation & Depth
 
@@ -224,7 +224,7 @@ Pequeñas unidades de notación.
 ### Cards / Containers
 
 Paneles de trabajo blancos y planos.
-- El editor agrupa título, herramientas, grafo e inspector dentro de una envolvente.
+- El editor agrupa título, herramientas y grafo dentro de una envolvente; el inspector flota dentro del lienzo.
 - La simulación usa un panel equivalente, con relleno de (20px 22px) en escritorio y (18px 15px) en móvil.
 - Las referencias plegables usan el radio de soporte y un borde frío.
 
@@ -252,7 +252,7 @@ El grafo es un componente operativo. Los nodos tienen indicadores de inicio, ace
 
 El zoom, el ajuste a vista y el desplazamiento permiten explorar el lienzo. En lienzos de menos de (650px) de ancho, los grafos que no caben a una escala legible abren cerca del estado inicial con zoom (0.95) y una indicación para deslizar. Un estado activo fuera de la vista se recentra sin animación. Ajustar a vista incluye el espacio de flechas iniciales y bucles y se anima durante (240ms) solo cuando lo solicita el usuario. La preferencia de movimiento reducido lo hace inmediato y detiene un ajuste en curso. A (849px) o menos, los controles de zoom miden (44px), las etiquetas de reglas tienen objetivos mínimos de (48px) y se amplía el área táctil de los conectores.
 
-El teclado mueve y selecciona nodos; el inspector y la representación textual permiten editar estados y reglas. La simulación presenta entrada, resultado, número de paso y configuración; para pila añade selección de rama y tope a la izquierda, y para Turing una ventana de cinta con posición del cabezal.
+El teclado mueve y selecciona nodos; el popup del inspector y la definición formal permiten editar estados y reglas. La representación formal muestra funciones mediante ecuaciones, con conjuntos de destinos para AFN y conjuntos de pares (estado, reemplazo) para pila, equivalentes a su relación de transición. La simulación inferior presenta entrada, resultado, número de paso y configuración; para pila añade selección de rama y tope a la izquierda, y para Turing una ventana de cinta con posición del cabezal.
 
 Cada paso tiene un pulso de llegada sobre los estados activos y un trazo luminoso sobre las conexiones utilizadas, ambos de (220ms), sin cambiar posiciones ni reconstruir el grafo. Se repiten incluso en autolazos. En AFN y pila, todas las reglas aplicadas se resaltan simultáneamente: el efecto no atribuye un orden a las clausuras ε ni un parentesco entre ramas.
 

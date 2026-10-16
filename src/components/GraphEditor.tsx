@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Background,
   BackgroundVariant,
@@ -37,6 +37,7 @@ type GraphEditorProps = {
   onSelectTransition: (id: string | null) => void;
   onMoveState: (id: string, x: number, y: number) => void;
   onConnect: (from: string, to: string) => void;
+  popup?: ReactNode;
 };
 
 type StateData = {
@@ -158,6 +159,7 @@ function TransitionArrow({ id, source, target, sourceX, sourceY, targetX, target
               className={`automaton-transition__label${rule.active ? ' is-active' : ''}${rule.selected ? ' is-selected' : ''}`}
               aria-label={`Regla ${rule.text}${rule.active ? ', utilizada en este paso' : ''}`}
               aria-pressed={rule.selected}
+              data-transition-id={rule.id}
               onClick={(event) => { event.stopPropagation(); data.onSelect(rule.id); }}
             >
               <span>{rule.text}</span>
@@ -186,9 +188,10 @@ function graphBounds(machine: Machine) {
   return { x: left, y: top, width: right - left, height: bottom - top };
 }
 
-export default function GraphEditor({ machine, selectedStateId, selectedTransitionId, activeStateIds, activeTransitionIds, step, onSelectState, onSelectTransition, onMoveState, onConnect }: GraphEditorProps) {
+export default function GraphEditor({ machine, selectedStateId, selectedTransitionId, activeStateIds, activeTransitionIds, step, onSelectState, onSelectTransition, onMoveState, onConnect, popup }: GraphEditorProps) {
   const [instance, setInstance] = useState<ReactFlowInstance<StateNode, TransitionEdge> | null>(null);
   const container = useRef<HTMLElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
   const latestMachine = useRef(machine);
   latestMachine.current = machine;
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 380 });
@@ -199,6 +202,46 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   const bounds = machine.states.length ? graphBounds(machine) : null;
   const needsPanning = narrowCanvas && bounds !== null && (bounds.width * 0.95 > canvasSize.width - 24 || bounds.height * 0.95 > canvasSize.height - 50);
   const selectRule = useCallback((id: string) => { onSelectTransition(id); }, [onSelectTransition]);
+
+  const positionPopup = useCallback(() => {
+    const host = container.current;
+    const panel = popupRef.current;
+    if (!host || !panel) return;
+    const selector = selectedTransitionId
+      ? `[data-transition-id="${CSS.escape(selectedTransitionId)}"]`
+      : selectedStateId ? `.react-flow__node[data-id="${CSS.escape(selectedStateId)}"]` : null;
+    const anchor = selector ? host.querySelector(selector)?.getBoundingClientRect() : null;
+    const bounds = host.getBoundingClientRect();
+    const gap = 12;
+    const width = panel.offsetWidth;
+    const availableHeight = Math.max(0, bounds.height - gap * 2);
+    panel.style.maxHeight = `${availableHeight}px`;
+    const height = Math.min(panel.offsetHeight, availableHeight);
+    let left = anchor ? anchor.right - bounds.left + gap : bounds.width - width - gap;
+    if (anchor && left + width > bounds.width - gap) left = anchor.left - bounds.left - width - gap;
+    let top = anchor ? anchor.top - bounds.top : gap;
+    if (anchor && bounds.width < width + anchor.width + gap * 3) {
+      const below = bounds.bottom - anchor.bottom - gap * 2;
+      const above = anchor.top - bounds.top - gap * 2;
+      const space = Math.max(below, above);
+      if (space >= 180) {
+        panel.style.maxHeight = `${space}px`;
+        top = below >= above ? anchor.bottom - bounds.top + gap : anchor.top - bounds.top - Math.min(height, space) - gap;
+      }
+    }
+    panel.style.left = `${Math.max(gap, Math.min(left, bounds.width - width - gap))}px`;
+    panel.style.top = `${Math.max(gap, Math.min(top, bounds.height - Math.min(panel.offsetHeight, availableHeight) - gap))}px`;
+  }, [selectedStateId, selectedTransitionId]);
+
+  useLayoutEffect(positionPopup);
+  const popupOpen = Boolean(popup);
+  useEffect(() => {
+    if (!popupOpen || !container.current || !popupRef.current) return;
+    const observer = new ResizeObserver(positionPopup);
+    observer.observe(container.current);
+    observer.observe(popupRef.current);
+    return () => observer.disconnect();
+  }, [popupOpen, positionPopup]);
 
   const fitAll = useCallback(() => {
     if (!instance || !canvasSize.width || !machine.states.length) return;
@@ -329,6 +372,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onInit={setInstance}
+        onMove={positionPopup}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={(_, node) => { onSelectState(node.id); }}
@@ -354,6 +398,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
           </ControlButton>
         </Controls>
       </ReactFlow>
+      {popup && <div ref={popupRef} className="graph-popup" role="dialog" aria-label="Inspector del autómata" aria-modal="false">{popup}</div>}
       {machine.states.length === 0 && <div className="graph-editor__empty"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true"><circle cx="28" cy="26" r="18" stroke="currentColor" strokeWidth="1.5" /><path d="M1 26H10M5 21L10 26L5 31" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>Tu autómata empieza aquí</strong><p>Añade un estado para comenzar a construir el grafo.</p></div>}
       <p className="graph-editor__hint">{needsPanning ? 'Desliza el lienzo para ver los demás estados.' : 'Mueve los estados · conecta sus puntos · selecciona una regla'}</p>
     </section>

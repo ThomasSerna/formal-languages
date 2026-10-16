@@ -1,7 +1,8 @@
 .graph-editor {
   position: relative;
   width: 100%;
-  height: 380px;
+  flex: 1;
+  min-height: 200px;
   overflow: hidden;
   background: #fbfcff;
   isolation: isolate;
@@ -380,10 +381,6 @@
 }
 
 @media (max-width: 640px) {
-  .graph-editor {
-    height: 350px;
-  }
-
   .graph-editor__hint {
     bottom: 19px;
     font-size: 10px;

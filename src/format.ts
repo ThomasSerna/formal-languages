@@ -19,3 +19,30 @@ export function tuple(machine: Machine) {
   if (machine.kind === 'tm') return 'M = (Q, Σ, Γ, ⊢, ␣, δ, s, t, r)';
   return machine.kind === 'nfa' ? 'N = (Q, Σ, Δ, S, F)' : 'M = (Q, Σ, δ, s, F)';
 }
+
+export interface TransitionEquation {
+  key: string;
+  expression: string;
+  transitions: Transition[];
+}
+
+export function transitionEquations(machine: Machine): TransitionEquation[] {
+  const grouped = machine.kind === 'nfa' || machine.kind === 'pda';
+  const groups = new Map<string, { left: string; outputs: Map<string, string>; transitions: Transition[] }>();
+  for (const rule of machine.transitions) {
+    const key = grouped ? JSON.stringify([rule.from, rule.read, ...('pop' in rule ? [rule.pop] : [])]) : rule.id;
+    const left = `${machine.kind === 'nfa' ? 'Δ' : 'δ'}(${stateName(machine, rule.from)}, ${SYMBOL(rule.read)}${'pop' in rule ? `, ${rule.pop}` : ''})`;
+    const output = 'pop' in rule ? `(${stateName(machine, rule.to)}, ${word(rule.push)})`
+      : 'write' in rule ? `(${stateName(machine, rule.to)}, ${rule.write}, ${rule.move})` : stateName(machine, rule.to);
+    const outputKey = JSON.stringify([rule.to, ...('pop' in rule ? [rule.push] : 'write' in rule ? [rule.write, rule.move] : [])]);
+    const group = groups.get(key) ?? { left, outputs: new Map<string, string>(), transitions: [] };
+    group.outputs.set(outputKey, output);
+    group.transitions.push(rule);
+    groups.set(key, group);
+  }
+  return [...groups].map(([key, group]) => ({
+    key,
+    expression: `${group.left} = ${grouped ? `{${[...group.outputs.values()].join(', ')}}` : [...group.outputs.values()].join(', ')}`,
+    transitions: group.transitions,
+  }));
+}
