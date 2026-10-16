@@ -1,13 +1,13 @@
 # Laboratory surface
 
-Mode: Operate, with contextual Read support. Direction pinned by the approved user plan.
+Mode: Operate, with contextual Read support. Secuencia en continuidad approved by the user on 2026-10-16; code-led implementation, laptop first with complete mobile support.
 
 ## Direction contract
-THESIS: The student sees the graph, the current configuration and the formal rule change together. Direct laboratory access, without a marketing introduction.
-OWN-WORLD: Clear classroom light; cool white surfaces, cobalt #245de8, dark ink #182641, restrained borders, rounded controls. A workhorse sans for interface text and monospace only for symbols and configurations.
-STORY: Try one prepared chain; inspect its rule; edit a state or transition; test a new idea. Explanations are adjacent to the chosen object.
-FIRST VIEWPORT: Compact header and model navigation above a full-width graph. A compact non-modal inspector floats beside the selected state or rule, with editing first and a closed help/definition disclosure. Simulation controls and symbol strip follow below the editor. On mobile the popup stays inside the canvas and scrolls internally when needed.
-FORM: User-pinned academic laboratory, code-led; no random direction selection or image mockups. Signature interaction is synchronized graph/configuration/rule highlighting.
+THESIS: Building and running share one scene: the graph, current configuration and applied rule remain easy to compare. Preserve every existing model and workflow, with no business-logic or API changes.
+OWN-WORLD: A university laptop in ordinary classroom light. Plum #3C3152 header, cool #F7F5FA ground, white canvas, violet #6A45B8 controls and selection, petrol #0E7490 execution. Source Sans 3 interface, STIX Two Text mathematical state names, monospace for data.
+STORY: Select a model; build or inspect the prepared graph; change input and advance; compare the graph and configuration; open formal reference when needed. File operations stay grouped and accessible.
+FIRST VIEWPORT: Compact brand, four-model navigation and Archivo above document context and building tools. The graph owns the main area; contextual properties sit to its right. A substantial simulation band below shows input, playback, status and configuration in the same laptop viewport. History and reference may extend below. Mobile stacks the same mounted surfaces without shrinking notation or losing forms.
+FORM: Secuencia en continuidad, grounded candidate 7, seed 7dc01fd4; approved explicitly in the implementation request. Code-led. Signature: the applied rule and configuration update together using petrol, while violet selection remains distinct. Preserve keyboard, reduced-motion cancellation and simultaneous nondeterministic feedback.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 
 ## Finish evidence
