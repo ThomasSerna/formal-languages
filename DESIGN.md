@@ -10,7 +10,7 @@ colors:
   muted: "#536276"
   border: "#dce3ef"
   paper: "#ffffff"
-  shell: "#f3f6fb"
+  shell: "#f5f7fb"
   canvas: "#fbfcff"
   inspector: "#f9fbfe"
   accepted: "#167249"
@@ -20,8 +20,8 @@ colors:
 typography:
   headline:
     fontFamily: "Manrope, 'Segoe UI', sans-serif"
-    fontSize: "27px"
-    fontWeight: 650
+    fontSize: "28px"
+    fontWeight: 700
     lineHeight: 1.25
     letterSpacing: "-0.025em"
   title:
@@ -235,6 +235,8 @@ Cuatro modelos en una banda clara.
 - La selección se muestra como una superficie blanca con contorno, texto de cobalto y sombra ligera.
 - Los acrónimos permanecen visibles cuando desaparecen las descripciones en anchuras reducidas.
 - El modelo activo se identifica también mediante `aria-current`.
+- Una única superficie blanca se desliza entre modelos en (220ms), con desaceleración `cubic-bezier(.16, 1, .3, 1)`. Sus medidas siguen las cuatro columnas también en móvil; el foco permanece en el botón elegido.
+- Los campos responden al foco y al puntero mediante el borde en (140ms). El encabezado del documento usa papel ligeramente frío y la etiqueta Editable un lavado de cobalto; la explicación del paso usa (13px), tinta secundaria y un máximo de (75ch).
 
 ### Graph and simulation
 
