@@ -47,7 +47,7 @@ test('cada regla agrupada se selecciona por separado y los puntos crean una cone
   const target = graph.locator('.react-flow__node[data-id="q2"] .react-flow__handle[data-handleid="in"]');
   await source.click();
   await target.click();
-  await expect(page.getByRole('heading', { name: 'Una nueva conexión', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Nueva transición', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Origen', exact: true })).toHaveValue('s');
   await expect(page.getByRole('combobox', { name: 'Destino', exact: true })).toHaveValue('q2');
   await page.getByRole('button', { name: 'Crear transición', exact: true }).click();
@@ -56,7 +56,7 @@ test('cada regla agrupada se selecciona por separado y los puntos crean una cone
   await page.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
 
   await source.dragTo(target);
-  await expect(page.getByRole('heading', { name: 'Una nueva conexión', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Nueva transición', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Origen', exact: true })).toHaveValue('s');
   await expect(page.getByRole('combobox', { name: 'Destino', exact: true })).toHaveValue('q2');
 });

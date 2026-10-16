@@ -183,20 +183,22 @@ La primera pantalla ocupa la altura disponible del navegador. La cabecera, la na
 
 Seleccionar un estado o una regla, o crear una conexión, abre un popup no modal anclado al elemento. Su posición y altura se ajustan para permanecer dentro del lienzo, con desplazamiento interno cuando hace falta. La configuración del modelo se abre desde la barra de herramientas; el inspector comienza cerrado y se descarta con su botón, Escape o un clic en el fondo del grafo.
 
+El inspector presenta un encabezado fijo con título contextual, acceso a «Ver modelo» al editar estados y cierre SVG de (44px). Los campos y las acciones aparecen primero. «Ayuda y definición» es un único desplegable nativo, cerrado al seleccionar otro objeto; escribir conserva tanto el desplegado como la identidad de los campos. Dentro se reúnen la explicación contextual y la definición formal compacta. Solo permanecen visibles las pistas indispensables sobre alfabetos y reemplazo de pila.
+
 La guía, la validación, la prueba de cadenas y las referencias siguen debajo de la primera pantalla. El pie del grafo enlaza directamente con «Probar cadena». La definición formal presenta tupla, conjuntos y ecuaciones de transición; agrupa los resultados no deterministas y conserva controles para editar cada regla.
 
 A (600px) o menos, los controles se acomodan al ancho disponible, la reproducción forma dos columnas y la configuración se coloca bajo la tira de símbolos. Las tiras de entrada y cinta permiten desplazamiento horizontal dentro de su área; las fórmulas se ajustan al ancho. Los controles principales de reproducción e inspector alcanzan (44px) de altura en móvil. El ritmo recurrente se apoya en espacios de (4–28px), según los tokens del frontmatter.
 
 ## Elevation & Depth
 
-La profundidad procede principalmente de bordes y cambios de tono. La navegación seleccionada y los controles del grafo llevan una sombra apenas perceptible; los nodos seleccionados o activos usan anillos de cobalto. El símbolo actual y la pestaña seleccionada tienen un trazo interior inferior que comunica estado. No hay sombras grandes bajo los paneles.
+La profundidad procede principalmente de bordes y cambios de tono. La navegación seleccionada y los controles del grafo llevan una sombra apenas perceptible; los nodos seleccionados o activos usan anillos de cobalto. El símbolo actual tiene un trazo interior inferior que comunica estado. No hay sombras grandes bajo los paneles de trabajo; el popup conserva su sombra de elevación contextual.
 
 ### Shadow Vocabulary
 - **Navegación seleccionada:** `0 2px 4px #21355706`.
 - **Controles del grafo:** `0 2px 5px #18264105`.
 - **Nodo seleccionado:** `0 0 0 5px #245de817`.
 - **Nodo activo:** `0 0 0 5px #245de810`.
-- **Selección interior:** `inset 0 -2px var(--accent)` en pestañas del inspector y símbolo actual.
+- **Selección interior:** `inset 0 -2px var(--accent)` en el símbolo actual.
 
 ## Shapes
 
@@ -244,7 +246,7 @@ Cuatro modelos en una banda clara.
 - El modelo activo se identifica también mediante `aria-current`.
 - Una única superficie blanca se desliza entre modelos en (220ms), con desaceleración `cubic-bezier(.16, 1, .3, 1)`. Sus medidas siguen las cuatro columnas también en móvil; el foco permanece en el botón elegido.
 - Los campos responden al foco y al puntero mediante el borde en (140ms). El encabezado del documento usa papel ligeramente frío y la etiqueta Editable un lavado de cobalto; la explicación del paso usa (13px), tinta secundaria y un máximo de (75ch).
-- El inspector acompaña los cambios de selección y de vista con una aparición de (160ms) desde una opacidad de (0.65), sin remontar el panel ni sus campos. Editar un valor no vuelve a disparar la aparición. Activar movimiento reducido cancela un efecto en curso. Guía, avisos, validación, confirmación de reemplazo y contenido desplegable usan la misma duración; cerrar un panel sigue siendo inmediato.
+- El inspector acompaña los cambios de selección con una aparición de (160ms) desde una opacidad de (0.65), sin remontar el panel ni sus campos. Editar un valor no vuelve a disparar la aparición. Activar movimiento reducido cancela un efecto en curso. Guía, avisos, validación, confirmación de reemplazo y contenido desplegable usan la misma duración; cerrar un panel sigue siendo inmediato.
 
 ### Graph and simulation
 

@@ -283,7 +283,7 @@
       {
         "name": "inset-selected",
         "value": "inset 0 -2px var(--accent)",
-        "purpose": "Pestaña de inspector y símbolo actual."
+        "purpose": "Símbolo actual de la entrada."
       }
     ],
     "motion": [

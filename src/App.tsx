@@ -52,7 +52,6 @@ export default function App() {
   const [selectedTransitionId, setSelectedTransitionId] = useState<string | null>(null);
   const [addingTransition, setAddingTransition] = useState(false);
   const [inspectorOpen, setInspectorOpen] = useState(false);
-  const [inspectorTab, setInspectorTab] = useState<'edit' | 'formal'>('edit');
   const [guide, setGuide] = useState(true);
   const [simulation, setSimulation] = useState<Simulation | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -85,7 +84,7 @@ export default function App() {
     else if (!active?.closest('.graph-popup')) inspectorTrigger.current = active;
     focusInspector.current = !graphSelector && !active?.closest('.graph-popup');
     editorRef.current?.scrollIntoView({ block: 'start' });
-    setInspectorTab('edit'); setInspectorOpen(true);
+    setInspectorOpen(true);
   }
   const closeInspector = useCallback((restoreFocus = false) => {
     setInspectorOpen(false); setSelectedStateId(null); setSelectedTransitionId(null); setAddingTransition(false); setNewConnection(null);
@@ -159,8 +158,8 @@ export default function App() {
     if (!inspectorOpen || !focusInspector.current) return;
     focusInspector.current = false;
     const field = editorRef.current?.querySelector<HTMLElement>('.inspector-body input, .inspector-body select');
-    (field ?? editorRef.current?.querySelector<HTMLElement>('.inspector-tabs button'))?.focus({ preventScroll: true });
-  }, [inspectorOpen, inspectorTab, selectedStateId, selectedTransitionId, addingTransition]);
+    (field ?? editorRef.current?.querySelector<HTMLElement>('.close-inspector'))?.focus({ preventScroll: true });
+  }, [inspectorOpen, selectedStateId, selectedTransitionId, addingTransition]);
 
   async function importFile(file?: File) {
     if (!file) return;
@@ -192,7 +191,7 @@ export default function App() {
           {confirmReplace && <div className="replace-confirm" role="group" aria-label="Confirmar reemplazo"><p>Se reemplazará el borrador de {MODEL_SHORT[kind]}. Puedes exportarlo antes para conservarlo.</p><div className="button-row"><button onClick={() => exportMachine(machine)}>Exportar borrador</button><button className="primary" onClick={() => replaceMachine(confirmReplace)}>{confirmReplace === 'blank' ? 'Abrir lienzo vacío' : 'Restaurar ejemplo'}</button><button onClick={() => setConfirmReplace(null)}>Cancelar</button></div></div>}
           <div className="graph-toolbar"><div className="button-row"><button onClick={addState}>Agregar estado</button><button disabled={!machine.states.length} onClick={() => { setSelectedTransitionId(null); setAddingTransition(true); setNewConnection(null); openInspector(); }}>Agregar transición</button><button onClick={showModel}>Configurar modelo</button></div><span className="graph-size">{machine.states.length} estados · {machine.transitions.length} reglas</span></div>
           <GraphEditor step={run?.step ?? 0} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} activeStateIds={run?.configurations.map(config => config.stateId) ?? []} activeTransitionIds={run?.transitionIds ?? []} onSelectState={id => selectState(id, true)} onSelectTransition={id => selectTransition(id, true)} onMoveState={(id, x, y) => changeMachine({ ...machine, states: machine.states.map(state => state.id === id ? { ...state, x, y } : state) }, true)} onConnect={(from, to) => { setSelectedStateId(from); setSelectedTransitionId(null); setNewConnection({ from, to }); setAddingTransition(true); openInspector(); }}
-            popup={inspectorOpen && <Inspector key={kind} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} addingTransition={addingTransition} tab={inspectorTab} onTabChange={setInspectorTab} onChange={changeMachine} onSelectState={selectState} onSelectTransition={selectTransition} onCancelTransition={() => { setAddingTransition(false); setNewConnection(null); }} connection={newConnection} onClose={() => closeInspector(true)} onShowModel={showModel} />} />
+            popup={inspectorOpen && <Inspector key={kind} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} addingTransition={addingTransition} onChange={changeMachine} onSelectState={selectState} onSelectTransition={selectTransition} onCancelTransition={() => { setAddingTransition(false); setNewConnection(null); }} connection={newConnection} onClose={() => closeInspector(true)} onShowModel={showModel} />} />
           <div className="graph-footer"><div className="graph-legend"><span><i className="legend-initial" />Inicial</span><span><i className="legend-final" />Aceptación</span><span><i className="legend-active" />Activo</span></div><span>Arrastra para mover · conecta desde los puntos</span><a href="#simulation-heading">Probar cadena</a></div>
         </section>
       </section>

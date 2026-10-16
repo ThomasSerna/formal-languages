@@ -197,12 +197,12 @@ test('el inspector conserva el campo al escribir y cancela su aparición al redu
   expect(await page.evaluate(() => (window as typeof window & { inspectorAnimations: Animation[] }).inspectorAnimations.length)).toBe(0);
 
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.getByRole('button', { name: 'Definición formal', exact: true }).click();
+  await page.locator('.react-flow__node[data-id="q1"]').click();
   await expect.poll(() => page.evaluate(() => (window as typeof window & { inspectorAnimations: Animation[] }).inspectorAnimations.length)).toBe(1);
-  await expect(page.getByRole('heading', { name: 'Del dibujo a la definición' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Estado q1', exact: true })).toBeVisible();
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect.poll(() => page.evaluate(() => (window as typeof window & { inspectorAnimations: Animation[] }).inspectorAnimations[0].playState)).toBe('idle');
-  await page.getByRole('button', { name: 'Inspector', exact: true }).click();
+  await page.locator('.react-flow__node[data-id="q0"]').click();
   await expect(name).toHaveValue('memoria0');
   expect(await page.evaluate(() => (window as typeof window & { inspectorAnimations: Animation[] }).inspectorAnimations.length)).toBe(1);
 });

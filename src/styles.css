@@ -99,15 +99,15 @@ h3 { margin-bottom: 12px; font-size: 14px; font-weight: 650; }
 .graph-legend .legend-active { border-color: var(--accent); background: #e9f0ff; }
 .graph-popup { position: absolute; z-index: 20; top: 12px; width: min(360px, calc(100% - 24px)); display: flex; flex-direction: column; border-radius: 12px; box-shadow: 0 8px 32px #18264126; background: #f9fbfe; overflow: hidden; }
 .inspector { display: flex; flex: 1; flex-direction: column; width: 100%; min-height: 0; }
-.inspector-tabs { display: grid; grid-template-columns: 1fr 1.25fr auto; flex-shrink: 0; padding: 4px 8px 0; border-bottom: 1px solid var(--border); gap: 3px; }
-.inspector-tabs button { min-height: 44px; padding: 8px 6px; background: transparent; border: 0; border-radius: 0; font-size: 12px; color: var(--muted); }
-.inspector-tabs button.selected { box-shadow: inset 0 -2px var(--accent); color: #1c50d0; }
-.inspector-tabs .close-inspector { font-size: 10px; max-width: 62px; }
-.inspector-body { overflow: auto; overscroll-behavior: contain; padding: 18px; scrollbar-width: thin; scrollbar-color: #b8c5db #f9fbfe; }
-.inspector-body h2 { font-size: 15px; }
-.inspector-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.inspector-title .text-button { padding: 3px; min-height: 30px; font-size: 11px; }
-.explanation { margin: 8px 0 20px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.inspector-header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 8px; padding: 6px 8px 6px 18px; border-bottom: 1px solid var(--border); }
+.inspector-header h2 { min-width: 0; font-size: 15px; overflow-wrap: anywhere; }
+.inspector-actions { display: flex; align-items: center; flex-shrink: 0; gap: 2px; }
+.inspector-actions .text-button { min-height: 44px; padding-inline: 7px; font-size: 11px; }
+.inspector-actions .close-inspector { width: 44px; padding: 0; }
+.inspector-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 18px; scrollbar-width: thin; scrollbar-color: #b8c5db #f9fbfe; }
+.inspector-help { margin-top: 18px; padding-top: 4px; border-top: 1px solid var(--border); }
+.inspector-help > summary { min-height: 44px; padding-block: 12px; font-size: 12px; }
+.inspector-help-copy { margin: 8px 0 16px; font-size: 12px; color: var(--muted); line-height: 1.7; }
 .inspector-form .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .check-label { flex-direction: row; align-items: center; margin-top: 14px; margin-bottom: 7px; min-height: 24px; cursor: pointer; }
 .field-hint { margin-top: 5px; color: var(--muted); font-size: 11px; font-weight: 400; line-height: 1.65; }
@@ -115,9 +115,6 @@ h3 { margin-bottom: 12px; font-size: 14px; font-weight: 650; }
 .form-error { padding: 10px 12px; color: #9f2134; background: #fff0f1; border-radius: 6px; font-size: 12px; line-height: 1.6; }
 .inspector-form .button-row { margin-top: 15px; }
 .inspector-form .button-row button { font-size: 12px; padding-inline: 10px; }
-.context-note { margin-top: 20px; padding-top: 17px; border-top: 1px solid var(--border); }
-.context-note strong { font-size: 12px; }
-.context-note p { margin-top: 7px; font-size: 12px; color: var(--muted); line-height: 1.75; }
 .formula { margin: 16px 0; color: #1d4bad; font-size: 12px; overflow-wrap: anywhere; }
 .validation { margin-top: 15px; padding: 14px 18px; border: 1px solid #ead8ba; border-radius: 9px; color: #79501d; background: #fff9ef; font-size: 13px; }
 .validation summary { cursor: pointer; font-weight: 600; }
@@ -274,7 +271,7 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 11px; font-w
   .graph-legend { gap: 10px; font-size: 10px; }
   .inspector-body { padding: 18px 15px; }
   .inspector-body button, .formal-states button, .transition-function__actions button { min-height: 44px; }
-  .inspector-body label, .inspector-body .explanation, .context-note p { font-size: 13px; }
+  .inspector-body label, .inspector-help-copy, .inspector-help > summary { font-size: 13px; }
   .field-hint { font-size: 12px; }
   .simulation-top { flex-direction: column; gap: 16px; }
   .simulation-input { width: 100%; }
