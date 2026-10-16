@@ -242,11 +242,15 @@ Cuatro modelos en una banda clara.
 
 El grafo es un componente operativo. Los nodos tienen indicadores de inicio, aceptación y actividad; las reglas activas y seleccionadas aumentan el grosor del trazo. Las etiquetas de reglas son controles seleccionables, y las conexiones que comparten origen y destino agrupan sus etiquetas.
 
-El zoom, el ajuste a vista y el desplazamiento permiten explorar el lienzo. En lienzos de menos de (650px) de ancho, los grafos que no caben a una escala legible abren cerca del estado inicial con zoom (0.95) y una indicación para deslizar. Un estado activo fuera de la vista se recentra sin animación. Ajustar a vista incluye el espacio de flechas iniciales y bucles. A (849px) o menos, los controles de zoom miden (44px), las etiquetas de reglas tienen objetivos mínimos de (48px) y se amplía el área táctil de los conectores.
+El zoom, el ajuste a vista y el desplazamiento permiten explorar el lienzo. En lienzos de menos de (650px) de ancho, los grafos que no caben a una escala legible abren cerca del estado inicial con zoom (0.95) y una indicación para deslizar. Un estado activo fuera de la vista se recentra sin animación. Ajustar a vista incluye el espacio de flechas iniciales y bucles y se anima durante (240ms) solo cuando lo solicita el usuario. La preferencia de movimiento reducido lo hace inmediato y detiene un ajuste en curso. A (849px) o menos, los controles de zoom miden (44px), las etiquetas de reglas tienen objetivos mínimos de (48px) y se amplía el área táctil de los conectores.
 
 El teclado mueve y selecciona nodos; el inspector y la representación textual permiten editar estados y reglas. La simulación presenta entrada, resultado, número de paso y configuración; para pila añade selección de rama y tope a la izquierda, y para Turing una ventana de cinta con posición del cabezal.
 
-Las transiciones de interfaz duran (100–150ms); la reproducción usa intervalos de (1400ms), (800ms) o (300ms). La preferencia de movimiento reducido elimina las transiciones de botones, nodos y etiquetas, y suprime el desplazamiento de pulsación.
+Cada paso tiene un pulso de llegada sobre los estados activos y un trazo luminoso sobre las conexiones utilizadas, ambos de (220ms), sin cambiar posiciones ni reconstruir el grafo. Se repiten incluso en autolazos. En AFN y pila, todas las reglas aplicadas se resaltan simultáneamente: el efecto no atribuye un orden a las clausuras ε ni un parentesco entre ramas.
+
+La entrada, la configuración, la pila y la cinta muestran la instantánea actual inmediatamente y acompañan el cambio con feedback breve. Retroceder o saltar por el historial restaura los datos sin esperar al efecto. Las capas decorativas no reciben eventos ni forman parte del árbol accesible; los controles y las regiones de anuncio conservan su identidad.
+
+Las transiciones de controles duran (100–150ms); la reproducción mantiene intervalos de (1400ms), (800ms) o (300ms). Los efectos de cada paso terminan antes del siguiente intervalo rápido. La preferencia de movimiento reducido elimina los pulsos, los desplazamientos y las transiciones nuevas, manteniendo colores, contornos, etiquetas y datos actuales.
 
 ## Do's and Don'ts
 

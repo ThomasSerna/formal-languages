@@ -32,6 +32,7 @@ type GraphEditorProps = {
   selectedTransitionId: string | null;
   activeStateIds: string[];
   activeTransitionIds: string[];
+  step: number;
   onSelectState: (id: string | null) => void;
   onSelectTransition: (id: string | null) => void;
   onMoveState: (id: string, x: number, y: number) => void;
@@ -45,6 +46,8 @@ type StateData = {
   haltingAcceptance: boolean;
   rejecting: boolean;
   active: boolean;
+  step: number;
+  motionKey: string;
 };
 
 type RuleLabel = { id: string; text: string; active: boolean; selected: boolean };
@@ -52,6 +55,8 @@ type TransitionData = {
   rules: RuleLabel[];
   reciprocal: boolean;
   active: boolean;
+  step: number;
+  motionKey: string;
   onSelect: (id: string) => void;
 };
 type StateNode = Node<StateData, 'state'>;
@@ -82,6 +87,7 @@ function StateCircle({ data, selected }: NodeProps<StateNode>) {
         if (event.target instanceof Element && event.target.closest('.react-flow__handle')) event.stopPropagation();
       }}
     >
+      {data.active && <span key={data.motionKey} className="automaton-state__pulse" data-step={data.step} aria-hidden="true" />}
       {data.initial && (
         <svg className="automaton-state__initial" width="43" height="20" viewBox="0 0 43 20" aria-hidden="true">
           <path d="M1 10H37M29 3L38 10L29 17" />
@@ -137,6 +143,7 @@ function TransitionArrow({ id, source, target, sourceX, sourceY, targetX, target
   return (
     <>
       <BaseEdge id={id} path={path} markerEnd={markerEnd} interactionWidth={28} className={`automaton-transition${data.active ? ' is-active' : ''}${selected ? ' is-selected' : ''}`} />
+      {data.active && <path key={data.motionKey} d={path} pathLength={1} className="automaton-transition__pulse" data-step={data.step} aria-hidden="true" />}
       <EdgeLabelRenderer>
         <div
           className="automaton-transition__labels nodrag nopan nowheel"
@@ -179,7 +186,7 @@ function graphBounds(machine: Machine) {
   return { x: left, y: top, width: right - left, height: bottom - top };
 }
 
-export default function GraphEditor({ machine, selectedStateId, selectedTransitionId, activeStateIds, activeTransitionIds, onSelectState, onSelectTransition, onMoveState, onConnect }: GraphEditorProps) {
+export default function GraphEditor({ machine, selectedStateId, selectedTransitionId, activeStateIds, activeTransitionIds, step, onSelectState, onSelectTransition, onMoveState, onConnect }: GraphEditorProps) {
   const [instance, setInstance] = useState<ReactFlowInstance<StateNode, TransitionEdge> | null>(null);
   const container = useRef<HTMLElement>(null);
   const latestMachine = useRef(machine);
@@ -187,6 +194,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 380 });
   const stateIds = JSON.stringify(machine.states.map((state) => state.id));
   const activeIds = JSON.stringify(activeStateIds);
+  const motionKey = `${machine.kind}:${step}`;
   const narrowCanvas = canvasSize.width > 0 && canvasSize.width < 650;
   const bounds = machine.states.length ? graphBounds(machine) : null;
   const needsPanning = narrowCanvas && bounds !== null && (bounds.width * 0.95 > canvasSize.width - 24 || bounds.height * 0.95 > canvasSize.height - 50);
@@ -195,7 +203,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   const fitAll = useCallback(() => {
     if (!instance || !canvasSize.width || !machine.states.length) return;
     const viewport = getViewportForBounds(graphBounds(machine), canvasSize.width, canvasSize.height, 0.25, 1.15, 0.12);
-    void instance.setViewport(viewport, { duration: 0 });
+    void instance.setViewport(viewport, { duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 240 });
   }, [instance, machine, canvasSize]);
 
   const nodes = useMemo<StateNode[]>(() => machine.states.map((state) => {
@@ -213,9 +221,9 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       selected: state.id === selectedStateId,
       deletable: false,
       ariaLabel: `Estado ${state.name}${initial ? ', inicial' : ''}${accepting ? ', de aceptación' : ''}${rejecting ? ', de rechazo r' : ''}${active ? ', activo' : ''}`,
-      data: { name: state.name, initial, accepting, haltingAcceptance: machine.kind === 'tm' && accepting, rejecting, active },
+      data: { name: state.name, initial, accepting, haltingAcceptance: machine.kind === 'tm' && accepting, rejecting, active, step, motionKey },
     };
-  }), [machine, selectedStateId, activeStateIds]);
+  }), [machine, selectedStateId, activeStateIds, step, motionKey]);
 
   const edges = useMemo<TransitionEdge[]>(() => {
     const groups = new Map<string, { from: string; to: string; rules: RuleLabel[] }>();
@@ -240,10 +248,20 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         deletable: false,
         markerEnd: { type: MarkerType.ArrowClosed, color: active || selected ? '#245de8' : '#687991', width: 20, height: 20, markerUnits: 'userSpaceOnUse' },
         ariaLabel: `De ${sourceName} a ${targetName}: ${group.rules.map((rule) => rule.text).join('; ')}`,
-        data: { rules: group.rules, reciprocal: group.from !== group.to && groups.has(JSON.stringify([group.to, group.from])), active, onSelect: selectRule },
+        data: { rules: group.rules, reciprocal: group.from !== group.to && groups.has(JSON.stringify([group.to, group.from])), active, step, motionKey, onSelect: selectRule },
       };
     });
-  }, [machine, activeTransitionIds, selectedTransitionId, selectRule]);
+  }, [machine, activeTransitionIds, selectedTransitionId, selectRule, step, motionKey]);
+
+  useEffect(() => {
+    if (!instance) return;
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const stopViewportMotion = () => {
+      if (preference.matches) void instance.setViewport(instance.getViewport(), { duration: 0 });
+    };
+    preference.addEventListener('change', stopViewportMotion);
+    return () => preference.removeEventListener('change', stopViewportMotion);
+  }, [instance]);
 
   useEffect(() => {
     if (!container.current) return;

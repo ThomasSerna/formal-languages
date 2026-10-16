@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T23:58:09.053Z",
+  "generatedAt": "2026-10-16T11:06:54.031Z",
   "title": "Design System: Autómata",
   "extensions": {
     "colorMeta": {
@@ -120,14 +120,14 @@
         "role": "neutral",
         "displayName": "Fondo frío",
         "tonalRamp": [
-          "oklch(15% 0.0074 260.73)",
-          "oklch(25% 0.0074 260.73)",
-          "oklch(35% 0.0074 260.73)",
-          "oklch(45% 0.0074 260.73)",
-          "oklch(60% 0.0074 260.73)",
-          "oklch(75% 0.0074 260.73)",
-          "oklch(85% 0.0074 260.73)",
-          "oklch(95% 0.0074 260.73)"
+          "oklch(15% 0.0057 264.53)",
+          "oklch(25% 0.0057 264.53)",
+          "oklch(35% 0.0057 264.53)",
+          "oklch(45% 0.0057 264.53)",
+          "oklch(60% 0.0057 264.53)",
+          "oklch(75% 0.0057 264.53)",
+          "oklch(85% 0.0057 264.53)",
+          "oklch(95% 0.0057 264.53)"
         ]
       },
       "canvas": {
@@ -271,8 +271,8 @@
     "motion": [
       {
         "name": "ease-out",
-        "value": "cubic-bezier(.23, 1, .32, 1)",
-        "purpose": "Desplazamiento de 1px en pulsación de botón."
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Continuidad de navegación, configuración y pulsación."
       },
       {
         "name": "button-color",
@@ -307,7 +307,27 @@
       {
         "name": "viewport",
         "value": "0ms",
-        "purpose": "Ajuste del lienzo y recentrado del estado activo sin animación."
+        "purpose": "Encuadre automático y seguimiento del estado activo inmediatos."
+      },
+      {
+        "name": "model-navigation",
+        "value": "220ms cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Superficie de selección deslizante entre los cuatro modelos."
+      },
+      {
+        "name": "execution-feedback",
+        "value": "220ms",
+        "purpose": "Pulsos de estados y reglas, configuración, pila, cinta y confirmación de resultado; datos inmediatos."
+      },
+      {
+        "name": "manual-viewport",
+        "value": "240ms",
+        "purpose": "Ajuste solicitado por el usuario; 0ms con movimiento reducido."
+      },
+      {
+        "name": "field-feedback",
+        "value": "140ms ease",
+        "purpose": "Borde y fondo de campos al interactuar."
       }
     ],
     "breakpoints": [
@@ -349,7 +369,7 @@
       "refersTo": "button-primary",
       "description": "Paso siguiente",
       "html": "<button class=\"ds-button-primary\" type=\"button\">Paso siguiente</button>",
-      "css": ".ds-button-primary{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.23,1,.32,1));color:#fff;background:var(--accent,#245de8);border-color:var(--accent,#245de8);}@media(hover:hover) and (pointer:fine){.ds-button-primary:hover:not(:disabled){background:#164bcf;border-color:#164bcf;}}.ds-button-primary:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-primary:active:not(:disabled){transform:translateY(1px)}.ds-button-primary:disabled{cursor:not-allowed;background:#d9e2f5;color:#526484;border-color:#d9e2f5;}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none}.ds-button-primary:active:not(:disabled){transform:none}}"
+      "css": ".ds-button-primary{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.16,1,.3,1));color:#fff;background:var(--accent,#245de8);border-color:var(--accent,#245de8);}@media(hover:hover) and (pointer:fine){.ds-button-primary:hover:not(:disabled){background:#164bcf;border-color:#164bcf;}}.ds-button-primary:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-primary:active:not(:disabled){transform:translateY(1px)}.ds-button-primary:disabled{cursor:not-allowed;background:#d9e2f5;color:#526484;border-color:#d9e2f5;}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none}.ds-button-primary:active:not(:disabled){transform:none}}"
     },
     {
       "name": "Acción secundaria",
@@ -357,7 +377,7 @@
       "refersTo": "button-neutral",
       "description": "Agregar estado",
       "html": "<button class=\"ds-button-neutral\" type=\"button\">Agregar estado</button>",
-      "css": ".ds-button-neutral{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.23,1,.32,1));color:#344563;background:#fff;}@media(hover:hover) and (pointer:fine){.ds-button-neutral:hover:not(:disabled){background:#f0f4fc;border-color:#bccce5;}}.ds-button-neutral:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-neutral:active:not(:disabled){transform:translateY(1px)}.ds-button-neutral:disabled{cursor:not-allowed;color:#66758a;background:#f0f3f8;border-color:#e1e6ef;}@media(prefers-reduced-motion:reduce){.ds-button-neutral{transition:none}.ds-button-neutral:active:not(:disabled){transform:none}}"
+      "css": ".ds-button-neutral{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.16,1,.3,1));color:#344563;background:#fff;}@media(hover:hover) and (pointer:fine){.ds-button-neutral:hover:not(:disabled){background:#f0f4fc;border-color:#bccce5;}}.ds-button-neutral:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-neutral:active:not(:disabled){transform:translateY(1px)}.ds-button-neutral:disabled{cursor:not-allowed;color:#66758a;background:#f0f3f8;border-color:#e1e6ef;}@media(prefers-reduced-motion:reduce){.ds-button-neutral{transition:none}.ds-button-neutral:active:not(:disabled){transform:none}}"
     },
     {
       "name": "Acción de texto",
@@ -365,7 +385,7 @@
       "refersTo": "button-text",
       "description": "Cargar ejemplo",
       "html": "<button class=\"ds-button-text\" type=\"button\">Cargar ejemplo</button>",
-      "css": ".ds-button-text{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.23,1,.32,1));padding-inline:9px;color:#344563;background:transparent;border-color:transparent;}@media(hover:hover) and (pointer:fine){.ds-button-text:hover:not(:disabled){background:#edf2fc;border-color:transparent;}}.ds-button-text:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-text:active:not(:disabled){transform:translateY(1px)}.ds-button-text:disabled{cursor:not-allowed;color:#66758a;background:#f0f3f8;border-color:#e1e6ef;}@media(prefers-reduced-motion:reduce){.ds-button-text{transition:none}.ds-button-text:active:not(:disabled){transform:none}}"
+      "css": ".ds-button-text{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.16,1,.3,1));padding-inline:9px;color:#344563;background:transparent;border-color:transparent;}@media(hover:hover) and (pointer:fine){.ds-button-text:hover:not(:disabled){background:#edf2fc;border-color:transparent;}}.ds-button-text:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-text:active:not(:disabled){transform:translateY(1px)}.ds-button-text:disabled{cursor:not-allowed;color:#66758a;background:#f0f3f8;border-color:#e1e6ef;}@media(prefers-reduced-motion:reduce){.ds-button-text{transition:none}.ds-button-text:active:not(:disabled){transform:none}}"
     },
     {
       "name": "Campo del inspector",
@@ -373,15 +393,15 @@
       "refersTo": "input",
       "description": "Etiqueta y campo de edición local.",
       "html": "<label class=\"ds-field\">Nombre del autómata<input class=\"ds-field-input\" value=\"Termina en 01\" /></label>",
-      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;margin:0 0 15px;color:#344563;font:600 12px/1.5 'Segoe UI Variable','Segoe UI',system-ui,sans-serif}.ds-field-input{box-sizing:border-box;width:100%;min-height:42px;padding:9px 11px;border:1px solid #cbd5e4;border-radius:7px;color:var(--ink,#182641);background:#fff;font:400 14px/1.5 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;caret-color:var(--accent,#245de8)}.ds-field-input::placeholder{color:#68758a}.ds-field-input:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-field-input[aria-invalid=true]{border-color:#b42338}"
+      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;margin:0 0 15px;color:#344563;font:600 12px/1.5 'Segoe UI Variable','Segoe UI',system-ui,sans-serif}.ds-field-input{box-sizing:border-box;width:100%;min-height:42px;padding:9px 11px;border:1px solid #cbd5e4;border-radius:7px;color:var(--ink,#182641);background:#fff;font:400 14px/1.5 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;caret-color:var(--accent,#245de8)}.ds-field-input::placeholder{color:#68758a}.ds-field-input:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-field-input[aria-invalid=true]{border-color:#b42338}.ds-field-input{transition:border-color 140ms ease,background-color 140ms ease}.ds-field-input:focus{border-color:var(--accent,#245de8)}@media(prefers-reduced-motion:reduce){.ds-field-input{transition:none}}"
     },
     {
       "name": "Navegación de modelos",
       "kind": "nav",
       "refersTo": "model-navigation",
-      "description": "Cuatro modelos y selección persistente en una banda clara.",
-      "html": "<nav class=\"ds-model-nav\" aria-label=\"Tipo de autómata\"><button class=\"ds-model-tab ds-model-active\" aria-current=\"page\">AFD</button><button class=\"ds-model-tab\">AFN</button><button class=\"ds-model-tab\">AP</button><button class=\"ds-model-tab\">MT</button></nav>",
-      "css": ".ds-model-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:5px;border:1px solid var(--border,#dce3ef);border-radius:11px;background:#eaf0f8}.ds-model-tab{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.23,1,.32,1));gap:12px;min-height:48px;padding:9px 16px;border-color:transparent;background:transparent;color:var(--muted,#536276);font-size:15px;font-weight:750;letter-spacing:-.015em}.ds-model-active{color:#194bc8;background:#fff;border-color:#d3def1;box-shadow:0 2px 4px #21355706}@media(hover:hover) and (pointer:fine){.ds-model-tab:hover:not(.ds-model-active){background:#f5f8fd}}.ds-model-tab:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-model-tab:active{transform:translateY(1px)}@media(max-width:600px){.ds-model-nav{padding:4px;gap:3px}.ds-model-tab{padding:8px 5px;min-height:44px;font-size:13px}}@media(prefers-reduced-motion:reduce){.ds-model-tab{transition:none}.ds-model-tab:active{transform:none}}"
+      "description": "Cuatro modelos con una superficie de selección deslizante que respeta movimiento reducido.",
+      "html": "<nav class=\"model-nav\" data-model=\"nfa\" aria-label=\"Tipo de autómata\"><button>AFD</button><button class=\"active\" aria-current=\"page\">AFN</button><button>Pila</button><button>Turing</button></nav>",
+      "css": ".model-nav{--border:#dce3ef;--ease-out:cubic-bezier(.16,1,.3,1);font:600 13px/1.35 \"Segoe UI\",sans-serif}.model-nav button{display:inline-flex;align-items:center;cursor:pointer;box-sizing:border-box}.model-nav { --nav-inset: 5px; --nav-gap: 4px; --model-index: 0; position: relative; isolation: isolate; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 24px; padding: var(--nav-inset); border: 1px solid var(--border); border-radius: 11px; background: #eaf0f8; gap: var(--nav-gap); }\n.model-nav[data-model=nfa] { --model-index: 1; }\n.model-nav[data-model=pda] { --model-index: 2; }\n.model-nav[data-model=tm] { --model-index: 3; }\n.model-nav::before { box-sizing: border-box; content: ''; position: absolute; z-index: -1; inset-block: var(--nav-inset); left: var(--nav-inset); width: calc((100% - 2 * var(--nav-inset) - 3 * var(--nav-gap)) / 4); border: 1px solid #cbd8ef; border-radius: 7px; background: #fff; box-shadow: 0 2px 4px #21355706; transform: translateX(calc(var(--model-index) * (100% + var(--nav-gap)))); transition: transform 220ms var(--ease-out); pointer-events: none; }\n.model-nav button { justify-content: flex-start; gap: 12px; padding: 9px 16px; min-height: 48px; background: transparent; border: 1px solid transparent; color: #536276; border-radius: 7px; transition: color 140ms ease, background-color 140ms ease; }\n.model-nav button.active { color: #194bc8; background: transparent; }\n.model-abbr { font-size: 15px; font-weight: 750; letter-spacing: -.015em; }\n.model-description { text-align: left; font-size: 12px; font-weight: 400; }\n@media(max-width:600px){.model-nav{--nav-inset:4px;--nav-gap:3px}.model-nav button{min-height:44px;padding:8px 5px;justify-content:center}}@media(prefers-reduced-motion:reduce){.model-nav::before,.model-nav button{transition:none}}.model-nav button:focus-visible{outline:3px solid #376be7;outline-offset:3px}"
     },
     {
       "name": "Estado de configuración",
