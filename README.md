@@ -34,7 +34,7 @@ Los estados admiten Tab, Enter/Espacio y las flechas del teclado. El formulario 
 
 El inspector muestra primero los campos de edición. **Ayuda y definición** reúne la explicación contextual y la tupla del modelo; comienza plegada al seleccionar otro objeto y conserva su estado al escribir.
 
-La navegación y el inspector usan transiciones breves. Cada paso resalta los estados y las reglas utilizados y acompaña los cambios de entrada, pila y cinta; los datos se actualizan inmediatamente. En AFN y pila las reglas del paso se muestran a la vez. Las preferencias de movimiento reducido del sistema eliminan los efectos y conservan los indicadores estáticos, incluso al cambiar la preferencia con el laboratorio abierto.
+La navegación y los controles usan transiciones breves. El inspector aparece como una burbuja desde el elemento seleccionado y se desvanece al cerrar; el foco responde inmediatamente. Abrir o cerrar por teclado es instantáneo. Cada paso resalta los estados y las reglas utilizados y acompaña los cambios de entrada, pila y cinta; los datos se actualizan inmediatamente. En AFN y pila las reglas del paso se muestran a la vez. Las preferencias de movimiento reducido del sistema eliminan los efectos y conservan los indicadores estáticos, incluso al cambiar la preferencia con el laboratorio abierto.
 
 Los borradores se guardan por modelo en este navegador. **Exportar JSON** permite conservarlos o llevarlos a otro equipo. Importar valida el archivo antes de reemplazar el modelo y descarga una copia del borrador anterior. Los borradores con errores matemáticos se conservan; el simulador indica qué completar antes de ejecutarlos. No se guardan los historiales de ejecución.
 

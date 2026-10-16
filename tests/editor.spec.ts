@@ -112,16 +112,18 @@ for (const width of [390, 768, 1366]) {
     await expect(popup).toBeVisible();
     await expectInsideGraph(popup, graph);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    for (const model of [/^AFN\b/, /^Pila\b/, /^Turing\b/]) {
+    for (const [index, model] of [/^AFN\b/, /^Pila\b/, /^Turing\b/].entries()) {
       await page.getByRole('button', { name: model }).click();
       await graph.getByRole('button', { name: 'Ajustar todos los estados a la vista', exact: true }).click();
       await graph.locator('.react-flow__node').first().press('Enter');
       await expectInsideGraph(popup, graph);
       await expect(popup.getByLabel('Nombre del estado', { exact: true })).toBeVisible();
+      await page.screenshot({ path: testInfo.outputPath(`model-${index}-state.png`) });
       await popup.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
       await graph.locator('.automaton-transition__label').first().click();
       await expect(popup.getByRole('heading', { name: 'Editar transición', exact: true })).toBeVisible();
       await expectInsideGraph(popup, graph);
+      await page.screenshot({ path: testInfo.outputPath(`model-${index}-transition.png`) });
       await popup.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
       await page.getByRole('button', { name: 'Configurar modelo', exact: true }).click();
       await expectInsideGraph(popup, graph);

@@ -199,6 +199,7 @@ La profundidad procede principalmente de bordes y cambios de tono. La navegació
 - **Nodo seleccionado:** `0 0 0 5px #245de817`.
 - **Nodo activo:** `0 0 0 5px #245de810`.
 - **Selección interior:** `inset 0 -2px var(--accent)` en el símbolo actual.
+- **Popup contextual:** `0 8px 32px #18264126`, en la superficie interior que se anima; el contenedor exterior solo posiciona y mide.
 
 ## Shapes
 
@@ -214,7 +215,7 @@ Controles compactos con texto explícito.
 - **Primary:** texto blanco sobre cobalto para el paso siguiente y la confirmación de cambios.
 - **Neutral:** papel, texto secundario oscuro y borde frío; altura mínima general de (40px).
 - **Text:** fondo y borde transparentes para acciones auxiliares.
-- **Hover / Focus:** hover en dispositivos con puntero preciso; foco general de (3px) en cobalto con separación de (3px). La pulsación desplaza el botón (1px) hacia abajo.
+- **Hover / Focus:** hover en dispositivos con puntero preciso; foco general de (3px) en cobalto con separación de (3px). La pulsación con puntero reduce el botón a escala (0.98) en (100ms); el teclado conserva la escala.
 - **Disabled:** se atenúan fondo, texto y borde; el cursor indica que la acción no está disponible.
 
 ### Chips
@@ -246,7 +247,9 @@ Cuatro modelos en una banda clara.
 - El modelo activo se identifica también mediante `aria-current`.
 - Una única superficie blanca se desliza entre modelos en (220ms), con desaceleración `cubic-bezier(.16, 1, .3, 1)`. Sus medidas siguen las cuatro columnas también en móvil; el foco permanece en el botón elegido.
 - Los campos responden al foco y al puntero mediante el borde en (140ms). El encabezado del documento usa papel ligeramente frío y la etiqueta Editable un lavado de cobalto; la explicación del paso usa (13px), tinta secundaria y un máximo de (75ch).
-- El inspector acompaña los cambios de selección con una aparición de (160ms) desde una opacidad de (0.65), sin remontar el panel ni sus campos. Editar un valor no vuelve a disparar la aparición. Activar movimiento reducido cancela un efecto en curso. Guía, avisos, validación, confirmación de reemplazo y contenido desplegable usan la misma duración; cerrar un panel sigue siendo inmediato.
+- El popup se expande en (220ms), con escala (0.94 → 1.01 → 1) y opacidad. El origen corresponde al estado o regla, ajustado al borde del panel; en la configuración general es la esquina superior derecha. La salida reduce la escala a (0.97) y desvanece en (140ms), conservando posición y contenido mientras pierde inmediatamente interacción y exposición accesible. Reabrir cancela la salida y restablece los formularios cancelados; cambiar de modelo descarta el panel anterior.
+- Cambiar de selección acompaña el contenido con una aparición de (160ms) desde opacidad (0.65), sin remontar los campos; escribir o mover el grafo no reinicia la burbuja. Guía, avisos, validación, confirmación de reemplazo y contenido desplegable usan (160ms) con un desplazamiento de (3px) y desaceleración exponencial.
+- Aperturas y cierres por teclado son inmediatos, al igual que la selección de modelo por teclado. El foco nunca espera al movimiento. La preferencia de movimiento reducido elimina estas animaciones y cancela una entrada o salida ya iniciada, resolviendo el estado final. Los efectos de ejecución conservan su comportamiento propio.
 
 ### Graph and simulation
 

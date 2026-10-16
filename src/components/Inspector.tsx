@@ -110,7 +110,7 @@ export default function Inspector(props: Props) {
   const body = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (!body.current || preference.matches) return;
+    if (!body.current || preference.matches || body.current.closest('[data-input="keyboard"]')) return;
     const animation = body.current.animate([{ opacity: 0.65 }, { opacity: 1 }], { duration: 160, easing: 'ease-out' });
     const stopMotion = () => { if (preference.matches) animation.cancel(); };
     preference.addEventListener('change', stopMotion);

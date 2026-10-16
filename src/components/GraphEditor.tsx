@@ -192,6 +192,11 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   const [instance, setInstance] = useState<ReactFlowInstance<StateNode, TransitionEdge> | null>(null);
   const container = useRef<HTMLElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+  const popupSurface = useRef<HTMLDivElement>(null);
+  const lastPopup = useRef<{ kind: Machine['kind']; node: ReactNode } | null>(null);
+  const [popupPresent, setPopupPresent] = useState(false);
+  const popupOpen = Boolean(popup);
+  const interruptedPopup = useRef<Keyframe | null>(null);
   const latestMachine = useRef(machine);
   latestMachine.current = machine;
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 380 });
@@ -206,7 +211,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   const positionPopup = useCallback(() => {
     const host = container.current;
     const panel = popupRef.current;
-    if (!host || !panel) return;
+    if (!popupOpen || !host || !panel) return;
     const selector = selectedTransitionId
       ? `[data-transition-id="${CSS.escape(selectedTransitionId)}"]`
       : selectedStateId ? `.react-flow__node[data-id="${CSS.escape(selectedStateId)}"]` : null;
@@ -229,12 +234,72 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         top = below >= above ? anchor.bottom - bounds.top + gap : anchor.top - bounds.top - Math.min(height, space) - gap;
       }
     }
-    panel.style.left = `${Math.max(gap, Math.min(left, bounds.width - width - gap))}px`;
-    panel.style.top = `${Math.max(gap, Math.min(top, bounds.height - Math.min(panel.offsetHeight, availableHeight) - gap))}px`;
-  }, [selectedStateId, selectedTransitionId]);
+    left = Math.max(gap, Math.min(left, bounds.width - width - gap));
+    top = Math.max(gap, Math.min(top, bounds.height - Math.min(panel.offsetHeight, availableHeight) - gap));
+    panel.style.left = `${left}px`;
+    panel.style.top = `${top}px`;
+    const originX = anchor ? Math.max(0, Math.min(width, anchor.left + anchor.width / 2 - bounds.left - left)) : width;
+    const originY = anchor ? Math.max(0, Math.min(panel.offsetHeight, anchor.top + anchor.height / 2 - bounds.top - top)) : 0;
+    panel.style.setProperty('--popup-origin', `${originX}px ${originY}px`);
+  }, [popupOpen, selectedStateId, selectedTransitionId]);
 
   useLayoutEffect(positionPopup);
-  const popupOpen = Boolean(popup);
+  useLayoutEffect(() => {
+    if (popupOpen) lastPopup.current = { kind: machine.kind, node: popup };
+  });
+  useLayoutEffect(() => {
+    const surface = popupSurface.current;
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const from = interruptedPopup.current;
+    interruptedPopup.current = null;
+    let current = true;
+    const discard = () => {
+      if (!current) return;
+      lastPopup.current = null;
+      setPopupPresent(false);
+    };
+    if (!surface || (!popupOpen && lastPopup.current?.kind !== machine.kind)) {
+      discard();
+      return;
+    }
+    if (popupOpen) setPopupPresent(true);
+    if (preference.matches || surface.closest('[data-input="keyboard"]')) {
+      if (!popupOpen) discard();
+      return;
+    }
+    surface.style.willChange = 'transform, opacity';
+    const animation = surface.animate(popupOpen ? [
+      from ?? { opacity: 0, transform: 'scale(.94)' },
+      { opacity: 1, transform: 'scale(1.01)', offset: .72 },
+      { opacity: 1, transform: 'scale(1)' },
+    ] : [
+      from ?? { opacity: 1, transform: 'scale(1)' },
+      { opacity: 0, transform: 'scale(.97)' },
+    ], { duration: popupOpen ? 220 : 140, easing: 'cubic-bezier(.16, 1, .3, 1)' });
+    animation.onfinish = () => {
+      if (!current) return;
+      surface.style.willChange = '';
+      if (!popupOpen) discard();
+    };
+    const stopMotion = () => {
+      if (!preference.matches) return;
+      animation.cancel();
+      surface.style.willChange = '';
+      if (!popupOpen) discard();
+    };
+    preference.addEventListener('change', stopMotion);
+    return () => {
+      current = false;
+      if (animation.playState === 'running' || animation.playState === 'paused') {
+        const style = getComputedStyle(surface);
+        interruptedPopup.current = { opacity: style.opacity, transform: style.transform };
+      }
+      animation.onfinish = null;
+      animation.cancel();
+      surface.style.willChange = '';
+      preference.removeEventListener('change', stopMotion);
+    };
+  }, [popupOpen, machine.kind]);
   useEffect(() => {
     if (!popupOpen || !container.current || !popupRef.current) return;
     const observer = new ResizeObserver(positionPopup);
@@ -398,7 +463,9 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
           </ControlButton>
         </Controls>
       </ReactFlow>
-      {popup && <div ref={popupRef} className="graph-popup" role="dialog" aria-label="Inspector del autómata" aria-modal="false">{popup}</div>}
+      {(popupOpen || popupPresent) && (popupOpen || lastPopup.current?.kind === machine.kind) && <div ref={popupRef} className="graph-popup" data-state={popupOpen ? 'open' : 'closing'} role="dialog" aria-label="Inspector del autómata" aria-modal="false" aria-hidden={!popupOpen || undefined} inert={!popupOpen}>
+        <div ref={popupSurface} className="graph-popup__surface">{popupOpen ? popup : lastPopup.current?.node}</div>
+      </div>}
       {machine.states.length === 0 && <div className="graph-editor__empty"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true"><circle cx="28" cy="26" r="18" stroke="currentColor" strokeWidth="1.5" /><path d="M1 26H10M5 21L10 26L5 31" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>Tu autómata empieza aquí</strong><p>Añade un estado para comenzar a construir el grafo.</p></div>}
       <p className="graph-editor__hint">{needsPanning ? 'Desliza el lienzo para ver los demás estados.' : 'Mueve los estados · conecta sus puntos · selecciona una regla'}</p>
     </section>
