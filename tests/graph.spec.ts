@@ -34,11 +34,11 @@ test('cada regla agrupada se selecciona por separado y los puntos crean una cone
   await expect(graph.locator('.react-flow__node')).toHaveCount(4);
 
   const group = graph.locator('.automaton-transition__labels')
-    .filter({ has: page.getByRole('button', { name: 'Regla 0', exact: true }) })
-    .filter({ has: page.getByRole('button', { name: 'Regla 1', exact: true }) });
+    .filter({ has: page.getByRole('button', { name: 'Regla 0, de q0 a q0', exact: true }) })
+    .filter({ has: page.getByRole('button', { name: 'Regla 1, de q0 a q0', exact: true }) });
   await expect(group).toHaveCount(1);
-  await group.getByRole('button', { name: 'Regla 1', exact: true }).click();
-  await expect(group.getByRole('button', { name: 'Regla 1', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await group.getByRole('button', { name: 'Regla 1, de q0 a q0', exact: true }).click();
+  await expect(group.getByRole('button', { name: 'Regla 1, de q0 a q0', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('heading', { name: 'Editar transición', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Lee', exact: true })).toHaveValue('1');
   await page.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();

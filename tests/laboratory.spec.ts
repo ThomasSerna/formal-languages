@@ -4,12 +4,15 @@ test('el ejemplo AFD avanza, retrocede y acepta; la entrada inválida explica el
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('');
   await expect(page.getByRole('heading', { name: 'Autómata finito determinista', exact: true })).toBeVisible();
-  const graph = await page.locator('.graph-editor').boundingBox();
-  expect(graph!.width).toBeGreaterThanOrEqual(1300);
-  expect(graph!.height).toBeGreaterThan(384);
+  const graph = await page.locator('.graph-canvas').boundingBox();
+  expect(graph!.width).toBeGreaterThanOrEqual(1000);
+  expect(graph!.height).toBeGreaterThanOrEqual(260);
   expect(graph!.y + graph!.height).toBeLessThanOrEqual(768);
   const simulator = await page.locator('.simulator').boundingBox();
-  expect(simulator!.y).toBeGreaterThanOrEqual(768);
+  expect(simulator!.y).toBeGreaterThanOrEqual(graph!.y + graph!.height);
+  expect(simulator!.y + simulator!.height).toBeLessThanOrEqual(768);
+  await expect(page.getByRole('button', { name: 'Paso siguiente' })).toBeInViewport();
+  await expect(page.locator('.configuration-panel')).toBeInViewport();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('11');
   await page.getByRole('button', { name: 'Paso siguiente' }).click();
   await expect(page.locator('.step-count')).toContainText('1 de 2');
@@ -51,6 +54,7 @@ test('los cuatro modelos ejecutan; Turing restaura la cinta al retroceder una es
 
 test('crear un grafo desde cero, editar roles y conservar el borrador', async ({ page }) => {
   await page.goto('');
+  await page.locator('.file-menu > summary').click();
   await page.getByRole('button', { name: 'Crear desde cero', exact: true }).click();
   await page.getByRole('button', { name: 'Abrir lienzo vacío' }).click();
   await page.getByRole('button', { name: 'Agregar estado', exact: true }).click();
@@ -75,13 +79,20 @@ test('crear un grafo desde cero, editar roles y conservar el borrador', async ({
 test('exportar e importar JSON y preservar el grafo ante un archivo inválido', async ({ page }) => {
   await page.goto('');
   const downloadPromise = page.waitForEvent('download');
+  await page.locator('.file-menu > summary').click();
   await page.getByRole('button', { name: 'Exportar JSON', exact: true }).click();
   const download = await downloadPromise;
   const path = await download.path();
   expect(path).toBeTruthy();
-  await page.getByLabel('Importar autómata JSON').setInputFiles(path!);
+  await page.locator('.file-menu > summary').click();
+  const importChooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Importar', exact: true }).click();
+  await (await importChooser).setFiles(path!);
   await expect(page.getByRole('status').filter({ hasText: 'Archivo importado' })).toBeVisible();
-  await page.getByLabel('Importar autómata JSON').setInputFiles({ name: 'invalid.json', mimeType: 'application/json', buffer: Buffer.from('{"schemaVersion":99}') });
+  await page.locator('.file-menu > summary').click();
+  const invalidChooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Importar', exact: true }).click();
+  await (await invalidChooser).setFiles({ name: 'invalid.json', mimeType: 'application/json', buffer: Buffer.from('{"schemaVersion":99}') });
   await expect(page.getByRole('status').filter({ hasText: 'versión' })).toBeVisible();
   await expect(page.locator('.automaton-state')).toHaveCount(2);
 });
@@ -91,10 +102,77 @@ test('un fallo al guardar se mantiene visible al reemplazar el borrador', async 
     Storage.prototype.setItem = () => { throw new DOMException('Sin espacio', 'QuotaExceededError'); };
   });
   await page.goto('');
+  await page.locator('.file-menu > summary').click();
   await page.getByRole('button', { name: 'Crear desde cero', exact: true }).click();
   await page.getByRole('button', { name: 'Abrir lienzo vacío' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'almacenamiento del navegador está lleno' })).toBeVisible();
+  await page.locator('.file-menu > summary').click();
   await expect(page.getByRole('button', { name: 'Exportar JSON', exact: true })).toBeEnabled();
+});
+
+test('Archivo se opera por teclado y cierra al elegir, pulsar Escape o tocar fuera', async ({ page }) => {
+  await page.goto('');
+  const menu = page.locator('.file-menu');
+  const summary = menu.locator('summary');
+  await summary.focus();
+  await summary.press('Enter');
+  await expect(menu).toHaveAttribute('open', '');
+  await page.keyboard.press('Tab');
+  await expect(menu.getByRole('button', { name: 'Importar', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(menu).not.toHaveAttribute('open', '');
+  await expect(summary).toBeFocused();
+  await summary.press('Enter');
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  await expect(menu.getByRole('button', { name: 'Exportar JSON', exact: true })).toBeFocused();
+  const downloadPromise = page.waitForEvent('download');
+  await page.keyboard.press('Enter');
+  expect((await downloadPromise).suggestedFilename()).toMatch(/\.json$/);
+  await expect(menu).not.toHaveAttribute('open', '');
+  await expect(summary).toBeFocused();
+  await summary.press('Enter');
+  await page.getByRole('heading', { name: 'Autómata finito determinista', exact: true }).click();
+  await expect(menu).not.toHaveAttribute('open', '');
+});
+
+test('los avisos del modelo amplían el documento sin superponer el editor ni su barra', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto('');
+  const configure = page.getByRole('button', { name: 'Configurar modelo', exact: true });
+  const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
+  await configure.click();
+  await popup.getByLabel('Alfabeto de entrada · Σ', { exact: true }).fill('a b');
+  await expect(page.locator('.validation')).toHaveAttribute('open', '');
+  await expect(page.locator('.validation li')).not.toHaveCount(0);
+  await popup.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
+
+  const toolbar = await page.locator('.graph-toolbar').boundingBox();
+  const canvas = await page.locator('.graph-canvas').boundingBox();
+  const dock = await page.locator('.simulation-dock').boundingBox();
+  const reference = await page.locator('#formal-reference').boundingBox();
+  expect(canvas!.y).toBeGreaterThanOrEqual(toolbar!.y + toolbar!.height);
+  expect(dock!.y).toBeGreaterThanOrEqual(canvas!.y + canvas!.height);
+  expect(reference!.y).toBeGreaterThanOrEqual(dock!.y + dock!.height);
+  await configure.click();
+  await expect(popup.getByLabel('Alfabeto de entrada · Σ', { exact: true })).toHaveValue('a b');
+});
+
+test('en móvil abrir el modelo o seleccionar un estado lleva el inspector a la vista', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 667 });
+  await page.goto('');
+  const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
+  await page.getByRole('button', { name: 'Configurar modelo', exact: true }).click();
+  await expect(popup.getByRole('heading', { name: 'Modelo', exact: true })).toBeInViewport();
+  await expect(popup.getByLabel('Nombre del autómata', { exact: true })).toBeInViewport();
+  await expect(popup.getByLabel('Nombre del autómata', { exact: true })).toBeFocused();
+  await expect(popup.getByRole('button', { name: 'Cerrar inspector', exact: true })).toBeInViewport();
+  await popup.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
+
+  await page.locator('.react-flow__node[data-id="q0"]').click();
+  await expect(popup.getByRole('heading', { name: 'Estado q0', exact: true })).toBeInViewport();
+  await expect(popup.getByLabel('Nombre del estado', { exact: true })).toBeInViewport();
+  await expect(popup.getByRole('button', { name: 'Cerrar inspector', exact: true })).toBeInViewport();
 });
 
 for (const width of [390, 768, 1366]) {

@@ -19,7 +19,7 @@ async function holdPopupMotion(page: Page) {
   });
 }
 
-test('la burbuja nace del ancla y conserva campos y superficie al editar', async ({ page }) => {
+test('el inspector nace del borde del panel y conserva campos y superficie al editar', async ({ page }) => {
   await holdPopupMotion(page);
   await page.goto('');
   const state = page.locator('.react-flow__node[data-id="q0"]');
@@ -28,16 +28,8 @@ test('la burbuja nace del ancla y conserva campos y superficie al editar', async
   const surface = await popup.locator('.graph-popup__surface').elementHandle();
   const name = popup.getByLabel('Nombre del estado', { exact: true });
   const field = await name.elementHandle();
-  const origin = await popup.evaluate(panel => {
-    const anchor = document.querySelector('.react-flow__node[data-id="q0"]')!.getBoundingClientRect();
-    const bounds = panel.getBoundingClientRect();
-    const actual = getComputedStyle(panel.querySelector('.graph-popup__surface')!).transformOrigin.split(' ').map(parseFloat);
-    return {
-      actual,
-      expected: [Math.max(0, Math.min(bounds.width, anchor.x + anchor.width / 2 - bounds.x)), Math.max(0, Math.min(bounds.height, anchor.y + anchor.height / 2 - bounds.y))],
-    };
-  });
-  origin.actual.forEach((value, index) => expect(value).toBeCloseTo(origin.expected[index], 0));
+  const origin = await popup.locator('.graph-popup__surface').evaluate(panel => getComputedStyle(panel).transformOrigin.split(' ').map(parseFloat));
+  expect(origin).toEqual([0, 0]);
   await name.fill('memoria');
   await name.pressSequentially('0');
   expect(await field!.evaluate(element => element.isConnected && element === document.activeElement)).toBe(true);

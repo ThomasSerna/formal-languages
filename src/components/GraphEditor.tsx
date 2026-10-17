@@ -54,6 +54,7 @@ type StateData = {
 type RuleLabel = { id: string; text: string; active: boolean; selected: boolean };
 type TransitionData = {
   rules: RuleLabel[];
+  label: string;
   reciprocal: boolean;
   active: boolean;
   step: number;
@@ -150,14 +151,14 @@ function TransitionArrow({ id, source, target, sourceX, sourceY, targetX, target
           className="automaton-transition__labels nodrag nopan nowheel"
           style={{ transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)` }}
           role="group"
-          aria-label="Reglas de esta transición"
+          aria-label={`Reglas ${data.label}`}
         >
           {data.rules.map((rule) => (
             <button
               key={rule.id}
               type="button"
               className={`automaton-transition__label${rule.active ? ' is-active' : ''}${rule.selected ? ' is-selected' : ''}`}
-              aria-label={`Regla ${rule.text}${rule.active ? ', utilizada en este paso' : ''}`}
+              aria-label={`Regla ${rule.text}, ${data.label}${rule.active ? ', utilizada en este paso' : ''}`}
               aria-pressed={rule.selected}
               data-transition-id={rule.id}
               onClick={(event) => { event.stopPropagation(); data.onSelect(rule.id); }}
@@ -180,7 +181,7 @@ function graphBounds(machine: Machine) {
   for (const rule of machine.transitions) {
     if (rule.from === rule.to) loops.set(rule.from, (loops.get(rule.from) ?? 0) + 1);
   }
-  const rowHeight = window.matchMedia('(max-width: 849px)').matches ? 48 : 28;
+  const rowHeight = window.matchMedia('(max-width: 850px)').matches ? 48 : 44;
   const left = Math.min(...machine.states.map((state) => state.x - (loops.has(state.id) ? 90 : machine.initialStateIds.includes(state.id) ? 48 : 12)));
   const right = Math.max(...machine.states.map((state) => state.x + RADIUS * 2 + (loops.has(state.id) ? 90 : 12)));
   const top = Math.min(...machine.states.map((state) => state.y - (loops.has(state.id) ? Math.max(130, 72 + Math.min(164, loops.get(state.id)! * rowHeight + 4) / 2) : 16)));
@@ -190,8 +191,7 @@ function graphBounds(machine: Machine) {
 
 export default function GraphEditor({ machine, selectedStateId, selectedTransitionId, activeStateIds, activeTransitionIds, step, onSelectState, onSelectTransition, onMoveState, onConnect, popup }: GraphEditorProps) {
   const [instance, setInstance] = useState<ReactFlowInstance<StateNode, TransitionEdge> | null>(null);
-  const container = useRef<HTMLElement>(null);
-  const popupRef = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLDivElement>(null);
   const popupSurface = useRef<HTMLDivElement>(null);
   const lastPopup = useRef<{ kind: Machine['kind']; node: ReactNode } | null>(null);
   const [popupPresent, setPopupPresent] = useState(false);
@@ -208,42 +208,6 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   const needsPanning = narrowCanvas && bounds !== null && (bounds.width * 0.95 > canvasSize.width - 24 || bounds.height * 0.95 > canvasSize.height - 50);
   const selectRule = useCallback((id: string) => { onSelectTransition(id); }, [onSelectTransition]);
 
-  const positionPopup = useCallback(() => {
-    const host = container.current;
-    const panel = popupRef.current;
-    if (!popupOpen || !host || !panel) return;
-    const selector = selectedTransitionId
-      ? `[data-transition-id="${CSS.escape(selectedTransitionId)}"]`
-      : selectedStateId ? `.react-flow__node[data-id="${CSS.escape(selectedStateId)}"]` : null;
-    const anchor = selector ? host.querySelector(selector)?.getBoundingClientRect() : null;
-    const bounds = host.getBoundingClientRect();
-    const gap = 12;
-    const width = panel.offsetWidth;
-    const availableHeight = Math.max(0, bounds.height - gap * 2);
-    panel.style.maxHeight = `${availableHeight}px`;
-    const height = Math.min(panel.offsetHeight, availableHeight);
-    let left = anchor ? anchor.right - bounds.left + gap : bounds.width - width - gap;
-    if (anchor && left + width > bounds.width - gap) left = anchor.left - bounds.left - width - gap;
-    let top = anchor ? anchor.top - bounds.top : gap;
-    if (anchor && bounds.width < width + anchor.width + gap * 3) {
-      const below = bounds.bottom - anchor.bottom - gap * 2;
-      const above = anchor.top - bounds.top - gap * 2;
-      const space = Math.max(below, above);
-      if (space >= 180) {
-        panel.style.maxHeight = `${space}px`;
-        top = below >= above ? anchor.bottom - bounds.top + gap : anchor.top - bounds.top - Math.min(height, space) - gap;
-      }
-    }
-    left = Math.max(gap, Math.min(left, bounds.width - width - gap));
-    top = Math.max(gap, Math.min(top, bounds.height - Math.min(panel.offsetHeight, availableHeight) - gap));
-    panel.style.left = `${left}px`;
-    panel.style.top = `${top}px`;
-    const originX = anchor ? Math.max(0, Math.min(width, anchor.left + anchor.width / 2 - bounds.left - left)) : width;
-    const originY = anchor ? Math.max(0, Math.min(panel.offsetHeight, anchor.top + anchor.height / 2 - bounds.top - top)) : 0;
-    panel.style.setProperty('--popup-origin', `${originX}px ${originY}px`);
-  }, [popupOpen, selectedStateId, selectedTransitionId]);
-
-  useLayoutEffect(positionPopup);
   useLayoutEffect(() => {
     if (popupOpen) lastPopup.current = { kind: machine.kind, node: popup };
   });
@@ -300,14 +264,6 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       preference.removeEventListener('change', stopMotion);
     };
   }, [popupOpen, machine.kind]);
-  useEffect(() => {
-    if (!popupOpen || !container.current || !popupRef.current) return;
-    const observer = new ResizeObserver(positionPopup);
-    observer.observe(container.current);
-    observer.observe(popupRef.current);
-    return () => observer.disconnect();
-  }, [popupOpen, positionPopup]);
-
   const fitAll = useCallback(() => {
     if (!instance || !canvasSize.width || !machine.states.length) return;
     const viewport = getViewportForBounds(graphBounds(machine), canvasSize.width, canvasSize.height, 0.25, 1.15, 0.12);
@@ -354,9 +310,9 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         type: 'transition',
         selected,
         deletable: false,
-        markerEnd: { type: MarkerType.ArrowClosed, color: active || selected ? '#245de8' : '#687991', width: 20, height: 20, markerUnits: 'userSpaceOnUse' },
+        markerEnd: { type: MarkerType.ArrowClosed, color: active ? '#0e7490' : selected ? '#6a45b8' : '#625d70', width: 20, height: 20, markerUnits: 'userSpaceOnUse' },
         ariaLabel: `De ${sourceName} a ${targetName}: ${group.rules.map((rule) => rule.text).join('; ')}`,
-        data: { rules: group.rules, reciprocal: group.from !== group.to && groups.has(JSON.stringify([group.to, group.from])), active, step, motionKey, onSelect: selectRule },
+        data: { rules: group.rules, label: `de ${sourceName} a ${targetName}`, reciprocal: group.from !== group.to && groups.has(JSON.stringify([group.to, group.from])), active, step, motionKey, onSelect: selectRule },
       };
     });
   }, [machine, activeTransitionIds, selectedTransitionId, selectRule, step, motionKey]);
@@ -430,14 +386,14 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   }, [edges, selectRule]);
 
   return (
-    <section ref={container} className="graph-editor" aria-label="Editor interactivo del grafo">
+    <section className="graph-editor" aria-label="Editor interactivo del grafo">
+      <div ref={container} className="graph-canvas">
       <ReactFlow<StateNode, TransitionEdge>
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onInit={setInstance}
-        onMove={positionPopup}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={(_, node) => { onSelectState(node.id); }}
@@ -456,18 +412,19 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         defaultViewport={{ x: 0, y: 0, zoom: 0.95 }}
         connectionRadius={28}
       >
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1.1} color="#dce3ef" />
+        <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#ddd8e5" />
         <Controls position="bottom-right" showInteractive={false} showFitView={false}>
           <ControlButton onClick={fitAll} title="Ajustar todos los estados a la vista" aria-label="Ajustar todos los estados a la vista">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 2H2V6M10 2H14V6M2 10V14H6M14 10V14H10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </ControlButton>
         </Controls>
       </ReactFlow>
-      {(popupOpen || popupPresent) && (popupOpen || lastPopup.current?.kind === machine.kind) && <div ref={popupRef} className="graph-popup" data-state={popupOpen ? 'open' : 'closing'} role="dialog" aria-label="Inspector del autómata" aria-modal="false" aria-hidden={!popupOpen || undefined} inert={!popupOpen}>
-        <div ref={popupSurface} className="graph-popup__surface">{popupOpen ? popup : lastPopup.current?.node}</div>
-      </div>}
       {machine.states.length === 0 && <div className="graph-editor__empty"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true"><circle cx="28" cy="26" r="18" stroke="currentColor" strokeWidth="1.5" /><path d="M1 26H10M5 21L10 26L5 31" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>Tu autómata empieza aquí</strong><p>Añade un estado para comenzar a construir el grafo.</p></div>}
       <p className="graph-editor__hint">{needsPanning ? 'Desliza el lienzo para ver los demás estados.' : 'Mueve los estados · conecta sus puntos · selecciona una regla'}</p>
+      </div>
+      {(popupOpen || popupPresent) && (popupOpen || lastPopup.current?.kind === machine.kind) && <div className="graph-popup" data-state={popupOpen ? 'open' : 'closing'} role="dialog" aria-label="Inspector del autómata" aria-modal="false" aria-hidden={!popupOpen || undefined} inert={!popupOpen}>
+        <div ref={popupSurface} className="graph-popup__surface">{popupOpen ? popup : lastPopup.current?.node}</div>
+      </div>}
     </section>
   );
 }

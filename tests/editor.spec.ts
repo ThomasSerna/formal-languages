@@ -1,13 +1,20 @@
 import { expect, test, type Locator } from '@playwright/test';
 
-async function expectInsideGraph(popup: Locator, graph: Locator) {
-  const canvas = await graph.boundingBox();
+async function expectContextualInspector(popup: Locator, graph: Locator) {
+  const editor = await graph.boundingBox();
+  const canvas = await graph.locator('.graph-canvas').boundingBox();
   const box = await popup.boundingBox();
   expect(box).not.toBeNull();
-  expect(box!.x).toBeGreaterThanOrEqual(canvas!.x);
-  expect(box!.y).toBeGreaterThanOrEqual(canvas!.y);
-  expect(box!.x + box!.width).toBeLessThanOrEqual(canvas!.x + canvas!.width + 1);
-  expect(box!.y + box!.height).toBeLessThanOrEqual(canvas!.y + canvas!.height + 1);
+  expect(box!.x).toBeGreaterThanOrEqual(editor!.x);
+  expect(box!.y).toBeGreaterThanOrEqual(editor!.y);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(editor!.x + editor!.width + 1);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(editor!.y + editor!.height + 1);
+  if ((await graph.page().evaluate(() => window.innerWidth)) > 850) {
+    expect(box!.x).toBeGreaterThanOrEqual(canvas!.x + canvas!.width - 1);
+    expect(box!.y).toBeCloseTo(canvas!.y, 0);
+  } else {
+    expect(box!.y).toBeGreaterThanOrEqual(canvas!.y + canvas!.height - 1);
+  }
 }
 
 test('el inspector aparece al seleccionar y cierra con Escape o el fondo del grafo', async ({ page }) => {
@@ -79,7 +86,7 @@ test('eliminar una transición o un estado cierra su inspector', async ({ page }
   await page.goto('');
   const graph = page.locator('.graph-editor');
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
-  await graph.getByRole('button', { name: 'Regla 0', exact: true }).first().click();
+  await graph.getByRole('button', { name: 'Regla 0, de q0 a q0', exact: true }).click();
   await popup.getByRole('button', { name: 'Eliminar transición', exact: true }).click();
   await expect(popup).toHaveCount(0);
   await expect(graph.locator('.react-flow__edge')).toHaveCount(3);
@@ -91,7 +98,7 @@ test('eliminar una transición o un estado cierra su inspector', async ({ page }
 });
 
 for (const width of [390, 768, 1366]) {
-  test(`el popup sigue al estado y permanece dentro del lienzo a ${width}px`, async ({ page }, testInfo) => {
+  test(`el inspector contextual permite editar los cuatro modelos a ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('');
@@ -102,35 +109,91 @@ for (const width of [390, 768, 1366]) {
     await page.screenshot({ path: testInfo.outputPath('editor.png') });
     await state.click();
     await expect(popup).toBeVisible();
-    await expectInsideGraph(popup, graph);
+    await expectContextualInspector(popup, graph);
     await page.screenshot({ path: testInfo.outputPath('popup.png') });
-    const before = await popup.boundingBox();
+    const before = await state.getAttribute('style');
     await state.press('ArrowRight');
-    if (width > 600) await expect.poll(async () => (await popup.boundingBox())!.x).toBeGreaterThan(before!.x);
-    await expectInsideGraph(popup, graph);
+    await expect.poll(() => state.getAttribute('style')).not.toBe(before);
+    await expectContextualInspector(popup, graph);
     await graph.getByRole('button', { name: 'Acercar el grafo', exact: true }).click();
     await expect(popup).toBeVisible();
-    await expectInsideGraph(popup, graph);
+    await expectContextualInspector(popup, graph);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     for (const [index, model] of [/^AFN\b/, /^Pila\b/, /^Turing\b/].entries()) {
       await page.getByRole('button', { name: model }).click();
       await graph.getByRole('button', { name: 'Ajustar todos los estados a la vista', exact: true }).click();
       await graph.locator('.react-flow__node').first().press('Enter');
-      await expectInsideGraph(popup, graph);
+      await expectContextualInspector(popup, graph);
       await expect(popup.getByLabel('Nombre del estado', { exact: true })).toBeVisible();
       await page.screenshot({ path: testInfo.outputPath(`model-${index}-state.png`) });
       await popup.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
       await graph.locator('.automaton-transition__label').first().click();
       await expect(popup.getByRole('heading', { name: 'Editar transición', exact: true })).toBeVisible();
-      await expectInsideGraph(popup, graph);
+      await expectContextualInspector(popup, graph);
       await page.screenshot({ path: testInfo.outputPath(`model-${index}-transition.png`) });
       await popup.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
       await page.getByRole('button', { name: 'Configurar modelo', exact: true }).click();
-      await expectInsideGraph(popup, graph);
+      await expectContextualInspector(popup, graph);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     }
   });
 }
+
+test('cambiar de tamaño conserva la transición sin guardar y la ejecución de los cuatro modelos', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('');
+  const graph = page.locator('.graph-editor');
+  const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
+  const next = page.getByRole('button', { name: 'Paso siguiente', exact: true });
+  const readExecution = () => page.evaluate(() => ({
+    input: (document.querySelector('#input-word') as HTMLInputElement).value,
+    step: document.querySelector('.step-count')?.textContent,
+    status: document.querySelector('.run-status')?.textContent,
+    configuration: document.querySelector('.configuration-panel')?.textContent,
+    explanation: document.querySelector('.step-explanation')?.textContent,
+    tape: document.querySelector('.tape')?.textContent ?? null,
+    consumed: document.querySelectorAll('.symbol-cell.consumed').length,
+    activeStates: Array.from(document.querySelectorAll('.react-flow__node:has(.automaton-state.is-active)'), node => node.getAttribute('data-id')),
+    activeRules: Array.from(document.querySelectorAll('.automaton-transition__label.is-active'), node => node.getAttribute('data-transition-id')),
+  }));
+  for (const model of ['AFD', 'AFN', 'Pila', 'Turing']) {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.getByRole('button', { name: new RegExp(`^${model}\\b`) }).click();
+    const steps = model === 'Turing' ? 2 : 1;
+    for (let step = 0; step < steps; step++) await next.click();
+    await expect(page.locator('.step-count strong')).toHaveText(String(steps));
+    const execution = await readExecution();
+    await page.getByRole('button', { name: 'Agregar transición', exact: true }).click();
+    const form = popup.locator('form');
+    const destination = form.getByRole('combobox', { name: 'Destino', exact: true });
+    await destination.selectOption({ index: 0 });
+    await form.getByRole('combobox', { name: 'Lee', exact: true }).selectOption(model === 'Pila' ? 'b' : '1');
+    if (model === 'Pila') {
+      await form.getByRole('combobox', { name: 'Tope que retira', exact: true }).selectOption('A');
+      await form.getByLabel('Reemplaza por', { exact: true }).fill('A⊥');
+    }
+    if (model === 'Turing') {
+      await form.getByRole('combobox', { name: 'Escribe', exact: true }).selectOption('Y');
+      await form.getByRole('combobox', { name: 'Mueve', exact: true }).selectOption('L');
+    }
+    const formElement = await form.elementHandle();
+    const field = await destination.elementHandle();
+    const readDraft = () => form.locator('input, select').evaluateAll(fields => fields.map(element => (element as HTMLInputElement).value));
+    const draft = await readDraft();
+    for (const width of [390, 768, 1366]) {
+      await page.setViewportSize({ width, height: width === 1366 ? 768 : 900 });
+      await expectContextualInspector(popup, graph);
+      expect(await formElement!.evaluate(element => element.isConnected && element === document.querySelector('.graph-popup form'))).toBe(true);
+      expect(await field!.evaluate(element => element.isConnected && element === document.querySelector('.graph-popup [aria-label="Destino"]'))).toBe(true);
+      expect(await readDraft()).toEqual(draft);
+      expect(await readExecution()).toEqual(execution);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    }
+    await popup.getByRole('button', { name: 'Cancelar', exact: true }).click();
+    await next.click();
+    await expect(page.locator('.step-count strong')).toHaveText(String(steps + 1));
+  }
+});
 
 test('la ayuda es opcional, accesible por teclado y conserva los campos al escribir', async ({ page }) => {
   await page.goto('');
@@ -166,7 +229,7 @@ test('la ayuda es opcional, accesible por teclado y conserva los campos al escri
   await expect(graph.locator('.react-flow__node[data-id="q1"]')).toBeFocused();
 });
 
-test('estado y transición básica muestran todos sus controles sin desplazamiento interno', async ({ page }) => {
+test('estado y transición básica mantienen todos sus controles accesibles en el inspector', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('');
@@ -177,16 +240,24 @@ test('estado y transición básica muestran todos sus controles sin desplazamien
   await expect(popup.getByRole('checkbox', { name: 'Estado inicial', exact: true })).toBeVisible();
   await expect(popup.getByRole('checkbox', { name: 'Estado de aceptación', exact: true })).toBeVisible();
   await expect(popup.getByRole('button', { name: 'Eliminar estado y sus conexiones', exact: true })).toBeVisible();
-  expect(await popup.locator('.inspector-body').evaluate(body => body.scrollHeight <= body.clientHeight + 1)).toBe(true);
-  await expectInsideGraph(popup, graph);
-  await graph.getByRole('button', { name: 'Regla 0', exact: true }).first().click();
-  for (const name of ['Origen', 'Destino', 'Lee']) await expect(popup.getByRole('combobox', { name, exact: true })).toBeVisible();
-  await expect(popup.getByRole('button', { name: 'Guardar transición', exact: true })).toBeVisible();
-  await expect(popup.getByRole('button', { name: 'Cancelar', exact: true })).toBeVisible();
-  await expect(popup.getByRole('button', { name: 'Eliminar transición', exact: true })).toBeVisible();
+  await popup.getByRole('button', { name: 'Eliminar estado y sus conexiones', exact: true }).scrollIntoViewIfNeeded();
+  await expect(popup.getByRole('button', { name: 'Eliminar estado y sus conexiones', exact: true })).toBeInViewport();
+  await expectContextualInspector(popup, graph);
+  await graph.getByRole('button', { name: 'Regla 0, de q0 a q0', exact: true }).click();
+  for (const name of ['Origen', 'Destino', 'Lee']) {
+    const field = popup.getByRole('combobox', { name, exact: true });
+    await field.scrollIntoViewIfNeeded();
+    await expect(field).toBeVisible();
+    await expect(field).toBeInViewport();
+  }
+  for (const name of ['Guardar transición', 'Cancelar', 'Eliminar transición']) {
+    const button = popup.getByRole('button', { name, exact: true });
+    await button.scrollIntoViewIfNeeded();
+    await expect(button).toBeVisible();
+    await expect(button).toBeInViewport();
+  }
   await expect(popup.locator('.explanation')).toHaveCount(0);
-  expect(await popup.locator('.inspector-body').evaluate(body => body.scrollHeight <= body.clientHeight + 1)).toBe(true);
-  await expectInsideGraph(popup, graph);
+  await expectContextualInspector(popup, graph);
 });
 
 test('la transición de pila mantiene visible la pista indispensable y sus errores', async ({ page }) => {
@@ -205,6 +276,7 @@ test('la transición de pila mantiene visible la pista indispensable y sus error
 });
 
 test('editar una ecuación de la definición formal regresa al grafo y abre su regla', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('');
   const definition = page.locator('.reference-section > details').filter({ has: page.locator('summary', { hasText: 'Definición formal' }) });
   if (await definition.getAttribute('open') === null) await definition.locator('summary').click();
@@ -219,5 +291,6 @@ test('editar una ecuación de la definición formal regresa al grafo y abre su r
   await page.keyboard.press('Tab');
   await expect(popup.getByRole('combobox', { name: 'Destino', exact: true })).toBeFocused();
   await expect(popup.getByRole('combobox', { name: 'Destino', exact: true })).toBeInViewport();
-  await expect(page.locator('.simulator')).not.toBeInViewport();
+  await expect(page.locator('.graph-canvas')).toBeInViewport();
+  await expect(page.locator('.simulator')).toBeInViewport();
 });

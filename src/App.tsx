@@ -86,7 +86,7 @@ export default function App() {
     if (graphSelector) inspectorTrigger.current = editorRef.current?.querySelector<HTMLElement>(graphSelector) ?? null;
     else if (!active?.closest('.graph-popup')) inspectorTrigger.current = active;
     focusInspector.current = !graphSelector && !active?.closest('.graph-popup');
-    editorRef.current?.scrollIntoView({ block: 'start' });
+    if (!window.matchMedia('(max-width: 850px)').matches) editorRef.current?.scrollIntoView({ block: 'start' });
     setInspectorOpen(true);
   }
   const closeInspector = useCallback((restoreFocus = false) => {
@@ -158,7 +158,9 @@ export default function App() {
     return () => document.removeEventListener('keydown', closeOnEscape);
   }, [inspectorOpen, closeInspector]);
   useEffect(() => {
-    if (!inspectorOpen || !focusInspector.current) return;
+    if (!inspectorOpen) return;
+    if (window.matchMedia('(max-width: 850px)').matches) editorRef.current?.querySelector('.graph-popup')?.scrollIntoView({ block: 'start' });
+    if (!focusInspector.current) return;
     focusInspector.current = false;
     const field = editorRef.current?.querySelector<HTMLElement>('.inspector-body input, .inspector-body select');
     (field ?? editorRef.current?.querySelector<HTMLElement>('.close-inspector'))?.focus({ preventScroll: true });
