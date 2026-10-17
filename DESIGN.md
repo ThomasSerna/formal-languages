@@ -1,281 +1,314 @@
 ---
 name: Autómata
-description: Laboratorio claro de lenguajes formales, con grafo, configuración y regla sincronizados.
+description: Laboratorio continuo para construir un autómata y comparar cada paso con su configuración.
 colors:
-  cobalt: "#245de8"
-  cobalt-hover: "#164bcf"
-  cobalt-ink: "#174ac5"
-  cobalt-wash: "#eaf0ff"
-  cobalt-trace: "#79a5ff"
-  ink: "#182641"
-  muted: "#536276"
-  border: "#dce3ef"
+  accent: "#6a45b8"
+  accent-hover: "#573499"
+  accent-wash: "#f0eaf9"
+  activity: "#0e7490"
+  activity-ink: "#085c73"
+  activity-wash: "#e5f3f6"
+  shell: "#3c3152"
+  ink: "#252335"
+  muted: "#625d70"
+  border: "#ddd8e5"
+  control-border: "#bdb5cb"
   paper: "#ffffff"
-  shell: "#f5f7fb"
-  canvas: "#fbfcff"
-  inspector: "#f9fbfe"
+  ground: "#f7f5fa"
   accepted: "#167249"
   rejected: "#b12c40"
   inconclusive: "#8a5b18"
-  danger: "#b42338"
+  nav-surface: "#493d5e"
+  nav-text: "#e9e1f1"
+  nav-selected: "#4f2c86"
 typography:
   headline:
-    fontFamily: "Manrope, 'Segoe UI', sans-serif"
-    fontSize: "28px"
-    fontWeight: 700
-    lineHeight: 1.25
-    letterSpacing: "-0.025em"
-  title:
-    fontFamily: "'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "16px"
+    fontFamily: "'Source Sans 3', 'Segoe UI', system-ui, sans-serif"
+    fontSize: "23px"
     fontWeight: 650
-    lineHeight: 1.5
-    letterSpacing: "-0.015em"
+    lineHeight: 1.25
+    letterSpacing: "-0.02em"
+  title:
+    fontFamily: "'Source Sans 3', 'Segoe UI', system-ui, sans-serif"
+    fontSize: "20px"
+    fontWeight: 650
+    lineHeight: 1.25
+    letterSpacing: "-0.02em"
   body:
-    fontFamily: "'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "15px"
+    fontFamily: "'Source Sans 3', 'Segoe UI', system-ui, sans-serif"
+    fontSize: "16px"
     fontWeight: 400
     lineHeight: 1.5
   label:
-    fontFamily: "'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "12px"
+    fontFamily: "'Source Sans 3', 'Segoe UI', system-ui, sans-serif"
+    fontSize: "14px"
     fontWeight: 600
-    lineHeight: 1.5
+    lineHeight: 1.3
   notation:
     fontFamily: "'SFMono-Regular', Consolas, 'Liberation Mono', monospace"
-    fontSize: "12px"
-    lineHeight: 1.5
-  transition:
-    fontFamily: "'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace"
-    fontSize: "12px"
+    fontSize: "14px"
     fontWeight: 500
     lineHeight: 1.5
   state:
     fontFamily: "'STIX Two Text', Georgia, serif"
     fontSize: "23px"
+    fontWeight: 400
     lineHeight: 1.2
 rounded:
-  tag: "4px"
-  chip: "5px"
-  symbol: "6px"
-  control: "7px"
-  support: "9px"
-  navigation: "11px"
-  panel: "12px"
+  compact: "4px"
+  control: "6px"
+  support: "8px"
+  circle: "50%"
 spacing:
-  xs: "4px"
-  sm: "8px"
-  md: "12px"
-  lg: "16px"
-  xl: "20px"
+  compact: "4px"
+  tight: "6px"
+  control: "8px"
+  group: "12px"
+  panel: "16px"
+  inset: "20px"
   section: "24px"
-  gutter: "28px"
+  large: "32px"
 components:
   button-primary:
-    backgroundColor: "{colors.cobalt}"
+    backgroundColor: "{colors.accent}"
     textColor: "{colors.paper}"
+    typography: "{typography.label}"
     rounded: "{rounded.control}"
-    padding: "8px 13px"
+    padding: "8px 14px"
   button-primary-hover:
-    backgroundColor: "{colors.cobalt-hover}"
+    backgroundColor: "{colors.accent-hover}"
   button-neutral:
     backgroundColor: "{colors.paper}"
-    textColor: "#344563"
+    textColor: "{colors.ink}"
+    typography: "{typography.label}"
     rounded: "{rounded.control}"
-    padding: "8px 13px"
+    padding: "8px 14px"
   button-text:
     backgroundColor: "transparent"
-    textColor: "#344563"
+    textColor: "{colors.ink}"
+    typography: "{typography.label}"
     rounded: "{rounded.control}"
     padding: "8px 9px"
   input:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
     rounded: "{rounded.control}"
-    padding: "9px 11px"
+    padding: "8px 11px"
   model-navigation:
-    backgroundColor: "#eaf0f8"
-    rounded: "{rounded.navigation}"
-    padding: "5px"
+    backgroundColor: "{colors.nav-surface}"
+    textColor: "{colors.nav-text}"
+    rounded: "{rounded.control}"
+    padding: "3px"
   state-chip:
-    backgroundColor: "#eff4ff"
-    textColor: "#2454c8"
-    rounded: "{rounded.chip}"
-    padding: "5px 11px"
-  laboratory-panel:
+    backgroundColor: "{colors.activity-wash}"
+    textColor: "{colors.activity-ink}"
+    rounded: "{rounded.compact}"
+    padding: "3px 9px"
+  reference-panel:
     backgroundColor: "{colors.paper}"
-    rounded: "{rounded.panel}"
+    rounded: "{rounded.support}"
+    padding: "20px 24px"
   graph-state:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
-    rounded: "50%"
+    typography: "{typography.state}"
+    rounded: "{rounded.circle}"
     size: "60px"
+  transition-label:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    typography: "{typography.notation}"
+    rounded: "{rounded.compact}"
+    padding: "5px 9px"
   input-symbol:
-    backgroundColor: "#f8fafd"
-    textColor: "#3d506e"
-    rounded: "{rounded.symbol}"
-    padding: "5px"
-    width: "40px"
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.compact}"
+    padding: "3px 5px"
+    width: "34px"
 ---
 
 # Design System: Autómata
 
 ## Overview
 
-**Creative North Star: "Laboratorio claro de cobalto"**
+**Creative North Star: "Secuencia en continuidad"**
 
-El sistema presenta un laboratorio universitario de trabajo directo. Superficies blancas y frías, tinta oscura y cobalto dan prioridad al grafo y a su configuración actual. La densidad permite construir, inspeccionar y ejecutar un modelo dentro de una misma herramienta.
+Un laboratorio universitario de superficies claras, cabecera ciruela y bandas de trabajo continuas. La construcción y la ejecución comparten una escena: el grafo conserva su presencia mientras la entrada, la regla aplicada y la configuración permiten comparar cada paso.
 
-La identidad se expresa mediante tipografía, controles y diagramas funcionales. El grafo, la configuración y la regla se actualizan juntos; el color acompaña ese vínculo y el texto explica cada paso. El grafo combina trazos SVG con nodos y etiquetas HTML interactivos, sin imágenes raster de decoración.
+La identidad se apoya en tipografía legible, diagramas operativos y dos acentos con funciones distintas. El violeta identifica edición y selección; el petróleo vincula la actividad del grafo con el cálculo. El detalle contextual aparece junto al trabajo y la referencia formal conserva una lectura propia debajo.
+
+La aplicación no distribuye imágenes raster: la geometría operativa del grafo y los iconos se construyen con SVG y HTML. Las capturas y propuestas locales son artefactos de revisión; la procedencia y las licencias de las fuentes locales están registradas en `public/fonts/README.md`.
 
 **Key Characteristics:**
-- Superficies claras delimitadas por bordes finos.
-- Cobalto para acciones principales, selección y ejecución activa.
-- Interfaz sans, notación monoespaciada y nombres matemáticos en serif cursiva.
-- Inspector contextual en un popup no modal junto al elemento seleccionado.
-- Controles y definición formal con ecuaciones para complementar los gestos del grafo.
+
+- Cabecera ciruela y superficies blancas separadas por bordes discretos.
+- Violeta para seleccionar y editar; petróleo para representar la ejecución.
+- Source Sans 3 en la interfaz, STIX Two Text en nombres matemáticos y monoespaciada en datos.
+- Inspector lateral en escritorio y apilado bajo el lienzo en pantallas pequeñas.
+- Grafo, entrada y configuración legibles en una misma secuencia de trabajo.
 
 ## Colors
 
-La paleta combina papel frío y tinta azul oscura con un acento de cobalto; los colores de resultado conservan un significado propio.
+La paleta combina ciruela, papel ligeramente violáceo y tinta oscura; los acentos separan la intención de edición de la actividad del modelo.
 
 ### Primary
-- **Cobalto:** acciones principales, foco de interacción, estado seleccionado y reglas activas. Su variante oscura sirve al hover de la acción principal; la tinta y el lavado de cobalto distinguen estados activos y etiquetas del grafo.
-- **Trazo de cobalto:** acento luminoso de las capas decorativas que recorren una regla aplicada; el trazo base y su etiqueta conservan la información de actividad.
+
+- **Violeta de edición:** acciones principales, foco, selección de estados y reglas, enlaces y controles de configuración. El lavado acompaña las superficies seleccionadas; la variante oscura sirve al hover de la acción principal.
 
 ### Secondary
-- **Aceptación:** verde en el resultado aceptado de la simulación.
-- **Rechazo:** rojo en el resultado rechazado; el tono de peligro se reserva para eliminación y validación de campos.
-- **Inconcluso:** ocre en el resultado limitado por recursos. Conserva una etiqueta explícita de resultado inconcluso.
+
+- **Petróleo de ejecución:** estados y reglas utilizados, símbolo actual, cinta, pila, configuración y explicación del paso. La tinta de petróleo mantiene legibilidad sobre el lavado claro.
+
+### Tertiary
+
+- **Aceptación / rechazo / inconclusión:** verde, rojo y ocre para los resultados explícitos. El rojo también identifica errores de campo y eliminación.
 
 ### Neutral
-- **Tinta:** texto principal, encabezados y nombres del modelo.
-- **Tinta secundaria:** explicaciones, ayudas, metadatos y trazos inactivos.
-- **Borde frío:** separación entre herramientas y contornos de paneles.
-- **Papel / fondo / lienzo / inspector:** blancos y grises azulados que distinguen la página, el área del grafo y el panel de edición mediante tono y borde.
+
+- **Ciruela:** cabecera de marca y navegación. La navegación usa un tono próximo; su selección es una superficie blanca con texto violeta oscuro.
+- **Tinta / tinta secundaria:** texto principal y explicaciones o metadatos.
+- **Borde / borde de control:** separación tenue entre zonas y contorno más firme en campos y botones.
+- **Papel / fondo:** lienzo y herramientas blancos; el fondo ligeramente violáceo sostiene las referencias inferiores.
 
 ### Named Rules
-**The Synchronized Cobalt Rule.** Una configuración activa se reconoce en el grafo y en la simulación mediante la misma familia de cobalto y una descripción textual de su estado.
 
-**The Explicit Result Rule.** Aceptación, rechazo e inconclusión siempre llevan una etiqueta; el color no sustituye su significado.
+**The Separate Signals Rule.** El violeta comunica selección y edición; el petróleo comunica ejecución. Un nodo seleccionado y activo conserva el borde violeta y el interior de actividad.
+
+**The Explicit Result Rule.** Aceptación, rechazo e inconclusión conservan una etiqueta textual; el color acompaña el resultado.
 
 ## Typography
 
-**Display Font:** Manrope, con Segoe UI y sans-serif como alternativas. Se autoaloja como fuente variable y se utiliza en el nombre de la marca y el encabezado principal.
+**Display / Body Font:** Source Sans 3, con Segoe UI, system-ui y sans-serif como alternativas. La fuente variable se autoaloja con pesos (200–900).
 
-**Body Font:** Segoe UI Variable, Segoe UI, system-ui y sans-serif. Los títulos secundarios mantienen esta familia de interfaz.
+**Mathematical Font:** STIX Two Text en cursiva, autoalojada con pesos (400–700), para nombres de estados y símbolos de la definición. Georgia es la alternativa de los nodos; la definición añade Cambria Math.
 
-**Label/Mono Font:** SFMono-Regular, Consolas y Liberation Mono para tuplas y fórmulas; Consolas para entrada, chips, pila y cinta. Las reglas del grafo declaran IBM Plex Mono y recurren a SFMono-Regular o Consolas cuando esa fuente no está instalada. Los nombres de los estados usan STIX Two Text o Georgia, en cursiva.
+**Label/Mono Font:** SFMono-Regular, Consolas y Liberation Mono para reglas, fórmulas y datos; algunos conjuntos formales recurren directamente a Consolas.
 
-**Character:** Manrope da carácter al encabezado sin ocupar espacio de trabajo. La familia de interfaz mantiene legibles las herramientas compactas; la notación separa visualmente símbolos, estados y texto explicativo.
+**Character:** una sans humanista permite leer controles compactos; la cursiva matemática distingue el objeto formal y la monoespaciada mantiene estables símbolos y configuraciones. La marca usa Source Sans 3 con peso (650), tamaño (26px) y espaciado (-0.035em).
 
 ### Hierarchy
-- **Headline:** encabezado del modelo; baja a (23px) en móvil y a (24px) en la disposición compacta para portátil.
-- **Title:** encabezados de sección; los títulos del inspector y del documento se compactan a (15px) y (14px).
-- **Body:** texto general. La interfaz utiliza explicaciones locales de (12–13px); los mensajes de cada paso tienen interlineado (1.75) y un ancho máximo de (80ch).
-- **Label:** campos y herramientas. Los botones generales usan (13px), peso (600) e interlineado (1.35); los controles densos usan (12px).
-- **Notation:** tuplas y reglas. Los símbolos de entrada, cinta y chips de estado grandes suben a (19px).
-- **State:** nombre matemático del nodo; los sufijos numéricos se presentan como subíndices.
+
+- **Headline:** nombre del documento; se adapta a (22px) bajo el corte de tableta y a (20px) en móvil.
+- **Title:** secciones de lectura. El inspector usa (18px) y la banda de simulación (19px), que pasa a (20px) en móvil.
+- **Body:** texto general. Ayudas y metadatos usan (12–14px); la explicación del paso usa (15px), interlineado (1.4) y máximo (75ch).
+- **Label:** botones y campos. Los botones usan el interlineado del token; las etiquetas de formulario heredan (1.5).
+- **Notation:** reglas del grafo. La entrada usa (16px), los símbolos (17px), la cinta (18px) y el estado actual (19px).
+- **State:** cursiva matemática en nodos; los sufijos numéricos bajan a subíndices de (0.65em).
+
+Los archivos de fuente y su cobertura están registrados en `public/fonts/README.md`. Los operadores ausentes en las fuentes locales requieren los respaldos del sistema.
 
 ## Layout
 
-La primera pantalla ocupa la altura disponible del navegador. La cabecera, la navegación de cuatro modelos y las herramientas se compactan para dejar al grafo todo el ancho y el resto de la altura. El lienzo crece con la ventana y no reserva espacio para una barra lateral.
+La aplicación ocupa todo el ancho. La escena de edición y simulación tiene altura mínima `max(720px, 100dvh)`; puede crecer cuando el contenido lo necesita. Cabecera, contexto del documento y herramientas forman bandas compactas. El lienzo flexible tiene un mínimo de (260px); la simulación reserva al menos (218px), o (250px) en pila y Turing.
 
-Seleccionar un estado o una regla, o crear una conexión, abre un popup no modal anclado al elemento. Su posición y altura se ajustan para permanecer dentro del lienzo, con desplazamiento interno cuando hace falta. La configuración del modelo se abre desde la barra de herramientas; el inspector comienza cerrado y se descarta con su botón, Escape o un clic en el fondo del grafo.
+El nombre del documento precede visualmente al tipo de modelo, que aparece como información secundaria en la misma fila o se ajusta debajo cuando falta ancho.
 
-El inspector presenta un encabezado fijo con título contextual, acceso a «Ver modelo» al editar estados y cierre SVG de (44px). Los campos y las acciones aparecen primero. «Ayuda y definición» es un único desplegable nativo, cerrado al seleccionar otro objeto; escribir conserva tanto el desplegado como la identidad de los campos. Dentro se reúnen la explicación contextual y la definición formal compacta. Solo permanecen visibles las pistas indispensables sobre alfabetos y reemplazo de pila.
+El inspector es una columna contextual de (340px) a la derecha del lienzo. Su cuerpo se desplaza dentro de la columna; el título y el cierre permanecen fuera de ese desplazamiento. Las acciones y los campos aparecen antes del desplegable «Ayuda y definición». El inspector conserva su naturaleza no modal.
 
-La guía, la validación, la prueba de cadenas y las referencias siguen debajo de la primera pantalla. El pie del grafo enlaza directamente con «Probar cadena». La definición formal presenta tupla, conjuntos y ecuaciones de transición; agrupa los resultados no deterministas y conserva controles para editar cada regla.
+La simulación reúne entrada y reproducción arriba, y entrada consumida o cinta junto a la configuración debajo. La configuración ocupa (300px) en los autómatas finitos; pila distribuye dos columnas equivalentes. La explicación se sitúa junto a los datos del paso. El historial se despliega dentro de la banda y puede extender la página.
 
-A (600px) o menos, los controles se acomodan al ancho disponible, la reproducción forma dos columnas y la configuración se coloca bajo la tira de símbolos. Las tiras de entrada y cinta permiten desplazamiento horizontal dentro de su área; las fórmulas se ajustan al ancho. Los controles principales de reproducción e inspector alcanzan (44px) de altura en móvil. El ritmo recurrente se apoya en espacios de (4–28px), según los tokens del frontmatter.
+La referencia inferior tiene un ancho máximo de (1440px), relleno de (24px), separación de (24px) y columnas en proporción (2:1). Las ayudas no aumentan la jerarquía del documento ni desplazan las acciones a una pantalla inicial aparte.
+
+- Hasta (1200px), desaparecen las descripciones de modelo y la tupla contextual; la reproducción puede pasar a otra línea.
+- Hasta (850px), la navegación ocupa su propia fila. El inspector se apila bajo el lienzo, con altura máxima de (440px); el lienzo mide (410px). La simulación y la referencia pasan a una columna.
+- Hasta (600px), el lienzo mide (370px), las herramientas y la reproducción usan dos columnas, y los controles principales alcanzan (44px). Turing apila entrada, cinta y explicación.
+- Entrada, cinta y pila conservan desplazamiento local horizontal. Fórmulas, nombres y mensajes permiten ajuste de línea; los datos no se reducen para aparentar que caben.
+
+El ritmo recurrente usa los pasos del frontmatter. Los interiores del inspector usan (12px 16px); el resto de bandas de escritorio conserva márgenes laterales de (24px), que bajan a (20px) y (12px).
 
 ## Elevation & Depth
 
-La profundidad procede principalmente de bordes y cambios de tono. La navegación seleccionada y los controles del grafo llevan una sombra apenas perceptible; los nodos seleccionados o activos usan anillos de cobalto. El símbolo actual tiene un trazo interior inferior que comunica estado. No hay sombras grandes bajo los paneles de trabajo; el popup conserva su sombra de elevación contextual.
+La profundidad procede de cambios de tono y bordes. Grafo, simulación e inspector permanecen planos; la columna contextual tiene una separación lateral, sin sombra y sin esquinas redondeadas. La navegación seleccionada se desplaza como una superficie blanca. El único contenedor elevado reutilizable es el menú Archivo.
 
 ### Shadow Vocabulary
-- **Navegación seleccionada:** `0 2px 4px #21355706`.
-- **Controles del grafo:** `0 2px 5px #18264105`.
-- **Nodo seleccionado:** `0 0 0 5px #245de817`.
-- **Nodo activo:** `0 0 0 5px #245de810`.
-- **Selección interior:** `inset 0 -2px var(--accent)` en el símbolo actual.
-- **Popup contextual:** `0 8px 32px #18264126`, en la superficie interior que se anima; el contenedor exterior solo posiciona y mide.
+
+- **Menú Archivo:** `0 8px 26px #251c3b2b`, para separar las acciones flotantes de la cabecera y el documento.
+
+**The Continuous Surface Rule.** Las áreas de construcción y cálculo se separan por borde y espacio; la elevación se reserva para el menú flotante.
 
 ## Shapes
 
-Los paneles usan esquinas suavemente redondeadas y bordes de (1px). Botones y campos comparten el radio de control; los chips y símbolos son más compactos. La navegación tiene una envolvente redondeada y sus botones conservan la forma del resto de controles.
+Los controles usan esquinas suaves; chips, símbolos y etiquetas son más compactos. Las referencias y el menú Archivo usan el radio de soporte. La envolvente del trabajo y el inspector lateral mantienen esquinas rectas.
 
-Los estados del grafo son círculos de (60px) con borde de (2px). La aceptación añade un segundo círculo interior; la flecha exterior indica inicio. Las transiciones usan trazos dirigidos, curvas para conexiones recíprocas y bucles para una transición al mismo estado.
+Los estados son círculos de (60px) con borde de (2px). La aceptación añade un segundo círculo interior; una flecha exterior indica inicio. Las transiciones conservan dirección, curvas recíprocas y autolazos. Estas formas expresan propiedades del modelo.
 
 ## Components
 
 ### Buttons
 
-Controles compactos con texto explícito.
-- **Primary:** texto blanco sobre cobalto para el paso siguiente y la confirmación de cambios.
-- **Neutral:** papel, texto secundario oscuro y borde frío; altura mínima general de (40px).
-- **Text:** fondo y borde transparentes para acciones auxiliares.
-- **Hover / Focus:** hover en dispositivos con puntero preciso; foco general de (3px) en cobalto con separación de (3px). La pulsación con puntero reduce el botón a escala (0.98) en (100ms); el teclado conserva la escala.
-- **Disabled:** se atenúan fondo, texto y borde; el cursor indica que la acción no está disponible.
+Controles con texto explícito y jerarquía contenida.
 
-### Chips
-
-Pequeñas unidades de notación.
-- Los estados activos de la simulación usan un lavado de cobalto, contorno suave y texto monoespaciado.
-- El estado actual individual aumenta el tamaño de la notación; no se presenta como un botón.
-
-### Cards / Containers
-
-Paneles de trabajo blancos y planos.
-- El editor agrupa título, herramientas y grafo dentro de una envolvente; el inspector flota dentro del lienzo.
-- La simulación usa un panel equivalente, con relleno de (20px 22px) en escritorio y (18px 15px) en móvil.
-- Las referencias plegables usan el radio de soporte y un borde frío.
+- **Primary:** blanco sobre violeta para «Paso siguiente» y confirmación de cambios.
+- **Neutral:** papel, tinta y borde de control; altura mínima general de (40px).
+- **Text:** fondo y borde transparentes para acciones auxiliares. El peligro se comunica mediante rojo y texto.
+- **States:** hover solo con puntero preciso; foco visible general de (3px) y separación de (3px). La cabecera usa un foco claro. Los controles inactivos cambian texto, fondo, borde y cursor.
+- **Motion:** fondo y borde cambian en (140ms). La preferencia de movimiento reducido elimina la transición.
 
 ### Inputs / Fields
 
-Campos delineados sobre blanco.
-- Altura mínima de (42px), radio de control y relleno indicado en el token de campo.
-- Etiqueta encima del campo, separada por (6px), con ayuda contextual debajo.
-- El foco usa el contorno global. El borde de peligro y el mensaje asociado comunican datos inválidos.
-- La cadena de entrada usa notación monoespaciada y comparte contorno con la acción «Usar ε».
+Campos delineados y etiquetas encima.
+
+- Altura mínima de (42px), con contorno de control y cursor violeta.
+- Foco visible global y borde violeta; error con borde rojo, mensaje asociado y `aria-invalid`.
+- La cadena combina un campo monoespaciado con «Usar ε» dentro de un mismo contorno.
+- Los formularios ofrecen una alternativa a mover o conectar objetos directamente en el grafo.
 
 ### Navigation
 
-Cuatro modelos en una banda clara.
-- La selección se muestra como una superficie blanca con contorno, texto de cobalto y sombra ligera.
-- Los acrónimos permanecen visibles cuando desaparecen las descripciones en anchuras reducidas.
-- El modelo activo se identifica también mediante `aria-current`.
-- Una única superficie blanca se desliza entre modelos en (220ms), con desaceleración `cubic-bezier(.16, 1, .3, 1)`. Sus medidas siguen las cuatro columnas también en móvil; el foco permanece en el botón elegido.
-- Los campos responden al foco y al puntero mediante el borde en (140ms). El encabezado del documento usa papel ligeramente frío y la etiqueta Editable un lavado de cobalto; la explicación del paso usa (13px), tinta secundaria y un máximo de (75ch).
-- El popup se expande en (220ms), con escala (0.94 → 1.01 → 1) y opacidad. El origen corresponde al estado o regla, ajustado al borde del panel; en la configuración general es la esquina superior derecha. La salida reduce la escala a (0.97) y desvanece en (140ms), conservando posición y contenido mientras pierde inmediatamente interacción y exposición accesible. Reabrir cancela la salida y restablece los formularios cancelados; cambiar de modelo descarta el panel anterior.
-- Cambiar de selección acompaña el contenido con una aparición de (160ms) desde opacidad (0.65), sin remontar los campos; escribir o mover el grafo no reinicia la burbuja. Guía, avisos, validación, confirmación de reemplazo y contenido desplegable usan (160ms) con un desplazamiento de (3px) y desaceleración exponencial.
-- Aperturas y cierres por teclado son inmediatos, al igual que la selección de modelo por teclado. El foco nunca espera al movimiento. La preferencia de movimiento reducido elimina estas animaciones y cancela una entrada o salida ya iniciada, resolviendo el estado final. Los efectos de ejecución conservan su comportamiento propio.
+Cuatro modelos en una banda ciruela.
+
+- Acrónimo y descripción en escritorio; los acrónimos permanecen al reducir el ancho.
+- La selección blanca usa texto violeta oscuro y `aria-current`.
+- Una superficie única se desplaza entre cuatro columnas en (220ms), con `cubic-bezier(.16, 1, .3, 1)`. El teclado y el movimiento reducido resuelven el cambio inmediatamente.
+- Archivo agrupa importación, exportación y creación; sus acciones tienen una altura mínima de (44px), cierre con Escape y recuperación del foco.
+
+### Chips / symbols
+
+Unidades estables de notación.
+
+- Los estados de ejecución usan lavado de petróleo, tinta de petróleo y borde suave.
+- El símbolo actual combina borde e interior de petróleo; la entrada consumida cambia a una superficie tenue.
+- Las celdas de cinta conservan índices; el cabezal añade una etiqueta textual.
+- Los cambios de celda usan (160ms); los valores de configuración aparecen en (220ms), sin retrasar la actualización de datos.
+
+### Cards / Containers
+
+Referencias claras, con borde y sin sombra.
+
+- La definición formal y la explicación del modelo usan desplegables nativos dentro de contenedores de soporte.
+- La guía usa lavado violeta; avisos y validación mantienen texto y acciones explícitos.
+- El inspector preserva campos estables al escribir y una única sección cerrada de ayuda contextual.
 
 ### Graph and simulation
 
-El grafo es un componente operativo. Los nodos tienen indicadores de inicio, aceptación y actividad; las reglas activas y seleccionadas aumentan el grosor del trazo. Las etiquetas de reglas son controles seleccionables, y las conexiones que comparten origen y destino agrupan sus etiquetas.
+El diagrama es operativo y conserva representación textual equivalente.
 
-El zoom, el ajuste a vista y el desplazamiento permiten explorar el lienzo. En lienzos de menos de (650px) de ancho, los grafos que no caben a una escala legible abren cerca del estado inicial con zoom (0.95) y una indicación para deslizar. Un estado activo fuera de la vista se recentra sin animación. Ajustar a vista incluye el espacio de flechas iniciales y bucles y se anima durante (240ms) solo cuando lo solicita el usuario. La preferencia de movimiento reducido lo hace inmediato y detiene un ajuste en curso. A (849px) o menos, los controles de zoom miden (44px), las etiquetas de reglas tienen objetivos mínimos de (48px) y se amplía el área táctil de los conectores.
-
-El teclado mueve y selecciona nodos; el popup del inspector y la definición formal permiten editar estados y reglas. La representación formal muestra funciones mediante ecuaciones, con conjuntos de destinos para AFN y conjuntos de pares (estado, reemplazo) para pila, equivalentes a su relación de transición. La simulación inferior presenta entrada, resultado, número de paso y configuración; para pila añade selección de rama y tope a la izquierda, y para Turing una ventana de cinta con posición del cabezal.
-
-Cada paso tiene un pulso de llegada sobre los estados activos y un trazo luminoso sobre las conexiones utilizadas, ambos de (220ms), sin cambiar posiciones ni reconstruir el grafo. Se repiten incluso en autolazos. En AFN y pila, todas las reglas aplicadas se resaltan simultáneamente: el efecto no atribuye un orden a las clausuras ε ni un parentesco entre ramas.
-
-La entrada, la configuración, la pila y la cinta muestran la instantánea actual inmediatamente y acompañan el cambio con feedback breve. Retroceder o saltar por el historial restaura los datos sin esperar al efecto. Las capas decorativas no reciben eventos ni forman parte del árbol accesible; los controles y las regiones de anuncio conservan su identidad.
-
-Las transiciones de controles duran (100–150ms); la reproducción mantiene intervalos de (1400ms), (800ms) o (300ms). Los efectos de cada paso terminan antes del siguiente intervalo rápido. La preferencia de movimiento reducido elimina los pulsos, los desplazamientos y las transiciones nuevas, manteniendo colores, contornos, etiquetas y datos actuales.
+- Los nodos muestran inicio, aceptación, actividad y selección. Las etiquetas de reglas son botones; las conexiones con el mismo origen y destino agrupan sus etiquetas.
+- Las reglas activas incluyen «en uso» y los nodos activos muestran su estado textual. La selección utiliza borde además de color.
+- Zoom y «Ajustar todos los estados» permiten recorrer o abarcar el modelo. Los controles miden (44px); las reglas tienen objetivos mínimos de (44px), que aumentan a (48px) en pantallas pequeñas.
+- Cuando el grafo completo no cabe a escala legible, abre alrededor del estado inicial con zoom (0.95), en cualquier ancho de pantalla. La vista permite desplazamiento y recentra un estado activo fuera del área visible. «Ajustar todos los estados» ofrece la vista general explícita, con escala entre (0.25) y (1.15); la vista inicial no promete mostrar todo el grafo a la vez.
+- Cada paso produce un pulso de llegada y un trazo sobre las reglas utilizadas durante (220ms). Todas las reglas no deterministas aplicadas se resaltan simultáneamente.
+- El mensaje de paso usa una región `aria-live="polite"`. Los pulsos decorativos están ocultos al árbol accesible y no reciben eventos.
+- El ajuste manual de vista dura (240ms); recentrar un estado activo es inmediato. El movimiento reducido interrumpe también un ajuste ya iniciado.
+- El inspector entra en (220ms), con escala (0.94 → 1.01 → 1), y sale en (140ms), con escala final (0.97), desde la esquina superior izquierda de su superficie. El cierre retira la interacción y la exposición accesible inmediatamente; el teclado y el movimiento reducido evitan la animación.
+- Cambiar el objeto inspeccionado acompaña el contenido con una aparición de (160ms); escribir conserva los campos. Las ayudas, avisos y validación usan (160ms) y un desplazamiento de (3px).
+- La reproducción mantiene intervalos de (1400ms), (800ms) o (300ms). El movimiento reducido conserva datos, etiquetas y estados, sin pulsos ni transiciones.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** vincular el grafo, la configuración y el mensaje de paso mediante estados de cobalto y texto explícito.
-- **Do** mantener la notación separada del texto de interfaz y conservar los indicadores formales de inicio y aceptación.
-- **Do** acompañar los gestos del lienzo con edición por formulario y representación textual.
-- **Do** preservar los cambios de disposición del inspector y de la simulación en pantallas pequeñas.
-- **Do** usar SVG para los diagramas funcionales y conservar foco visible y movimiento reducido.
+
+- **Do** mantener violeta para edición y petróleo para ejecución.
+- **Do** conservar etiquetas, contornos y formas que explican cada estado además de su color.
+- **Do** permitir comparar grafo, entrada y configuración con posiciones estables.
+- **Do** mantener formularios, definición formal, foco visible y controles táctiles accesibles.
+- **Do** adaptar el flujo a una columna y conservar el desplazamiento local de los datos en pantallas pequeñas.
+- **Do** respetar movimiento reducido y cancelar las animaciones en curso al cambiar la preferencia.
 
 ### Don't:
-- **Don't** usar solo color para distinguir aceptación, rechazo e inconclusión.
+
+- **Don't** usar solo color para distinguir selección, actividad o resultados.
 - **Don't** sustituir el lienzo funcional por una imagen del grafo.
-- **Don't** convertir las ayudas o metadatos en encabezados de mayor jerarquía que el modelo.
-- **Don't** añadir sombras grandes a los paneles de trabajo.
+- **Don't** añadir sombras a las bandas de trabajo o al inspector lateral.
+- **Don't** reducir la notación para encajar todo el contenido en una pantalla.

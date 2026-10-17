@@ -1,105 +1,161 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-16T11:09:33.814Z",
+  "generatedAt": "2026-10-17T01:50:07.977Z",
   "title": "Design System: Autómata",
   "extensions": {
     "colorMeta": {
-      "cobalt": {
+      "accent": {
         "role": "primary",
-        "displayName": "Cobalto",
+        "displayName": "Violeta de edición",
         "tonalRamp": [
-          "oklch(15% 0.2186 263.64)",
-          "oklch(25% 0.2186 263.64)",
-          "oklch(35% 0.2186 263.64)",
-          "oklch(45% 0.2186 263.64)",
-          "oklch(60% 0.2186 263.64)",
-          "oklch(75% 0.2186 263.64)",
-          "oklch(85% 0.2186 263.64)",
-          "oklch(95% 0.2186 263.64)"
+          "oklch(15% 0.1731 293.94)",
+          "oklch(25% 0.1731 293.94)",
+          "oklch(35% 0.1731 293.94)",
+          "oklch(45% 0.1731 293.94)",
+          "oklch(60% 0.1731 293.94)",
+          "oklch(75% 0.1731 293.94)",
+          "oklch(85% 0.1731 293.94)",
+          "oklch(95% 0.1731 293.94)"
         ]
       },
-      "cobalt-hover": {
+      "accent-hover": {
         "role": "primary",
-        "displayName": "Cobalto en hover",
+        "displayName": "Violeta de edición en hover",
         "tonalRamp": [
-          "oklch(15% 0.2106 263.58)",
-          "oklch(25% 0.2106 263.58)",
-          "oklch(35% 0.2106 263.58)",
-          "oklch(45% 0.2106 263.58)",
-          "oklch(60% 0.2106 263.58)",
-          "oklch(75% 0.2106 263.58)",
-          "oklch(85% 0.2106 263.58)",
-          "oklch(95% 0.2106 263.58)"
+          "oklch(15% 0.1566 294.76)",
+          "oklch(25% 0.1566 294.76)",
+          "oklch(35% 0.1566 294.76)",
+          "oklch(45% 0.1566 294.76)",
+          "oklch(60% 0.1566 294.76)",
+          "oklch(75% 0.1566 294.76)",
+          "oklch(85% 0.1566 294.76)",
+          "oklch(95% 0.1566 294.76)"
         ]
       },
-      "cobalt-ink": {
+      "accent-wash": {
         "role": "primary",
-        "displayName": "Tinta de cobalto",
+        "displayName": "Lavado de edición",
         "tonalRamp": [
-          "oklch(15% 0.1989 263.44)",
-          "oklch(25% 0.1989 263.44)",
-          "oklch(35% 0.1989 263.44)",
-          "oklch(45% 0.1989 263.44)",
-          "oklch(60% 0.1989 263.44)",
-          "oklch(75% 0.1989 263.44)",
-          "oklch(85% 0.1989 263.44)",
-          "oklch(95% 0.1989 263.44)"
+          "oklch(15% 0.0210 304.03)",
+          "oklch(25% 0.0210 304.03)",
+          "oklch(35% 0.0210 304.03)",
+          "oklch(45% 0.0210 304.03)",
+          "oklch(60% 0.0210 304.03)",
+          "oklch(75% 0.0210 304.03)",
+          "oklch(85% 0.0210 304.03)",
+          "oklch(95% 0.0210 304.03)"
         ]
       },
-      "cobalt-wash": {
-        "role": "primary",
-        "displayName": "Lavado de cobalto",
+      "activity": {
+        "role": "secondary",
+        "displayName": "Petróleo de ejecución",
         "tonalRamp": [
-          "oklch(15% 0.0212 268.43)",
-          "oklch(25% 0.0212 268.43)",
-          "oklch(35% 0.0212 268.43)",
-          "oklch(45% 0.0212 268.43)",
-          "oklch(60% 0.0212 268.43)",
-          "oklch(75% 0.0212 268.43)",
-          "oklch(85% 0.0212 268.43)",
-          "oklch(95% 0.0212 268.43)"
+          "oklch(15% 0.0936 223.13)",
+          "oklch(25% 0.0936 223.13)",
+          "oklch(35% 0.0936 223.13)",
+          "oklch(45% 0.0936 223.13)",
+          "oklch(60% 0.0936 223.13)",
+          "oklch(75% 0.0936 223.13)",
+          "oklch(85% 0.0936 223.13)",
+          "oklch(95% 0.0936 223.13)"
+        ]
+      },
+      "activity-ink": {
+        "role": "secondary",
+        "displayName": "Tinta de ejecución",
+        "tonalRamp": [
+          "oklch(15% 0.0798 223.22)",
+          "oklch(25% 0.0798 223.22)",
+          "oklch(35% 0.0798 223.22)",
+          "oklch(45% 0.0798 223.22)",
+          "oklch(60% 0.0798 223.22)",
+          "oklch(75% 0.0798 223.22)",
+          "oklch(85% 0.0798 223.22)",
+          "oklch(95% 0.0798 223.22)"
+        ]
+      },
+      "activity-wash": {
+        "role": "secondary",
+        "displayName": "Lavado de ejecución",
+        "tonalRamp": [
+          "oklch(15% 0.0154 212.00)",
+          "oklch(25% 0.0154 212.00)",
+          "oklch(35% 0.0154 212.00)",
+          "oklch(45% 0.0154 212.00)",
+          "oklch(60% 0.0154 212.00)",
+          "oklch(75% 0.0154 212.00)",
+          "oklch(85% 0.0154 212.00)",
+          "oklch(95% 0.0154 212.00)"
+        ]
+      },
+      "shell": {
+        "role": "neutral",
+        "displayName": "Ciruela de cabecera",
+        "tonalRamp": [
+          "oklch(15% 0.0581 298.62)",
+          "oklch(25% 0.0581 298.62)",
+          "oklch(35% 0.0581 298.62)",
+          "oklch(45% 0.0581 298.62)",
+          "oklch(60% 0.0581 298.62)",
+          "oklch(75% 0.0581 298.62)",
+          "oklch(85% 0.0581 298.62)",
+          "oklch(95% 0.0581 298.62)"
         ]
       },
       "ink": {
         "role": "neutral",
         "displayName": "Tinta",
         "tonalRamp": [
-          "oklch(15% 0.0541 262.54)",
-          "oklch(25% 0.0541 262.54)",
-          "oklch(35% 0.0541 262.54)",
-          "oklch(45% 0.0541 262.54)",
-          "oklch(60% 0.0541 262.54)",
-          "oklch(75% 0.0541 262.54)",
-          "oklch(85% 0.0541 262.54)",
-          "oklch(95% 0.0541 262.54)"
+          "oklch(15% 0.0333 289.02)",
+          "oklch(25% 0.0333 289.02)",
+          "oklch(35% 0.0333 289.02)",
+          "oklch(45% 0.0333 289.02)",
+          "oklch(60% 0.0333 289.02)",
+          "oklch(75% 0.0333 289.02)",
+          "oklch(85% 0.0333 289.02)",
+          "oklch(95% 0.0333 289.02)"
         ]
       },
       "muted": {
         "role": "neutral",
         "displayName": "Tinta secundaria",
         "tonalRamp": [
-          "oklch(15% 0.0371 255.70)",
-          "oklch(25% 0.0371 255.70)",
-          "oklch(35% 0.0371 255.70)",
-          "oklch(45% 0.0371 255.70)",
-          "oklch(60% 0.0371 255.70)",
-          "oklch(75% 0.0371 255.70)",
-          "oklch(85% 0.0371 255.70)",
-          "oklch(95% 0.0371 255.70)"
+          "oklch(15% 0.0306 297.31)",
+          "oklch(25% 0.0306 297.31)",
+          "oklch(35% 0.0306 297.31)",
+          "oklch(45% 0.0306 297.31)",
+          "oklch(60% 0.0306 297.31)",
+          "oklch(75% 0.0306 297.31)",
+          "oklch(85% 0.0306 297.31)",
+          "oklch(95% 0.0306 297.31)"
         ]
       },
       "border": {
         "role": "neutral",
-        "displayName": "Borde frío",
+        "displayName": "Borde de superficie",
         "tonalRamp": [
-          "oklch(15% 0.0180 261.34)",
-          "oklch(25% 0.0180 261.34)",
-          "oklch(35% 0.0180 261.34)",
-          "oklch(45% 0.0180 261.34)",
-          "oklch(60% 0.0180 261.34)",
-          "oklch(75% 0.0180 261.34)",
-          "oklch(85% 0.0180 261.34)",
-          "oklch(95% 0.0180 261.34)"
+          "oklch(15% 0.0184 303.39)",
+          "oklch(25% 0.0184 303.39)",
+          "oklch(35% 0.0184 303.39)",
+          "oklch(45% 0.0184 303.39)",
+          "oklch(60% 0.0184 303.39)",
+          "oklch(75% 0.0184 303.39)",
+          "oklch(85% 0.0184 303.39)",
+          "oklch(95% 0.0184 303.39)"
+        ]
+      },
+      "control-border": {
+        "role": "neutral",
+        "displayName": "Borde de control",
+        "tonalRamp": [
+          "oklch(15% 0.0320 302.18)",
+          "oklch(25% 0.0320 302.18)",
+          "oklch(35% 0.0320 302.18)",
+          "oklch(45% 0.0320 302.18)",
+          "oklch(60% 0.0320 302.18)",
+          "oklch(75% 0.0320 302.18)",
+          "oklch(85% 0.0320 302.18)",
+          "oklch(95% 0.0320 302.18)"
         ]
       },
       "paper": {
@@ -116,50 +172,22 @@
           "oklch(95% 0.0000 0.00)"
         ]
       },
-      "shell": {
+      "ground": {
         "role": "neutral",
-        "displayName": "Fondo frío",
+        "displayName": "Fondo violáceo",
         "tonalRamp": [
-          "oklch(15% 0.0057 264.53)",
-          "oklch(25% 0.0057 264.53)",
-          "oklch(35% 0.0057 264.53)",
-          "oklch(45% 0.0057 264.53)",
-          "oklch(60% 0.0057 264.53)",
-          "oklch(75% 0.0057 264.53)",
-          "oklch(85% 0.0057 264.53)",
-          "oklch(95% 0.0057 264.53)"
-        ]
-      },
-      "canvas": {
-        "role": "neutral",
-        "displayName": "Lienzo",
-        "tonalRamp": [
-          "oklch(15% 0.0041 271.37)",
-          "oklch(25% 0.0041 271.37)",
-          "oklch(35% 0.0041 271.37)",
-          "oklch(45% 0.0041 271.37)",
-          "oklch(60% 0.0041 271.37)",
-          "oklch(75% 0.0041 271.37)",
-          "oklch(85% 0.0041 271.37)",
-          "oklch(95% 0.0041 271.37)"
-        ]
-      },
-      "inspector": {
-        "role": "neutral",
-        "displayName": "Inspector",
-        "tonalRamp": [
-          "oklch(15% 0.0045 258.32)",
-          "oklch(25% 0.0045 258.32)",
-          "oklch(35% 0.0045 258.32)",
-          "oklch(45% 0.0045 258.32)",
-          "oklch(60% 0.0045 258.32)",
-          "oklch(75% 0.0045 258.32)",
-          "oklch(85% 0.0045 258.32)",
-          "oklch(95% 0.0045 258.32)"
+          "oklch(15% 0.0069 304.24)",
+          "oklch(25% 0.0069 304.24)",
+          "oklch(35% 0.0069 304.24)",
+          "oklch(45% 0.0069 304.24)",
+          "oklch(60% 0.0069 304.24)",
+          "oklch(75% 0.0069 304.24)",
+          "oklch(85% 0.0069 304.24)",
+          "oklch(95% 0.0069 304.24)"
         ]
       },
       "accepted": {
-        "role": "secondary",
+        "role": "tertiary",
         "displayName": "Aceptación",
         "tonalRamp": [
           "oklch(15% 0.1058 158.32)",
@@ -173,8 +201,8 @@
         ]
       },
       "rejected": {
-        "role": "secondary",
-        "displayName": "Rechazo",
+        "role": "tertiary",
+        "displayName": "Rechazo y peligro",
         "tonalRamp": [
           "oklch(15% 0.1684 17.55)",
           "oklch(25% 0.1684 17.55)",
@@ -187,8 +215,8 @@
         ]
       },
       "inconclusive": {
-        "role": "secondary",
-        "displayName": "Inconcluso",
+        "role": "tertiary",
+        "displayName": "Inconclusión",
         "tonalRamp": [
           "oklch(15% 0.0998 70.56)",
           "oklch(25% 0.0998 70.56)",
@@ -200,309 +228,297 @@
           "oklch(95% 0.0998 70.56)"
         ]
       },
-      "danger": {
-        "role": "secondary",
-        "displayName": "Peligro",
+      "nav-surface": {
+        "role": "neutral",
+        "displayName": "Navegación ciruela",
         "tonalRamp": [
-          "oklch(15% 0.1790 19.48)",
-          "oklch(25% 0.1790 19.48)",
-          "oklch(35% 0.1790 19.48)",
-          "oklch(45% 0.1790 19.48)",
-          "oklch(60% 0.1790 19.48)",
-          "oklch(75% 0.1790 19.48)",
-          "oklch(85% 0.1790 19.48)",
-          "oklch(95% 0.1790 19.48)"
+          "oklch(15% 0.0568 300.48)",
+          "oklch(25% 0.0568 300.48)",
+          "oklch(35% 0.0568 300.48)",
+          "oklch(45% 0.0568 300.48)",
+          "oklch(60% 0.0568 300.48)",
+          "oklch(75% 0.0568 300.48)",
+          "oklch(85% 0.0568 300.48)",
+          "oklch(95% 0.0568 300.48)"
         ]
       },
-      "cobalt-trace": {
-        "role": "primary",
-        "displayName": "Trazo de cobalto",
+      "nav-text": {
+        "role": "neutral",
+        "displayName": "Texto de navegación",
         "tonalRamp": [
-          "oklch(15% 0.1399 263.53)",
-          "oklch(25% 0.1399 263.53)",
-          "oklch(35% 0.1399 263.53)",
-          "oklch(45% 0.1399 263.53)",
-          "oklch(60% 0.1399 263.53)",
-          "oklch(75% 0.1399 263.53)",
-          "oklch(85% 0.1399 263.53)",
-          "oklch(95% 0.1399 263.53)"
+          "oklch(15% 0.0231 308.18)",
+          "oklch(25% 0.0231 308.18)",
+          "oklch(35% 0.0231 308.18)",
+          "oklch(45% 0.0231 308.18)",
+          "oklch(60% 0.0231 308.18)",
+          "oklch(75% 0.0231 308.18)",
+          "oklch(85% 0.0231 308.18)",
+          "oklch(95% 0.0231 308.18)"
+        ]
+      },
+      "nav-selected": {
+        "role": "primary",
+        "displayName": "Texto de modelo seleccionado",
+        "tonalRamp": [
+          "oklch(15% 0.1432 297.11)",
+          "oklch(25% 0.1432 297.11)",
+          "oklch(35% 0.1432 297.11)",
+          "oklch(45% 0.1432 297.11)",
+          "oklch(60% 0.1432 297.11)",
+          "oklch(75% 0.1432 297.11)",
+          "oklch(85% 0.1432 297.11)",
+          "oklch(95% 0.1432 297.11)"
         ]
       }
     },
     "typographyMeta": {
       "headline": {
-        "displayName": "Encabezado del modelo",
-        "purpose": "Manrope en el encabezado principal; la marca usa también Manrope."
+        "displayName": "Nombre del documento",
+        "purpose": "Nombre de la máquina antes del tipo de modelo; adaptación a 22px y 20px."
       },
       "title": {
-        "displayName": "Título de herramienta",
-        "purpose": "Encabezados de sección con la familia de interfaz."
+        "displayName": "Título de sección",
+        "purpose": "Jerarquía de lectura; inspector y simulación usan sus variantes compactas observadas."
       },
       "body": {
         "displayName": "Texto de interfaz",
-        "purpose": "Texto general y explicaciones locales."
+        "purpose": "Source Sans 3 autoalojada, con respaldo del sistema."
       },
       "label": {
-        "displayName": "Etiqueta",
-        "purpose": "Campos y herramientas compactas."
+        "displayName": "Control",
+        "purpose": "Botones y etiquetas; las etiquetas de campo heredan interlineado de cuerpo."
       },
       "notation": {
-        "displayName": "Notación",
-        "purpose": "Tuplas, fórmulas y representación de símbolos."
+        "displayName": "Regla y notación",
+        "purpose": "Reglas del grafo, fórmulas y datos monoespaciados."
       },
       "state": {
         "displayName": "Nombre matemático",
-        "purpose": "Nombre de nodo en serif cursiva con subíndice numérico."
-      },
-      "transition": {
-        "displayName": "Regla del grafo",
-        "purpose": "Notación de cada regla en monoespaciada; usa las fuentes alternativas locales si IBM Plex Mono no está instalada."
+        "purpose": "STIX Two Text cursiva para los estados; números como subíndices."
       }
     },
     "shadows": [
       {
-        "name": "navigation-selected",
-        "value": "0 2px 4px #21355706",
-        "purpose": "Selección del modelo."
-      },
-      {
-        "name": "graph-controls",
-        "value": "0 2px 5px #18264105",
-        "purpose": "Controles de zoom y ajuste a vista."
-      },
-      {
-        "name": "node-selected",
-        "value": "0 0 0 5px #245de817",
-        "purpose": "Anillo de selección del nodo."
-      },
-      {
-        "name": "node-active",
-        "value": "0 0 0 5px #245de810",
-        "purpose": "Anillo de actividad del nodo."
-      },
-      {
-        "name": "inset-selected",
-        "value": "inset 0 -2px var(--accent)",
-        "purpose": "Símbolo actual de la entrada."
+        "name": "file-menu",
+        "value": "0 8px 26px #251c3b2b",
+        "purpose": "Acciones de Archivo flotantes. Lienzo, inspector y simulación permanecen planos."
       }
     ],
     "motion": [
       {
         "name": "ease-out",
         "value": "cubic-bezier(.16, 1, .3, 1)",
-        "purpose": "Continuidad de navegación, configuración y pulsación."
+        "purpose": "Selección de modelo, inspector y aparición contextual."
       },
       {
-        "name": "button-color",
-        "value": "150ms ease",
-        "purpose": "Cambios de fondo y borde de los botones."
-      },
-      {
-        "name": "button-press",
-        "value": "100ms",
-        "purpose": "Escala 0.98 con puntero; eliminada con teclado o movimiento reducido."
-      },
-      {
-        "name": "graph-state",
+        "name": "control-change",
         "value": "140ms ease",
-        "purpose": "Fondo, borde y anillo de nodo; fondo y texto de etiqueta."
+        "purpose": "Fondo y borde de controles y nodos; se elimina con movimiento reducido."
       },
       {
-        "name": "playback-slow",
-        "value": "1400ms",
-        "purpose": "Intervalo de reproducción lenta."
+        "name": "cell-change",
+        "value": "160ms ease",
+        "purpose": "Color, fondo y borde de símbolos y cinta; se elimina con movimiento reducido."
       },
       {
-        "name": "playback-normal",
-        "value": "800ms",
-        "purpose": "Intervalo de reproducción normal."
-      },
-      {
-        "name": "playback-fast",
-        "value": "300ms",
-        "purpose": "Intervalo de reproducción rápida."
-      },
-      {
-        "name": "viewport",
-        "value": "0ms",
-        "purpose": "Encuadre automático y seguimiento del estado activo inmediatos."
-      },
-      {
-        "name": "model-navigation",
+        "name": "model-selection",
         "value": "220ms cubic-bezier(.16, 1, .3, 1)",
-        "purpose": "Superficie de selección deslizante entre los cuatro modelos."
+        "purpose": "Desplazamiento de la selección blanca entre cuatro modelos. Teclado y movimiento reducido son inmediatos."
       },
       {
         "name": "execution-feedback",
-        "value": "220ms",
-        "purpose": "Pulsos de estados y reglas, configuración, pila, cinta y confirmación de resultado; datos inmediatos."
-      },
-      {
-        "name": "manual-viewport",
-        "value": "240ms",
-        "purpose": "Ajuste solicitado por el usuario; 0ms con movimiento reducido."
-      },
-      {
-        "name": "field-feedback",
-        "value": "140ms ease",
-        "purpose": "Borde y fondo de campos al interactuar."
-      },
-      {
-        "name": "contextual-appearance",
-        "value": "160ms ease-out",
-        "purpose": "Contenido del inspector desde opacidad 0.65 sin remontar campos. Avisos y desplegables añaden 3px con desaceleración exponencial; teclado y movimiento reducido son inmediatos."
-      },
-      {
-        "name": "popup-entry",
         "value": "220ms cubic-bezier(.16, 1, .3, 1)",
-        "purpose": "Burbuja desde el ancla: escala 0.94 → 1.01 → 1 y opacidad; superficie interior independiente de las mediciones."
+        "purpose": "Llegada de estado, trazo de regla, cambio de configuración y confirmación de resultado. Datos inmediatos y reglas no deterministas simultáneas."
       },
       {
-        "name": "popup-exit",
+        "name": "inspector-enter",
+        "value": "220ms cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Opacidad y escala 0.94 → 1.01 → 1 desde la esquina superior izquierda. Teclado y movimiento reducido son inmediatos."
+      },
+      {
+        "name": "inspector-exit",
         "value": "140ms cubic-bezier(.16, 1, .3, 1)",
-        "purpose": "Escala 0.97 y opacidad; posición congelada y contenido inert/aria-hidden. Reapertura segura, teclado y movimiento reducido inmediatos."
+        "purpose": "Opacidad hasta cero y escala 0.97; al cerrar se retiran inmediatamente interacción y exposición accesible."
+      },
+      {
+        "name": "contextual-appear",
+        "value": "160ms cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Avisos y ayuda con desplazamiento de 3px. El contenido del inspector usa 160ms ease-out solo en opacidad. Teclado y movimiento reducido omiten la aparición."
+      },
+      {
+        "name": "fit-view",
+        "value": "240ms",
+        "purpose": "Ajuste manual a vista general; movimiento reducido lo hace inmediato e interrumpe el ajuste en curso. El recentrado del estado activo es inmediato."
+      },
+      {
+        "name": "playback",
+        "value": "1400ms / 800ms / 300ms",
+        "purpose": "Intervalos lenta, normal y rápida; los efectos de cada paso terminan antes del siguiente intervalo rápido."
       }
     ],
     "breakpoints": [
       {
-        "name": "compact-labels",
-        "value": "1150px"
+        "name": "compact-desktop",
+        "value": "1200px"
       },
       {
-        "name": "stacked-inspector",
+        "name": "stacked-workspace",
         "value": "850px"
       },
       {
-        "name": "graph-touch-targets",
-        "value": "849px"
-      },
-      {
-        "name": "readable-canvas-width",
-        "value": "650px"
-      },
-      {
-        "name": "mobile-canvas",
-        "value": "640px"
-      },
-      {
-        "name": "mobile-layout",
+        "name": "mobile",
         "value": "600px"
-      },
-      {
-        "name": "laptop-height",
-        "value": "850px",
-        "purpose": "Con min-width:851px; reduce cabecera y lienzos AFD/AFN."
       }
-    ]
+    ],
+    "accessibility": {
+      "focus": "Contorno violeta general de 3px con separación de 3px; cabecera en tono claro; nodo con separación de 7px; regla con contorno interior de 2px.",
+      "labels": "Resultados explícitos, nodos Activo, reglas en uso, índices y etiqueta de cabezal. Modelo actual con aria-current; reglas con aria-pressed.",
+      "forms": "Etiquetas asociadas, aria-invalid y mensajes de campo; edición por formulario equivalente a gestos del grafo.",
+      "announcement": "La explicación del paso usa aria-live polite y aria-atomic. Los pulsos y trazos decorativos usan aria-hidden y no reciben eventos.",
+      "inspector": "Diálogo no modal. Escape cierra, el foco se restaura al control que lo abrió; durante la salida usa inert y aria-hidden.",
+      "touch": "Controles de grafo de 44px, reglas de 44px o 48px hasta 850px; botones principales y campos de entrada de 44px hasta 600px.",
+      "reducedMotion": "Se eliminan animaciones y transiciones; los efectos del inspector y el ajuste de vista cancelan su movimiento al cambiar la preferencia. Datos y estados se actualizan inmediatamente.",
+      "overflow": "Entrada, cinta y pila se desplazan dentro de su área; texto formal y mensajes ajustan línea. La vista inicial conserva zoom 0.95 si el grafo no cabe a escala legible."
+    },
+    "provenance": {
+      "sourceFiles": [
+        "src/styles.css",
+        "src/components/GraphEditor.css",
+        "src/components/Simulator.css",
+        "src/App.tsx",
+        "src/components/GraphEditor.tsx",
+        "src/components/Inspector.tsx",
+        "src/components/Simulator.tsx",
+        "src/components/FormalDefinition.tsx",
+        "public/fonts/README.md"
+      ],
+      "colorRamps": "Tiras de ocho tonos sintetizadas en OKLCH para el panel; son metadatos de previsualización, no tokens nuevos de la aplicación.",
+      "componentPreviews": "CSS distintivo extraído del código y clases ds- aisladas; las variables incluyen respaldos literales del mismo valor. Los ejemplos representan las variantes indicadas, sin runtime de React.",
+      "shippingAssets": "No se distribuyen imágenes raster. El grafo y los iconos operativos usan SVG y HTML definidos en los archivos fuente listados; capturas y propuestas locales son artefactos de revisión. La procedencia y las licencias de las fuentes locales constan en public/fonts/README.md."
+    }
   },
   "components": [
     {
-      "name": "Paso siguiente",
+      "name": "Acción principal",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Paso siguiente",
-      "html": "<button class=\"ds-button-primary\" type=\"button\">Paso siguiente</button>",
-      "css": ".ds-button-primary{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.16,1,.3,1));color:#fff;background:var(--accent,#245de8);border-color:var(--accent,#245de8);}@media(hover:hover) and (pointer:fine){.ds-button-primary:hover:not(:disabled){background:#164bcf;border-color:#164bcf;}}.ds-button-primary:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-primary:active:not(:disabled){transform:translateY(1px)}.ds-button-primary:disabled{cursor:not-allowed;background:#d9e2f5;color:#526484;border-color:#d9e2f5;}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none}.ds-button-primary:active:not(:disabled){transform:none}}"
+      "description": "Paso siguiente y confirmación de cambios, con edición violeta.",
+      "html": "<button class=\"ds-primary\">Paso siguiente <svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" aria-hidden=\"true\"><path d=\"M3 8h10M9 4l4 4-4 4\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></button>",
+      "css": ".ds-primary{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 14px;border:1px solid var(--control-border,#bdb5cb);border-radius:6px;color:var(--ink,#252335);background:var(--paper,#fff);font-family:'Source Sans 3', 'Segoe UI', system-ui, sans-serif;font-size:14px;font-weight:600;line-height:1.3;cursor:pointer;transition:background-color 140ms ease,border-color 140ms ease;color:#fff;background:var(--accent,#6a45b8);border-color:var(--accent,#6a45b8)}.ds-primary:focus-visible{outline:3px solid var(--accent,#6a45b8);outline-offset:3px}.ds-primary:disabled{cursor:not-allowed;color:#655a77;background:#e7dff1;border-color:#e7dff1}@media(hover:hover) and (pointer:fine){.ds-primary:hover:not(:disabled){background:var(--accent-hover,#573499);border-color:var(--accent-hover,#573499)}}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
     },
     {
-      "name": "Acción secundaria",
+      "name": "Botón neutral",
       "kind": "button",
       "refersTo": "button-neutral",
-      "description": "Agregar estado",
-      "html": "<button class=\"ds-button-neutral\" type=\"button\">Agregar estado</button>",
-      "css": ".ds-button-neutral{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.16,1,.3,1));color:#344563;background:#fff;}@media(hover:hover) and (pointer:fine){.ds-button-neutral:hover:not(:disabled){background:#f0f4fc;border-color:#bccce5;}}.ds-button-neutral:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-neutral:active:not(:disabled){transform:translateY(1px)}.ds-button-neutral:disabled{cursor:not-allowed;color:#66758a;background:#f0f3f8;border-color:#e1e6ef;}@media(prefers-reduced-motion:reduce){.ds-button-neutral{transition:none}.ds-button-neutral:active:not(:disabled){transform:none}}"
+      "description": "Construcción y reproducción secundaria.",
+      "html": "<button class=\"ds-neutral\">Agregar estado</button>",
+      "css": ".ds-neutral{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 14px;border:1px solid var(--control-border,#bdb5cb);border-radius:6px;color:var(--ink,#252335);background:var(--paper,#fff);font-family:'Source Sans 3', 'Segoe UI', system-ui, sans-serif;font-size:14px;font-weight:600;line-height:1.3;cursor:pointer;transition:background-color 140ms ease,border-color 140ms ease}.ds-neutral:focus-visible{outline:3px solid var(--accent,#6a45b8);outline-offset:3px}.ds-neutral:disabled{cursor:not-allowed;color:#756e82;background:#f0edf4;border-color:#ded9e6}@media(hover:hover) and (pointer:fine){.ds-neutral:hover:not(:disabled){border-color:#a493bb;background:var(--accent-wash,#f0eaf9)}}@media(prefers-reduced-motion:reduce){.ds-neutral{transition:none}}"
     },
     {
       "name": "Acción de texto",
       "kind": "button",
       "refersTo": "button-text",
-      "description": "Cargar ejemplo",
-      "html": "<button class=\"ds-button-text\" type=\"button\">Cargar ejemplo</button>",
-      "css": ".ds-button-text{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 13px;border:1px solid var(--border,#dce3ef);border-radius:7px;font:600 13px/1.35 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,transform 100ms var(--ease-out,cubic-bezier(.16,1,.3,1));padding-inline:9px;color:#344563;background:transparent;border-color:transparent;}@media(hover:hover) and (pointer:fine){.ds-button-text:hover:not(:disabled){background:#edf2fc;border-color:transparent;}}.ds-button-text:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-button-text:active:not(:disabled){transform:translateY(1px)}.ds-button-text:disabled{cursor:not-allowed;color:#66758a;background:#f0f3f8;border-color:#e1e6ef;}@media(prefers-reduced-motion:reduce){.ds-button-text{transition:none}.ds-button-text:active:not(:disabled){transform:none}}"
+      "description": "Acciones auxiliares dentro de herramientas y referencias.",
+      "html": "<button class=\"ds-text\">Ver modelo</button>",
+      "css": ".ds-text{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:8px 14px;border:1px solid var(--control-border,#bdb5cb);border-radius:6px;color:var(--ink,#252335);background:var(--paper,#fff);font-family:'Source Sans 3', 'Segoe UI', system-ui, sans-serif;font-size:14px;font-weight:600;line-height:1.3;cursor:pointer;transition:background-color 140ms ease,border-color 140ms ease;background:transparent;border-color:transparent;padding-inline:9px}.ds-text:focus-visible{outline:3px solid var(--accent,#6a45b8);outline-offset:3px}.ds-text:disabled{cursor:not-allowed;color:#756e82;background:#f0edf4;border-color:#ded9e6}@media(hover:hover) and (pointer:fine){.ds-text:hover:not(:disabled){border-color:#a493bb;background:var(--accent-wash,#f0eaf9)}}@media(prefers-reduced-motion:reduce){.ds-text{transition:none}}@media(hover:hover) and (pointer:fine){.ds-text:hover:not(:disabled){border-color:transparent}}"
     },
     {
-      "name": "Campo del inspector",
+      "name": "Campo de configuración",
       "kind": "input",
       "refersTo": "input",
-      "description": "Etiqueta y campo de edición local.",
-      "html": "<label class=\"ds-field\">Nombre del autómata<input class=\"ds-field-input\" value=\"Termina en 01\" /></label>",
-      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;margin:0 0 15px;color:#344563;font:600 12px/1.5 'Segoe UI Variable','Segoe UI',system-ui,sans-serif}.ds-field-input{box-sizing:border-box;width:100%;min-height:42px;padding:9px 11px;border:1px solid #cbd5e4;border-radius:7px;color:var(--ink,#182641);background:#fff;font:400 14px/1.5 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;caret-color:var(--accent,#245de8)}.ds-field-input::placeholder{color:#68758a}.ds-field-input:focus-visible{outline:3px solid #376be7;outline-offset:3px;}.ds-field-input[aria-invalid=true]{border-color:#b42338}.ds-field-input{transition:border-color 140ms ease,background-color 140ms ease}.ds-field-input:focus{border-color:var(--accent,#245de8)}@media(prefers-reduced-motion:reduce){.ds-field-input{transition:none}}"
+      "description": "Etiqueta visible, contorno firme y foco violeta.",
+      "html": "<label class=\"ds-field\">Nombre<input value=\"Termina en 01\" aria-describedby=\"ds-name-hint\"/><span class=\"ds-hint\" id=\"ds-name-hint\">Nombre del autómata.</span></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;margin:0 0 14px;color:var(--ink,#252335);font-family:'Source Sans 3', 'Segoe UI', system-ui, sans-serif;font-size:14px;font-weight:600;line-height:1.5}.ds-field input{box-sizing:border-box;width:100%;min-width:0;min-height:42px;padding:8px 11px;border:1px solid var(--control-border,#bdb5cb);border-radius:6px;color:var(--ink,#252335);background:var(--paper,#fff);font-family:'Source Sans 3', 'Segoe UI', system-ui, sans-serif;font-size:15px;caret-color:var(--accent,#6a45b8);transition:border-color 140ms ease}.ds-field input:focus{border-color:var(--accent,#6a45b8)}.ds-field input:focus-visible{outline:3px solid var(--accent,#6a45b8);outline-offset:3px}.ds-field input[aria-invalid=true]{border-color:var(--rejected,#b12c40)}.ds-hint{margin-top:5px;color:var(--muted,#625d70);font-size:13px;font-weight:400;line-height:1.5}@media(hover:hover) and (pointer:fine){.ds-field input:hover:not(:focus){border-color:#a493bb}}@media(prefers-reduced-motion:reduce){.ds-field input{transition:none}}"
     },
     {
       "name": "Navegación de modelos",
       "kind": "nav",
       "refersTo": "model-navigation",
-      "description": "Cuatro modelos con una superficie de selección deslizante que respeta movimiento reducido.",
-      "html": "<nav class=\"model-nav\" data-model=\"nfa\" aria-label=\"Tipo de autómata\"><button>AFD</button><button class=\"active\" aria-current=\"page\">AFN</button><button>Pila</button><button>Turing</button></nav>",
-      "css": ".model-nav{--border:#dce3ef;--ease-out:cubic-bezier(.16,1,.3,1);font:600 13px/1.35 \"Segoe UI\",sans-serif}.model-nav button{display:inline-flex;align-items:center;cursor:pointer;box-sizing:border-box}.model-nav { --nav-inset: 5px; --nav-gap: 4px; --model-index: 0; position: relative; isolation: isolate; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 24px; padding: var(--nav-inset); border: 1px solid var(--border); border-radius: 11px; background: #eaf0f8; gap: var(--nav-gap); }\n.model-nav[data-model=nfa] { --model-index: 1; }\n.model-nav[data-model=pda] { --model-index: 2; }\n.model-nav[data-model=tm] { --model-index: 3; }\n.model-nav::before { box-sizing: border-box; content: ''; position: absolute; z-index: -1; inset-block: var(--nav-inset); left: var(--nav-inset); width: calc((100% - 2 * var(--nav-inset) - 3 * var(--nav-gap)) / 4); border: 1px solid #cbd8ef; border-radius: 7px; background: #fff; box-shadow: 0 2px 4px #21355706; transform: translateX(calc(var(--model-index) * (100% + var(--nav-gap)))); transition: transform 220ms var(--ease-out); pointer-events: none; }\n.model-nav button { justify-content: flex-start; gap: 12px; padding: 9px 16px; min-height: 48px; background: transparent; border: 1px solid transparent; color: #536276; border-radius: 7px; transition: color 140ms ease, background-color 140ms ease; }\n.model-nav button.active { color: #194bc8; background: transparent; }\n.model-abbr { font-size: 15px; font-weight: 750; letter-spacing: -.015em; }\n.model-description { text-align: left; font-size: 12px; font-weight: 400; }\n@media(max-width:600px){.model-nav{--nav-inset:4px;--nav-gap:3px}.model-nav button{min-height:44px;padding:8px 5px;justify-content:center}}@media(prefers-reduced-motion:reduce){.model-nav::before,.model-nav button{transition:none}}.model-nav button:focus-visible{outline:3px solid #376be7;outline-offset:3px}"
+      "description": "Cuatro columnas constantes y selección blanca; el contexto procede de la cabecera ciruela.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Tipo de autómata\"><button aria-current=\"page\"><strong>AFD</strong><span>Determinista</span></button><button><strong>AFN</strong><span>No determinista</span></button><button><strong>Pila</strong><span>Autómata de pila</span></button><button><strong>Turing</strong><span>Máquina de Turing</span></button></nav>",
+      "css": ".ds-nav{position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;padding:3px;border-radius:6px;background:#493d5e;font-family:'Source Sans 3', 'Segoe UI', system-ui, sans-serif}.ds-nav:before{content:'';position:absolute;z-index:-1;inset-block:3px;left:3px;width:calc((100% - 15px)/4);border-radius:4px;background:#fff;transform:translateX(0);transition:transform 220ms cubic-bezier(.16,1,.3,1);pointer-events:none}.ds-nav button{display:flex;justify-content:flex-start;align-items:center;gap:8px;min-height:40px;padding:7px 12px;border:0;border-radius:4px;background:transparent;color:#e9e1f1;font-family:inherit;cursor:pointer}.ds-nav button[aria-current]{color:#4f2c86}.ds-nav strong{font-size:15px;font-weight:700}.ds-nav span{font-size:12px;font-weight:400;text-align:left;line-height:1.15}.ds-nav button:focus-visible{outline:3px solid #e6d8fc;outline-offset:3px}@media(hover:hover) and (pointer:fine){.ds-nav button:hover:not([aria-current]){background:#5a4b71}}@media(max-width:1200px){.ds-nav span{display:none}.ds-nav button{justify-content:center}}@media(max-width:600px){.ds-nav button{min-height:44px;padding-inline:8px}}@media(prefers-reduced-motion:reduce){.ds-nav:before{transition:none}}"
     },
     {
-      "name": "Estado de configuración",
+      "name": "Estado de ejecución",
       "kind": "chip",
       "refersTo": "state-chip",
-      "description": "Notación del estado activo; elemento informativo.",
-      "html": "<span class=\"ds-state-chip\">q1</span>",
-      "css": ".ds-state-chip{display:inline-flex;align-items:center;justify-content:center;padding:5px 11px;border:1px solid #cddbf8;border-radius:5px;background:#eff4ff;color:#2454c8;font:400 14px/1.5 Consolas,monospace}"
+      "description": "Notación de estado actual con señal de ejecución petróleo.",
+      "html": "<span class=\"ds-state-chip\">q₀</span>",
+      "css": ".ds-state-chip{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:3px 9px;border:1px solid #a5cbd5;border-radius:4px;color:var(--activity-ink,#085c73);background:var(--activity-wash,#e5f3f6);font-family:'SFMono-Regular', Consolas, 'Liberation Mono', monospace;font-size:16px;overflow-wrap:anywhere}"
     },
     {
-      "name": "Panel de simulación",
+      "name": "Referencia formal",
       "kind": "card",
-      "refersTo": "laboratory-panel",
-      "description": "Superficie plana delimitada para herramientas y resultados.",
-      "html": "<section class=\"ds-panel\"><h2 class=\"ds-panel-title\">Prueba una cadena</h2><p class=\"ds-panel-help\">Símbolos de Σ = {0, 1}. Vacío = ε.</p></section>",
-      "css": ".ds-panel{padding:20px 22px;border:1px solid var(--border,#dce3ef);border-radius:12px;background:#fff;color:var(--ink,#182641);font-family:'Segoe UI Variable','Segoe UI',system-ui,sans-serif}.ds-panel-title{margin:0;font-size:16px;font-weight:650;line-height:1.5;letter-spacing:-.015em}.ds-panel-help{margin:5px 0 0;color:var(--muted,#536276);font-size:11px;line-height:1.65}@media(max-width:600px){.ds-panel{padding:18px 15px}.ds-panel-help{font-size:12px}}"
+      "refersTo": "reference-panel",
+      "description": "Contenedor plano con desplegable nativo para el apoyo formal.",
+      "html": "<details class=\"ds-reference\" open><summary>Definición formal<span>Estados y funciones de transición</span></summary><p class=\"ds-reference-formula\">M = (Q, Σ, δ, s, F)</p></details>",
+      "css": ".ds-reference{min-width:0;padding:20px 24px;border:1px solid var(--border,#ddd8e5);border-radius:8px;background:var(--paper,#fff);color:var(--ink,#252335);font-family:'Source Sans 3', 'Segoe UI', system-ui, sans-serif;line-height:1.5}.ds-reference summary{cursor:pointer;font-size:17px;font-weight:600;list-style-position:outside;margin-left:17px}.ds-reference summary span{display:block;margin-top:4px;color:var(--muted,#625d70);font-size:13px;font-weight:400}.ds-reference summary:focus-visible{outline:3px solid var(--accent,#6a45b8);outline-offset:3px}.ds-reference-formula{margin:20px 0 0;color:var(--accent,#6a45b8);font-family:'SFMono-Regular', Consolas, 'Liberation Mono', monospace;font-size:14px;line-height:1.8;overflow-wrap:anywhere}@media(max-width:600px){.ds-reference{padding:18px 14px}}"
     },
     {
-      "name": "Estado activo del grafo",
+      "name": "Nodo activo y seleccionado",
       "kind": "custom",
       "refersTo": "graph-state",
-      "description": "Círculo de estado activo, con indicador de aceptación y etiqueta textual.",
-      "html": "<div class=\"ds-graph-state-wrap\"><div class=\"ds-graph-state\" tabindex=\"0\" role=\"button\" aria-label=\"Estado q1, de aceptación, activo\"><span class=\"ds-graph-state-name\">q<sub>1</sub></span><span class=\"ds-graph-state-status\">Activo</span></div></div>",
-      "css": ".ds-graph-state-wrap{padding:8px 8px 34px}.ds-graph-state{box-sizing:border-box;position:relative;display:grid;place-items:center;width:60px;height:60px;border:2px solid var(--accent,#245de8);border-radius:50%;color:#174ac5;background:#eaf0ff;box-shadow:0 0 0 5px #245de810;cursor:grab;transition:background-color 140ms ease,border-color 140ms ease,box-shadow 140ms ease}.ds-graph-state::after{content:'';position:absolute;inset:4px;border:1.5px solid currentColor;border-radius:50%;pointer-events:none}.ds-graph-state:focus-visible{outline:3px solid var(--accent,#245de8);outline-offset:7px}.ds-graph-state:active{cursor:grabbing}.ds-graph-state-name{font:italic 23px/1.2 'STIX Two Text',Georgia,serif}.ds-graph-state-name sub{position:relative;bottom:-.1em;font-size:.65em;font-style:normal;vertical-align:baseline}.ds-graph-state-status{position:absolute;top:calc(100% + 7px);padding:2px 6px;border-radius:4px;color:#174ac5;background:#eaf0ff;font:700 10px/1.4 'Segoe UI Variable','Segoe UI',system-ui,sans-serif;letter-spacing:.03em;white-space:nowrap}@media(prefers-reduced-motion:reduce){.ds-graph-state{transition:none}}"
+      "description": "El borde violeta de selección convive con el interior petróleo de actividad.",
+      "html": "<div class=\"ds-graph-node\" tabindex=\"0\" role=\"group\" aria-label=\"Estado q0, inicial, activo y seleccionado\"><svg class=\"ds-node-initial\" width=\"43\" height=\"20\" viewBox=\"0 0 43 20\" aria-hidden=\"true\"><path d=\"M1 10H37M29 3L38 10L29 17\"/></svg><span class=\"ds-node-name\">q<sub>0</sub></span><span class=\"ds-node-status\">Activo</span></div>",
+      "css": ".ds-graph-node{position:relative;display:grid;place-items:center;box-sizing:border-box;width:60px;height:60px;border:2px solid var(--accent,#6a45b8);border-radius:50%;color:var(--activity-ink,#085c73);background:var(--activity-wash,#e5f3f6);cursor:grab;transition:background-color 140ms ease,border-color 140ms ease}.ds-graph-node:active{cursor:grabbing}.ds-graph-node:focus-visible{outline:3px solid var(--accent,#6a45b8);outline-offset:7px}.ds-node-name{max-width:48px;overflow:hidden;font-family:'STIX Two Text',Georgia,serif;font-size:23px;font-style:italic;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}.ds-node-name sub{position:relative;bottom:-.1em;font-size:.65em;font-style:normal;vertical-align:baseline}.ds-node-initial{position:absolute;top:18px;right:calc(100% + 3px);overflow:visible;color:var(--muted,#625d70);pointer-events:none}.ds-node-initial path{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.ds-node-status{position:absolute;top:calc(100% + 7px);padding:2px 7px;border-radius:4px;color:var(--activity-ink,#085c73);background:var(--activity-wash,#e5f3f6);font-family:'Source Sans 3', 'Segoe UI', system-ui, sans-serif;font-size:11px;font-weight:700;line-height:1.4;white-space:nowrap}@media(prefers-reduced-motion:reduce){.ds-graph-node{transition:none}}"
+    },
+    {
+      "name": "Regla aplicada",
+      "kind": "button",
+      "refersTo": "transition-label",
+      "description": "Regla seleccionable con etiqueta explícita de actividad.",
+      "html": "<button class=\"ds-rule\" aria-pressed=\"false\" aria-label=\"Regla 0, de q0 a q1, utilizada en este paso\">0 <span class=\"ds-rule-status\">en uso</span></button>",
+      "css": ".ds-rule{display:flex;align-items:center;justify-content:center;gap:7px;min-width:44px;min-height:44px;padding:5px 9px;border:1px solid transparent;border-radius:4px;color:var(--activity-ink,#085c73);background:var(--activity-wash,#e5f3f6);font-family:'SFMono-Regular', Consolas, 'Liberation Mono', monospace;font-size:14px;font-weight:500;line-height:1.5;white-space:nowrap;cursor:pointer;transition:background-color 140ms ease,color 140ms ease}.ds-rule:focus-visible{outline:2px solid var(--accent,#6a45b8);outline-offset:-2px}.ds-rule:active{background:var(--accent-wash,#f0eaf9)}.ds-rule[aria-pressed=true]{border-color:var(--accent,#6a45b8)}.ds-rule-status{font-family:'Source Sans 3', 'Segoe UI', system-ui, sans-serif;font-size:11px;font-weight:700}@media(hover:hover) and (pointer:fine){.ds-rule:hover{color:var(--accent,#6a45b8);background:var(--accent-wash,#f0eaf9)}}@media(max-width:850px){.ds-rule{min-width:48px;min-height:48px}}@media(prefers-reduced-motion:reduce){.ds-rule{transition:none}}"
     },
     {
       "name": "Símbolo actual",
       "kind": "custom",
       "refersTo": "input-symbol",
-      "description": "Celda de entrada con índice y señal inferior de posición.",
-      "html": "<span class=\"ds-input-symbol\"><small class=\"ds-input-symbol-index\">1</small>0</span>",
-      "css": ".ds-input-symbol{box-sizing:border-box;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:40px;padding:5px;border:1px solid var(--accent,#245de8);border-radius:6px;color:#194bc8;background:#ecf2ff;box-shadow:inset 0 -2px var(--accent,#245de8);font:600 19px/1.5 Consolas,monospace}.ds-input-symbol-index{font:400 9px/1.5 'Segoe UI',sans-serif;color:#66758a}@media(max-width:600px){.ds-input-symbol{width:36px}}"
+      "description": "Celda estable de la entrada con índice y señal petróleo de posición actual.",
+      "html": "<span class=\"ds-input-symbol\"><small>1</small>0</span>",
+      "css": ".ds-input-symbol{box-sizing:border-box;display:flex;flex-shrink:0;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:34px;padding:3px 5px;border:1px solid var(--activity,#0e7490);border-radius:4px;color:var(--activity-ink,#085c73);background:var(--activity-wash,#e5f3f6);font-family:'SFMono-Regular', Consolas, 'Liberation Mono', monospace;font-size:17px;font-weight:600;line-height:1.1;transition:color 160ms ease,background-color 160ms ease,border-color 160ms ease}.ds-input-symbol small{color:var(--muted,#625d70);font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:400}@media(max-width:600px){.ds-input-symbol{min-width:36px;min-height:44px}}@media(prefers-reduced-motion:reduce){.ds-input-symbol{transition:none}}"
     }
   ],
   "narrative": {
-    "northStar": "Laboratorio claro de cobalto",
-    "overview": "El sistema presenta un laboratorio universitario de trabajo directo. Superficies blancas y frías, tinta oscura y cobalto dan prioridad al grafo y a su configuración actual. La densidad permite construir, inspeccionar y ejecutar un modelo dentro de una misma herramienta.\n\nLa identidad se expresa mediante tipografía, controles y diagramas funcionales. El grafo, la configuración y la regla se actualizan juntos; el color acompaña ese vínculo y el texto explica cada paso. El grafo combina trazos SVG con nodos y etiquetas HTML interactivos, sin imágenes raster de decoración.",
+    "northStar": "Secuencia en continuidad",
+    "overview": "Un laboratorio universitario de superficies claras, cabecera ciruela y bandas de trabajo continuas. La construcción y la ejecución comparten una escena: el grafo conserva su presencia mientras la entrada, la regla aplicada y la configuración permiten comparar cada paso.\n\nLa identidad se apoya en tipografía legible, diagramas operativos y dos acentos con funciones distintas. El violeta identifica edición y selección; el petróleo vincula la actividad del grafo con el cálculo. El detalle contextual aparece junto al trabajo y la referencia formal conserva una lectura propia debajo.\n\nLa aplicación no distribuye imágenes raster: la geometría operativa del grafo y los iconos se construyen con SVG y HTML. Las capturas y propuestas locales son artefactos de revisión; la procedencia y las licencias de las fuentes locales están registradas en `public/fonts/README.md`.",
     "keyCharacteristics": [
-      "Superficies claras delimitadas por bordes finos.",
-      "Cobalto para acciones principales, selección y ejecución activa.",
-      "Interfaz sans, notación monoespaciada y nombres matemáticos en serif cursiva.",
-      "Inspector contextual y configuración junto al área de trabajo.",
-      "Controles y representación textual para complementar los gestos del grafo."
+      "Cabecera ciruela y superficies blancas separadas por bordes discretos.",
+      "Violeta para seleccionar y editar; petróleo para representar la ejecución.",
+      "Source Sans 3 en la interfaz, STIX Two Text en nombres matemáticos y monoespaciada en datos.",
+      "Inspector lateral en escritorio y apilado bajo el lienzo en pantallas pequeñas.",
+      "Grafo, entrada y configuración legibles en una misma secuencia de trabajo."
     ],
     "rules": [
       {
-        "name": "The Synchronized Cobalt Rule",
-        "body": "Una configuración activa se reconoce en el grafo y en la simulación mediante la misma familia de cobalto y una descripción textual de su estado.",
+        "name": "The Separate Signals Rule",
+        "body": "El violeta comunica selección y edición; el petróleo comunica ejecución. Un nodo seleccionado y activo conserva el borde violeta y el interior de actividad.",
         "section": "colors"
       },
       {
         "name": "The Explicit Result Rule",
-        "body": "Aceptación, rechazo e inconclusión siempre llevan una etiqueta; el color no sustituye su significado.",
+        "body": "Aceptación, rechazo e inconclusión conservan una etiqueta textual; el color acompaña el resultado.",
         "section": "colors"
+      },
+      {
+        "name": "The Continuous Surface Rule",
+        "body": "Las áreas de construcción y cálculo se separan por borde y espacio; la elevación se reserva para el menú flotante.",
+        "section": "elevation"
       }
     ],
     "dos": [
-      "Do vincular el grafo, la configuración y el mensaje de paso mediante estados de cobalto y texto explícito.",
-      "Do mantener la notación separada del texto de interfaz y conservar los indicadores formales de inicio y aceptación.",
-      "Do acompañar los gestos del lienzo con edición por formulario y representación textual.",
-      "Do preservar los cambios de disposición del inspector y de la simulación en pantallas pequeñas.",
-      "Do usar SVG para los diagramas funcionales y conservar foco visible y movimiento reducido."
+      "Do mantener violeta para edición y petróleo para ejecución.",
+      "Do conservar etiquetas, contornos y formas que explican cada estado además de su color.",
+      "Do permitir comparar grafo, entrada y configuración con posiciones estables.",
+      "Do mantener formularios, definición formal, foco visible y controles táctiles accesibles.",
+      "Do adaptar el flujo a una columna y conservar el desplazamiento local de los datos en pantallas pequeñas.",
+      "Do respetar movimiento reducido y cancelar las animaciones en curso al cambiar la preferencia."
     ],
     "donts": [
-      "Don't usar solo color para distinguir aceptación, rechazo e inconclusión.",
+      "Don't usar solo color para distinguir selección, actividad o resultados.",
       "Don't sustituir el lienzo funcional por una imagen del grafo.",
-      "Don't convertir las ayudas o metadatos en encabezados de mayor jerarquía que el modelo.",
-      "Don't añadir sombras grandes a los paneles de trabajo."
+      "Don't añadir sombras a las bandas de trabajo o al inspector lateral.",
+      "Don't reducir la notación para encajar todo el contenido en una pantalla."
     ]
   }
 }
