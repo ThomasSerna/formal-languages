@@ -133,7 +133,15 @@ for (const [width, height] of [[1366, 768], [375, 667]]) {
     await expect(page.locator('.stack-cell')).toHaveCount(LIMITS.pdaStack);
     const stack = page.getByRole('region', { name: 'Pila de la rama seleccionada' });
     await stack.scrollIntoViewIfNeeded();
-    expect((await stack.boundingBox())!.height).toBeLessThanOrEqual(136);
+    expect((await stack.boundingBox())!.height).toBe(184);
+    const branches = await page.locator('.branch-panel').boundingBox();
+    const stackPanel = await page.locator('.stack-panel').boundingBox();
+    const inputPanel = await page.locator('.execution-main').boundingBox();
+    expect(branches!.width).toBeLessThanOrEqual(260);
+    expect(branches!.width).toBeLessThan(inputPanel!.width);
+    expect(stackPanel!.x).toBeGreaterThanOrEqual(branches!.x + branches!.width);
+    expect(stackPanel!.y).toBeCloseTo(branches!.y, 0);
+    expect(await page.locator('.stack-panel').evaluate(node => node.parentElement?.classList.contains('execution-layout'))).toBe(true);
     await stack.focus();
     await page.keyboard.press('End');
     await expect.poll(() => stack.evaluate(node => node.scrollTop)).toBeGreaterThan(0);

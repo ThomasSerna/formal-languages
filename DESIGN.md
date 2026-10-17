@@ -211,7 +211,7 @@ La definición formal y la explicación del modelo permanecen debajo del editor,
 - Hasta (1200px), desaparecen las descripciones de modelo.
 - Hasta (850px), la navegación ocupa su propia fila, el título se ajusta dentro de la barra de herramientas y la referencia pasa a una columna.
 - Hasta (600px), los tres controles de edición comparten una fila con objetivos mínimos de (44px). La simulación apila sus controles dentro de la bandeja.
-- Entrada y cinta conservan desplazamiento horizontal local. La pila usa bloques verticales con el tope arriba, una base visual y desplazamiento vertical local hasta (136px). Los mensajes y fórmulas ajustan línea.
+- Entrada y cinta conservan desplazamiento horizontal local. El autómata de pila separa cadena, ramas y pila en tres columnas: la cadena ocupa el espacio flexible, el selector de ramas queda limitado a (260px) y la pila ocupa una columna de (164px). Hasta (850px), la cadena ocupa una fila y las ramas y la pila comparten la siguiente. La pila usa bloques verticales con el tope arriba, una base visual y desplazamiento vertical local hasta (184px). La entrada pendiente acompaña a la cadena. Los mensajes y fórmulas ajustan línea.
 
 ## Elevation & Depth
 
