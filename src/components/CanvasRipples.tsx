@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 export type CanvasRipple = { id: number; x: number; y: number; startedAt: number };
 
 const DURATION = 1800;
-const CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const CELL_SIZE = 8;
 
 export default function CanvasRipples({ ripples, width, height, onExpire }: {
   ripples: CanvasRipple[];
@@ -22,17 +22,15 @@ export default function CanvasRipples({ ripples, width, height, onExpire }: {
     surface.height = Math.ceil(height * ratio);
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
     if (!ripples.length || !width || !height) return;
-    // Rasterize the stable character grid once; animate only its small opacity mask.
+    // Rasterize the stable dot grid once; animate only its small opacity mask.
     const texture = document.createElement('canvas');
     texture.width = surface.width;
     texture.height = surface.height;
-    const text = texture.getContext('2d')!;
-    text.setTransform(ratio, 0, 0, ratio, 0, 0);
-    text.font = '9px Consolas, "Liberation Mono", monospace';
-    text.textBaseline = 'middle';
-    text.fillStyle = getComputedStyle(surface).color;
-    const columns = Math.ceil(width / 7);
-    const rows = Math.ceil(height / 12);
+    const dots = texture.getContext('2d')!;
+    dots.setTransform(ratio, 0, 0, ratio, 0, 0);
+    dots.fillStyle = getComputedStyle(surface).color;
+    const columns = Math.ceil(width / CELL_SIZE);
+    const rows = Math.ceil(height / CELL_SIZE);
     const mask = document.createElement('canvas');
     mask.width = columns;
     mask.height = rows;
@@ -43,11 +41,13 @@ export default function CanvasRipples({ ripples, width, height, onExpire }: {
     const cells: { x: number; y: number; intensity: number; warp: number }[] = [];
     for (let row = 0; row < rows; row++) {
       for (let column = 0; column < columns; column++) {
-        const x = 1 + column * 7;
-        const y = 6 + row * 12;
+        const x = (column + .5) * CELL_SIZE;
+        const y = (row + .5) * CELL_SIZE;
         const seed = (Math.imul(column + 1, 374761393) + Math.imul(row + 1, 668265263)) >>> 0;
         const hash = Math.imul(seed ^ (seed >>> 13), 1274126177) >>> 0;
-        text.fillText(CHARACTERS[hash % CHARACTERS.length], x, y);
+        dots.beginPath();
+        dots.arc(x, y, 1.5, 0, Math.PI * 2);
+        dots.fill();
         cells.push({
           x, y,
           intensity: .65 + (hash % 100) / 285,
@@ -89,7 +89,7 @@ export default function CanvasRipples({ ripples, width, height, onExpire }: {
         maskContext.putImageData(pixels, 0, 0);
         context.drawImage(texture, 0, 0, width, height);
         context.globalCompositeOperation = 'destination-in';
-        context.drawImage(mask, 0, 0, columns * 7, rows * 12);
+        context.drawImage(mask, 0, 0, columns * CELL_SIZE, rows * CELL_SIZE);
         context.globalCompositeOperation = 'source-over';
       }
       if (expired.length) onExpire(expired.map(ripple => ripple.id));
