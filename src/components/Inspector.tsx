@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Machine, State, Transition } from '../domain';
 import { stateName, symbolsFromField } from '../format';
-import FormalDefinition from './FormalDefinition';
 
 interface Props {
   machine: Machine;
@@ -13,7 +12,6 @@ interface Props {
   onSelectState: (id: string | null) => void;
   onSelectTransition: (id: string | null) => void;
   onCancelTransition: () => void;
-  onShowModel: () => void;
   onClose: () => void;
 }
 
@@ -84,9 +82,11 @@ function StateProperties({ machine, state, onChange, onDelete }: {machine: Machi
   const final = machine.acceptingStateIds.includes(state.id);
   return <div className="inspector-form">
     <label>Nombre del estado<input value={state.name} maxLength={24} onChange={event => onChange({ ...machine, states: machine.states.map(item => item.id === state.id ? { ...item, name: event.target.value } : item) })} /></label>
-    <label className="check-label"><input type="checkbox" checked={initial} onChange={event => onChange({ ...machine, initialStateIds: event.target.checked ? machine.kind === 'nfa' ? [...machine.initialStateIds, state.id] : [state.id] : machine.initialStateIds.filter(id => id !== state.id) })} />Estado inicial</label>
-    <label className="check-label"><input type="checkbox" checked={final} onChange={event => onChange({ ...machine, acceptingStateIds: event.target.checked ? machine.kind === 'tm' ? [state.id] : [...machine.acceptingStateIds, state.id] : machine.acceptingStateIds.filter(id => id !== state.id) })} />{machine.kind === 'tm' ? 'Estado de aceptación · t' : 'Estado de aceptación'}</label>
-    {machine.kind === 'tm' && <label className="check-label"><input type="checkbox" checked={machine.rejectStateId === state.id} onChange={event => onChange({ ...machine, rejectStateId: event.target.checked ? state.id : '' })} />Estado de rechazo · r</label>}
+    <div className="state-roles" role="group" aria-label="Roles del estado">
+      <button type="button" aria-pressed={initial} onClick={() => onChange({ ...machine, initialStateIds: !initial ? machine.kind === 'nfa' ? [...machine.initialStateIds, state.id] : [state.id] : machine.initialStateIds.filter(id => id !== state.id) })}><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1 10h8m-3-3 3 3-3 3" /><circle cx="14" cy="10" r="5" /></svg>Inicial</button>
+      <button type="button" aria-pressed={final} onClick={() => onChange({ ...machine, acceptingStateIds: !final ? machine.kind === 'tm' ? [state.id] : [...machine.acceptingStateIds, state.id] : machine.acceptingStateIds.filter(id => id !== state.id) })}><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" /><circle cx="10" cy="10" r="5" /></svg>Aceptación</button>
+      {machine.kind === 'tm' && <button type="button" aria-pressed={machine.rejectStateId === state.id} onClick={() => onChange({ ...machine, rejectStateId: machine.rejectStateId === state.id ? '' : state.id })}><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8" /><path d="m7 7 6 6m0-6-6 6" /></svg>Rechazo</button>}
+    </div>
     <button className="danger subtle" onClick={() => { onChange({ ...machine, states: machine.states.filter(item => item.id !== state.id), transitions: machine.transitions.filter(rule => rule.from !== state.id && rule.to !== state.id), initialStateIds: machine.initialStateIds.filter(id => id !== state.id), acceptingStateIds: machine.acceptingStateIds.filter(id => id !== state.id), ...(machine.kind === 'tm' && machine.rejectStateId === state.id ? { rejectStateId: '' } : {}) } as Machine); onDelete(); }}>Eliminar estado y sus conexiones</button>
   </div>;
 }
@@ -97,16 +97,6 @@ export default function Inspector(props: Props) {
   const transition = machine.transitions.find(item => item.id === selectedTransitionId);
   const editingTransition = addingTransition || Boolean(transition);
   const title = editingTransition ? transition ? 'Editar transición' : 'Nueva transición' : state ? `Estado ${state.name || 'sin nombre'}` : 'Modelo';
-  const help = editingTransition
-    ? machine.kind === 'pda' ? 'Cada regla lee la entrada, retira el tope y coloca su reemplazo. ε no consume entrada.'
-      : machine.kind === 'tm' ? 'La regla lee y escribe una celda, mueve el cabezal y cambia de estado. El marcador izquierdo se conserva; al leerlo, el cabezal avanza a la derecha. Los estados t y r son absorbentes.'
-        : `Una transición cambia de estado al leer un símbolo.${machine.kind === 'nfa' ? ' ε permite cambiar sin consumir entrada.' : ''}`
-    : state ? `La flecha externa indica el inicio.${machine.kind === 'nfa' ? ' Puede haber varios estados iniciales.' : ''} ${machine.kind === 'tm' ? 't acepta; r rechaza.' : 'El doble círculo indica aceptación, con toda la entrada consumida.'}`
-      : machine.kind === 'tm' ? `Γ incluye Σ, el marcador ${machine.leftMarker} y el blanco ${machine.blankSymbol}. Una regla omitida rechaza. El marcador se conserva; al leerlo, el cabezal avanza a la derecha. Los estados t y r son absorbentes.`
-        : machine.kind === 'pda' ? 'La pila recuerda símbolos pendientes. Se acepta por estado final con toda la entrada consumida, aunque la pila no esté vacía.'
-          : machine.kind === 'nfa' ? 'El AFN explora varios caminos. Se acepta si alguno termina en F con toda la entrada consumida. ε permite cambiar de estado sin leer entrada.'
-            : 'δ define un destino para cada par estado–símbolo. Se acepta en F con toda la entrada consumida.';
-  const helpKey = `${machine.kind}-${editingTransition ? `transition-${transition?.id ?? `new-${props.connection?.from ?? ''}-${props.connection?.to ?? ''}`}` : state ? `state-${state.id}` : 'model'}`;
   const body = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -120,7 +110,6 @@ export default function Inspector(props: Props) {
     <div className="inspector-header">
       <h2>{title}</h2>
       <div className="inspector-actions">
-        {!editingTransition && state && <button className="text-button" onClick={props.onShowModel}>Ver modelo</button>}
         <button className="text-button close-inspector" aria-label="Cerrar inspector" onClick={props.onClose}><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="m5 5 8 8M13 5l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></button>
       </div>
     </div>
@@ -137,7 +126,6 @@ export default function Inspector(props: Props) {
         {machine.kind === 'pda' && <><label>Alfabeto de pila · Γ<input value={machine.stackAlphabet.join(' ')} onChange={event => onChange({ ...machine, stackAlphabet: symbolsFromField(event.target.value) })} /></label><label>Símbolo inicial de pila<input value={machine.initialStackSymbol} onChange={event => onChange({ ...machine, initialStackSymbol: event.target.value })} maxLength={2} /></label></>}
         {machine.kind === 'tm' && <label>Alfabeto de cinta · Γ<input value={machine.tapeAlphabet.join(' ')} onChange={event => onChange({ ...machine, tapeAlphabet: symbolsFromField(event.target.value) })} /></label>}
       </>}
-      <details key={helpKey} className="inspector-help"><summary>Ayuda y definición</summary><p className="inspector-help-copy">{help}</p><FormalDefinition machine={machine} compact /></details>
     </div>
   </div>;
 }

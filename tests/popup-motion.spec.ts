@@ -19,7 +19,7 @@ async function holdPopupMotion(page: Page) {
   });
 }
 
-test('el inspector nace del borde del panel y conserva campos y superficie al editar', async ({ page }) => {
+test('el inspector nace junto al estado y conserva campos y superficie al editar', async ({ page }) => {
   await holdPopupMotion(page);
   await page.goto('');
   const state = page.locator('.react-flow__node[data-id="q0"]');
@@ -29,7 +29,8 @@ test('el inspector nace del borde del panel y conserva campos y superficie al ed
   const name = popup.getByLabel('Nombre del estado', { exact: true });
   const field = await name.elementHandle();
   const origin = await popup.locator('.graph-popup__surface').evaluate(panel => getComputedStyle(panel).transformOrigin.split(' ').map(parseFloat));
-  expect(origin).toEqual([0, 0]);
+  expect(origin[0]).toBe(0);
+  expect(origin[1]).toBeGreaterThan(0);
   await name.fill('memoria');
   await name.pressSequentially('0');
   expect(await field!.evaluate(element => element.isConnected && element === document.activeElement)).toBe(true);

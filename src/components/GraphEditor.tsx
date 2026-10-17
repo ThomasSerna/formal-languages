@@ -26,6 +26,8 @@ import { ruleLabel } from '../format';
 import '@xyflow/react/dist/style.css';
 import './GraphEditor.css';
 
+export type PopupAnchor = { kind: 'state' | 'transition'; id: string } | { kind: 'toolbar'; element: HTMLElement | null };
+
 type GraphEditorProps = {
   machine: Machine;
   selectedStateId: string | null;
@@ -38,6 +40,8 @@ type GraphEditorProps = {
   onMoveState: (id: string, x: number, y: number) => void;
   onConnect: (from: string, to: string) => void;
   popup?: ReactNode;
+  popupAnchor: PopupAnchor | null;
+  compactPopup: boolean;
 };
 
 type StateData = {
@@ -189,11 +193,15 @@ function graphBounds(machine: Machine) {
   return { x: left, y: top, width: right - left, height: bottom - top };
 }
 
-export default function GraphEditor({ machine, selectedStateId, selectedTransitionId, activeStateIds, activeTransitionIds, step, onSelectState, onSelectTransition, onMoveState, onConnect, popup }: GraphEditorProps) {
+export default function GraphEditor({ machine, selectedStateId, selectedTransitionId, activeStateIds, activeTransitionIds, step, onSelectState, onSelectTransition, onMoveState, onConnect, popup, popupAnchor, compactPopup }: GraphEditorProps) {
   const [instance, setInstance] = useState<ReactFlowInstance<StateNode, TransitionEdge> | null>(null);
   const container = useRef<HTMLDivElement>(null);
   const popupSurface = useRef<HTMLDivElement>(null);
-  const lastPopup = useRef<{ kind: Machine['kind']; node: ReactNode } | null>(null);
+  const popupContainer = useRef<HTMLDivElement>(null);
+  const positionFrame = useRef(0);
+  const rippleSequence = useRef(0);
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+  const lastPopup = useRef<{ kind: Machine['kind']; node: ReactNode; compact: boolean } | null>(null);
   const [popupPresent, setPopupPresent] = useState(false);
   const popupOpen = Boolean(popup);
   const interruptedPopup = useRef<Keyframe | null>(null);
@@ -202,13 +210,81 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 380 });
   const stateIds = JSON.stringify(machine.states.map((state) => state.id));
   const activeIds = JSON.stringify(activeStateIds);
+  const transitionIds = JSON.stringify(activeTransitionIds);
+  const previousCanvas = useRef<{ width: number; height: number; document: string } | null>(null);
   const motionKey = `${machine.kind}:${step}`;
   const bounds = machine.states.length ? graphBounds(machine) : null;
   const needsPanning = bounds !== null && (bounds.width * 0.95 > canvasSize.width - 24 || bounds.height * 0.95 > canvasSize.height - 50);
   const selectRule = useCallback((id: string) => { onSelectTransition(id); }, [onSelectTransition]);
 
+  useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const clearRipples = () => { if (preference.matches) setRipples([]); };
+    preference.addEventListener('change', clearRipples);
+    return () => preference.removeEventListener('change', clearRipples);
+  }, []);
+
+  const positionPopup = useCallback(() => {
+    const panel = popupContainer.current;
+    const canvas = container.current;
+    if (!popupOpen || !panel || !canvas) return;
+    const element = popupAnchor?.kind === 'toolbar' ? popupAnchor.element : popupAnchor
+      ? canvas.querySelector<HTMLElement>(popupAnchor.kind === 'state' ? `.react-flow__node[data-id="${CSS.escape(popupAnchor.id)}"]` : `[data-transition-id="${CSS.escape(popupAnchor.id)}"]`) : null;
+    const bounds = canvas.getBoundingClientRect();
+    const anchor = element?.getBoundingClientRect();
+    const margin = 12;
+    const width = panel.offsetWidth;
+    panel.style.maxHeight = `${Math.max(0, bounds.height - margin * 2)}px`;
+    let left = margin;
+    let top = margin;
+    let originX = 0;
+    let originY = 0;
+    if (anchor && popupAnchor?.kind !== 'toolbar') {
+      const right = anchor.right - bounds.left + margin;
+      const before = anchor.left - bounds.left - width - margin;
+      const centerY = (anchor.top + anchor.bottom) / 2 - bounds.top;
+      if (right + width <= bounds.width - margin || before >= margin) {
+        left = right + width <= bounds.width - margin ? right : before;
+        top = centerY - panel.offsetHeight / 2;
+        originX = left === right ? 0 : width;
+        originY = centerY;
+      } else {
+        left = (anchor.left + anchor.right) / 2 - bounds.left - width / 2;
+        const above = anchor.top - bounds.top - margin * 2;
+        const below = bounds.bottom - anchor.bottom - margin * 2;
+        const space = Math.max(above, below);
+        panel.style.maxHeight = `${Math.max(0, Math.min(bounds.height - margin * 2, space))}px`;
+        top = below >= above ? anchor.bottom - bounds.top + margin : anchor.top - bounds.top - panel.offsetHeight - margin;
+        originX = width / 2;
+        originY = below >= above ? top : top + panel.offsetHeight;
+      }
+    } else if (anchor) {
+      left = anchor.left - bounds.left;
+      originX = (anchor.left + anchor.right) / 2 - bounds.left - left;
+    }
+    left = Math.max(margin, Math.min(left, bounds.width - width - margin));
+    top = Math.max(margin, Math.min(top, bounds.height - panel.offsetHeight - margin));
+    panel.style.left = `${left}px`;
+    panel.style.top = `${top}px`;
+    popupSurface.current?.style.setProperty('--popup-origin', `${originX}px ${Math.max(0, Math.min(panel.offsetHeight, originY - top))}px`);
+  }, [popupOpen, popupAnchor, canvasSize]);
+  const schedulePopupPosition = useCallback(() => {
+    cancelAnimationFrame(positionFrame.current);
+    positionFrame.current = requestAnimationFrame(positionPopup);
+  }, [positionPopup]);
   useLayoutEffect(() => {
-    if (popupOpen) lastPopup.current = { kind: machine.kind, node: popup };
+    positionPopup();
+  }, [positionPopup, machine]);
+  useLayoutEffect(() => {
+    if (!popupOpen || !popupContainer.current) return;
+    const observer = new ResizeObserver(positionPopup);
+    observer.observe(popupContainer.current);
+    return () => observer.disconnect();
+  }, [popupOpen, positionPopup]);
+  useEffect(() => () => cancelAnimationFrame(positionFrame.current), []);
+
+  useLayoutEffect(() => {
+    if (popupOpen) lastPopup.current = { kind: machine.kind, node: popup, compact: compactPopup };
   });
   useLayoutEffect(() => {
     const surface = popupSurface.current;
@@ -340,6 +416,14 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
     if (!instance || !canvasSize.width) return;
     const frame = requestAnimationFrame(() => {
       const document = latestMachine.current;
+      const key = `${document.kind}:${stateIds}`;
+      const previous = previousCanvas.current;
+      previousCanvas.current = { ...canvasSize, document: key };
+      if (previous?.document === key) {
+        const viewport = instance.getViewport();
+        void instance.setViewport({ ...viewport, x: viewport.x + (canvasSize.width - previous.width) / 2, y: viewport.y + (canvasSize.height - previous.height) / 2 }, { duration: 0 });
+        return;
+      }
       if (!document.states.length) return;
       const documentBounds = graphBounds(document);
       const readableFit = documentBounds.width * 0.95 <= canvasSize.width - 24 && documentBounds.height * 0.95 <= canvasSize.height - 50;
@@ -366,7 +450,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       if (outside) void instance.setCenter(outside.x + RADIUS, outside.y + RADIUS - 35, { zoom: viewport.zoom, duration: 0 });
     });
     return () => cancelAnimationFrame(frame);
-  }, [instance, needsPanning, activeIds, activeTransitionIds, canvasSize]);
+  }, [instance, activeIds, transitionIds, step, machine.kind]);
 
   const onNodesChange = useCallback((changes: NodeChange<StateNode>[]) => {
     for (const change of changes) {
@@ -386,13 +470,19 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
 
   return (
     <section className="graph-editor" aria-label="Editor interactivo del grafo">
-      <div ref={container} className="graph-canvas">
+      <div ref={container} className="graph-canvas" onPointerDownCapture={event => {
+        if (!event.isPrimary || event.button !== 0 || !(event.target instanceof Element) || !event.target.matches('.react-flow__pane') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const bounds = event.currentTarget.getBoundingClientRect();
+        const ripple = { id: ++rippleSequence.current, x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+        setRipples(current => [...current.slice(-3), ripple]);
+      }}>
       <ReactFlow<StateNode, TransitionEdge>
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onInit={setInstance}
+        onMove={schedulePopupPosition}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={(_, node) => { onSelectState(node.id); }}
@@ -418,10 +508,10 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
           </ControlButton>
         </Controls>
       </ReactFlow>
+      <div className="canvas-ripples" aria-hidden="true">{ripples.map(ripple => <span key={ripple.id} className="canvas-ripple" style={{ left: ripple.x, top: ripple.y }} onAnimationEnd={() => setRipples(current => current.filter(item => item.id !== ripple.id))} />)}</div>
       {machine.states.length === 0 && <div className="graph-editor__empty"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true"><circle cx="28" cy="26" r="18" stroke="currentColor" strokeWidth="1.5" /><path d="M1 26H10M5 21L10 26L5 31" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>Tu autómata empieza aquí</strong><p>Añade un estado para comenzar a construir el grafo.</p></div>}
-      <p className="graph-editor__hint">{needsPanning ? 'Desliza el lienzo para ver los demás estados.' : 'Mueve los estados · conecta sus puntos · selecciona una regla'}</p>
       </div>
-      {(popupOpen || popupPresent) && (popupOpen || lastPopup.current?.kind === machine.kind) && <div className="graph-popup" data-state={popupOpen ? 'open' : 'closing'} role="dialog" aria-label="Inspector del autómata" aria-modal="false" aria-hidden={!popupOpen || undefined} inert={!popupOpen}>
+      {(popupOpen || popupPresent) && (popupOpen || lastPopup.current?.kind === machine.kind) && <div ref={popupContainer} className="graph-popup" data-compact={popupOpen ? compactPopup : lastPopup.current?.compact} data-state={popupOpen ? 'open' : 'closing'} role="dialog" aria-label="Inspector del autómata" aria-modal="false" aria-hidden={!popupOpen || undefined} inert={!popupOpen}>
         <div ref={popupSurface} className="graph-popup__surface">{popupOpen ? popup : lastPopup.current?.node}</div>
       </div>}
     </section>

@@ -67,6 +67,7 @@ test('Turing conserva estados legibles y sigue la ejecución; ajustar permite co
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('./');
   await page.getByRole('button', { name: /^Turing / }).click();
+  await page.locator('#simulation-toggle').click();
   const canvas = page.locator('.graph-canvas');
   const states = canvas.locator('.react-flow__node');
   const initial = canvas.locator('.react-flow__node[data-id="s"]');

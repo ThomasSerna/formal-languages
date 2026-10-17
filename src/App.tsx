@@ -4,8 +4,9 @@ import { createRun, stepRun, validateInput, validateMachine } from './engine';
 import type { Run } from './engine';
 import { createBlankMachine, EXAMPLES, EXAMPLE_INPUTS } from './examples';
 import { exportMachine, loadDraft, parseMachineJson, saveDraft } from './storage';
-import { MODEL_NAMES, MODEL_SHORT, tuple } from './format';
+import { MODEL_NAMES, MODEL_SHORT } from './format';
 import GraphEditor from './components/GraphEditor';
+import type { PopupAnchor } from './components/GraphEditor';
 import Inspector from './components/Inspector';
 import Simulator from './components/Simulator';
 import FormalDefinition from './components/FormalDefinition';
@@ -52,7 +53,8 @@ export default function App() {
   const [selectedTransitionId, setSelectedTransitionId] = useState<string | null>(null);
   const [addingTransition, setAddingTransition] = useState(false);
   const [inspectorOpen, setInspectorOpen] = useState(false);
-  const [guide, setGuide] = useState(true);
+  const [simulationOpen, setSimulationOpen] = useState(false);
+  const [popupAnchor, setPopupAnchor] = useState<PopupAnchor | null>(null);
   const [simulation, setSimulation] = useState<Simulation | null>(null);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(800);
@@ -80,13 +82,14 @@ export default function App() {
     if (error) setNotice(error);
     return error;
   }
-  function openInspector(graphSelector?: string) {
+  function openInspector(anchor: PopupAnchor, graphSelector?: string) {
     if (!inspectorOpen) inspectorSession.current++;
     const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if (graphSelector) inspectorTrigger.current = editorRef.current?.querySelector<HTMLElement>(graphSelector) ?? null;
     else if (!active?.closest('.graph-popup')) inspectorTrigger.current = active;
-    focusInspector.current = !graphSelector && !active?.closest('.graph-popup');
-    if (!window.matchMedia('(max-width: 850px)').matches) editorRef.current?.scrollIntoView({ block: 'start' });
+    focusInspector.current = (!graphSelector || document.querySelector('.app-main')?.getAttribute('data-input') === 'keyboard') && !active?.closest('.graph-popup');
+    setPopupAnchor(anchor);
+    if (editorRef.current && editorRef.current.getBoundingClientRect().top < 0) editorRef.current.scrollIntoView({ block: 'start' });
     setInspectorOpen(true);
   }
   const closeInspector = useCallback((restoreFocus = false) => {
@@ -99,15 +102,21 @@ export default function App() {
   }, []);
   function selectState(id: string | null, fromGraph = false) {
     setSelectedStateId(id); setSelectedTransitionId(null); setAddingTransition(false); setNewConnection(null);
-    if (id) openInspector(fromGraph ? `.react-flow__node[data-id="${CSS.escape(id)}"]` : undefined); else setInspectorOpen(false);
+    if (id) openInspector({ kind: 'state', id }, fromGraph ? `.react-flow__node[data-id="${CSS.escape(id)}"]` : undefined); else setInspectorOpen(false);
   }
   function selectTransition(id: string | null, fromGraph = false) {
     setSelectedTransitionId(id); setSelectedStateId(null); setAddingTransition(false); setNewConnection(null);
-    if (id) openInspector(fromGraph ? `[data-transition-id="${CSS.escape(id)}"]` : undefined); else setInspectorOpen(false);
+    if (id) openInspector({ kind: 'transition', id }, fromGraph ? `[data-transition-id="${CSS.escape(id)}"]` : undefined); else setInspectorOpen(false);
   }
   function showModel() {
-    setSelectedStateId(null); setSelectedTransitionId(null); setAddingTransition(false); setNewConnection(null); openInspector();
+    setSelectedStateId(null); setSelectedTransitionId(null); setAddingTransition(false); setNewConnection(null); openInspector({ kind: 'toolbar', element: editorRef.current?.querySelector<HTMLButtonElement>('[data-configure-model]') ?? null });
     focusInspector.current = true;
+  }
+  function toggleSimulation(focusInput = false) {
+    const open = focusInput || !simulationOpen;
+    setSimulationOpen(open);
+    if (!open) setPlaying(false);
+    if (focusInput) requestAnimationFrame(() => document.getElementById('input-word')?.focus());
   }
   function selectModel(next: MachineKind) {
     reset(); closeInspector(); setKind(next); setConfirmReplace(null); setNotice('');
@@ -159,7 +168,6 @@ export default function App() {
   }, [inspectorOpen, closeInspector]);
   useEffect(() => {
     if (!inspectorOpen) return;
-    if (window.matchMedia('(max-width: 850px)').matches) editorRef.current?.querySelector('.graph-popup')?.scrollIntoView({ block: 'start' });
     if (!focusInspector.current) return;
     focusInspector.current = false;
     const field = editorRef.current?.querySelector<HTMLElement>('.inspector-body input, .inspector-body select');
@@ -179,14 +187,13 @@ export default function App() {
   }
 
   return <>
-    <a className="skip-link" href="#simulation-heading">Ir a la simulación</a>
+    <a className="skip-link" href="#input-word" onClick={event => { event.preventDefault(); toggleSimulation(true); }}>Ir a la simulación</a>
     <main className="app-main" data-input="keyboard" onPointerDownCapture={event => { event.currentTarget.dataset.input = 'pointer'; if (fileMenuRef.current && !fileMenuRef.current.contains(event.target as Node)) fileMenuRef.current.open = false; }} onKeyDownCapture={event => { event.currentTarget.dataset.input = 'keyboard'; }}>
       <section ref={editorRef} className="editor-screen" aria-label="Laboratorio de autómatas">
         <header className="app-header">
           <a className="brand" href={import.meta.env.BASE_URL} aria-label="Autómata, inicio"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M9 23L18 10L28 23" /><circle cx="9" cy="25" r="5" /><circle cx="18" cy="9" r="5" /><circle cx="28" cy="25" r="5" /></svg><span>autómata</span></a>
           <nav className="model-nav" data-model={kind} aria-label="Tipo de autómata">{KINDS.map(item => <button key={item} className={item === kind ? 'active' : ''} aria-current={item === kind ? 'page' : undefined} onClick={() => selectModel(item)}><span className="model-abbr">{MODEL_SHORT[item]}</span><span className="model-description">{MODEL_DESCRIPTIONS[item]}</span></button>)}</nav>
           <div className="header-actions">
-            <a className="guide-link" href="#editor-guide" onClick={() => setGuide(true)}>Guía</a>
             <details ref={fileMenuRef} className="file-menu" onKeyDown={event => { if (event.key === 'Escape' && event.currentTarget.open) { event.preventDefault(); event.stopPropagation(); event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }} onClickCapture={event => { if ((event.target as HTMLElement).closest('button')) { event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }}>
               <summary>Archivo<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m4 5.5 3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
               <div className="file-menu-actions">
@@ -201,23 +208,23 @@ export default function App() {
           </div>
         </header>
         <section className={`workspace workspace-${kind}`} aria-label="Editor del autómata">
-          <div className="workspace-top"><div className="document-title"><h1>{MODEL_NAMES[kind]}</h1><h2>{machine.name || 'Autómata sin nombre'}</h2></div><div className="document-context"><span className="notation-tag">{tuple(machine)}</span><a href="#formal-reference">Definición formal<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M4 3h7v7M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></a></div></div>
           {notice && <div className="notice" role="status"><span>{notice}</span><button className="text-button" onClick={() => setNotice('')}>Cerrar aviso</button></div>}
           {confirmReplace && <div className="replace-confirm" role="group" aria-label="Confirmar reemplazo"><p>Se reemplazará el borrador de {MODEL_SHORT[kind]}. Puedes exportarlo antes para conservarlo.</p><div className="button-row"><button onClick={() => exportMachine(machine)}>Exportar borrador</button><button className="primary" onClick={() => replaceMachine(confirmReplace)}>{confirmReplace === 'blank' ? 'Abrir lienzo vacío' : 'Restaurar ejemplo'}</button><button onClick={() => setConfirmReplace(null)}>Cancelar</button></div></div>}
-          <div className="graph-toolbar"><div className="button-row"><button onClick={addState}>Agregar estado</button><button disabled={!machine.states.length} onClick={() => { setSelectedTransitionId(null); setAddingTransition(true); setNewConnection(null); openInspector(); }}>Agregar transición</button><button onClick={showModel}>Configurar modelo</button></div><span className="graph-size">{machine.states.length} estados · {machine.transitions.length} reglas</span></div>
-          <GraphEditor step={run?.step ?? 0} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} activeStateIds={run?.configurations.map(config => config.stateId) ?? []} activeTransitionIds={run?.transitionIds ?? []} onSelectState={id => selectState(id, true)} onSelectTransition={id => selectTransition(id, true)} onMoveState={(id, x, y) => changeMachine({ ...machine, states: machine.states.map(state => state.id === id ? { ...state, x, y } : state) }, true)} onConnect={(from, to) => { setSelectedStateId(from); setSelectedTransitionId(null); setNewConnection({ from, to }); setAddingTransition(true); openInspector(); }}
-            popup={inspectorOpen && <Inspector key={`${kind}-${inspectorSession.current}`} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} addingTransition={addingTransition} onChange={changeMachine} onSelectState={selectState} onSelectTransition={selectTransition} onCancelTransition={() => { setAddingTransition(false); setNewConnection(null); }} connection={newConnection} onClose={() => closeInspector(true)} onShowModel={showModel} />} />
-          <div className="graph-footer"><div className="graph-legend"><span><i className="legend-initial" />Inicial</span><span><i className="legend-final" />Aceptación</span><span><i className="legend-active" />Activo</span></div><span>Arrastra para mover · conecta desde los puntos</span><a href="#simulation-heading">Probar cadena</a></div>
+          <div className="graph-toolbar"><div className="button-row"><button onClick={addState}>Agregar estado</button><button disabled={!machine.states.length} onClick={event => { setSelectedTransitionId(null); setAddingTransition(true); setNewConnection(null); openInspector({ kind: 'toolbar', element: event.currentTarget }); }}>Agregar transición</button><button data-configure-model onClick={showModel}>Configurar modelo</button></div><h1 title={machine.name || 'Autómata sin nombre'}>{machine.name || 'Autómata sin nombre'}</h1></div>
+          <GraphEditor step={run?.step ?? 0} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} activeStateIds={run?.configurations.map(config => config.stateId) ?? []} activeTransitionIds={run?.transitionIds ?? []} onSelectState={id => selectState(id, true)} onSelectTransition={id => selectTransition(id, true)} onMoveState={(id, x, y) => changeMachine({ ...machine, states: machine.states.map(state => state.id === id ? { ...state, x, y } : state) }, true)} onConnect={(from, to) => { setSelectedStateId(from); setSelectedTransitionId(null); setNewConnection({ from, to }); setAddingTransition(true); openInspector({ kind: 'state', id: to }); }} popupAnchor={popupAnchor} compactPopup={Boolean(selectedStateId) && !addingTransition}
+            popup={inspectorOpen && <Inspector key={`${kind}-${inspectorSession.current}`} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} addingTransition={addingTransition} onChange={changeMachine} onSelectState={selectState} onSelectTransition={selectTransition} onCancelTransition={() => { setAddingTransition(false); setNewConnection(null); }} connection={newConnection} onClose={() => closeInspector(true)} />} />
         </section>
         <div className="simulation-dock">
+        <div className="simulation-dock-header"><div className="graph-legend"><span><i className="legend-initial" />Inicial</span><span><i className="legend-final" />Aceptación</span><span><i className="legend-active" />Activo</span></div><button id="simulation-toggle" className="text-button" aria-expanded={simulationOpen} aria-controls="simulation-content" onClick={() => toggleSimulation()}><span>Probar cadena</span>{issues.length > 0 && <span className="validation-count">{issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</span>}<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ transform: simulationOpen ? 'rotate(180deg)' : undefined }}><path d="m4 10 4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button></div>
+        <div id="simulation-content" hidden={!simulationOpen}>
         {issues.length > 0 && <details className="validation" open><summary>Completa el modelo antes de ejecutar · {issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</summary><ul>{issues.slice(0, 12).map((issue, index) => <li key={index}><button onClick={() => { if (issue.transitionId) selectTransition(issue.transitionId); else if (issue.stateId) selectState(issue.stateId); else showModel(); }}>{issue.message}</button></li>)}</ul>{issues.length > 12 && <p>Hay {issues.length - 12} detalles adicionales. Completa los primeros para continuar.</p>}</details>}
         <Simulator machine={machine} input={input} onInput={value => { reset(); setInputs(current => ({ ...current, [kind]: value })); }} run={run} error={inputError || (issues.length ? 'Completa los detalles del modelo que aparecen arriba.' : null)} playing={playing} speed={speed} onSpeed={setSpeed} onNext={() => { setPlaying(false); nextStep(); }} onPrevious={() => { setPlaying(false); setSimulation(previous => previous && previous.cursor > 0 ? seekSimulation(previous, previous.cursor - 1) : previous); }} onReset={reset} onTogglePlay={() => setPlaying(value => !value)} trace={simulation?.entries.map(entry => ({ step: entry.run.step, status: entry.run.status, message: entry.run.message })) ?? []} cursor={simulation?.cursor ?? 0} onSeek={index => { setPlaying(false); setSimulation(previous => previous ? seekSimulation(previous, index) : null); }} />
         </div>
+        </div>
       </section>
       <div className="laboratory-tools">
-        {guide && <div id="editor-guide" className="guide"><p><strong>Aprende probando.</strong> Usa «Paso siguiente» para seguir la cadena. Selecciona un estado o una flecha para descubrir qué significa y cambiarlo.</p><button className="text-button" onClick={() => setGuide(false)}>Entendido</button></div>}
         <section className="reference-section" aria-label="Representación textual">
-          <details id="formal-reference" open><summary>Definición formal <span>Estados y funciones de transición</span></summary><FormalDefinition machine={machine} onSelectState={selectState} onSelectTransition={selectTransition} /></details>
+          <details id="formal-reference"><summary>Definición formal <span>Estados y funciones de transición</span></summary><FormalDefinition machine={machine} onSelectState={selectState} onSelectTransition={selectTransition} /></details>
           <details><summary>Entender este modelo <span>Notación y criterios de aceptación</span></summary><div className="theory"><p><strong>{MODEL_NAMES[kind]}.</strong> {kind === 'dfa' ? 'Tiene exactamente una transición por cada par estado–símbolo. Un estado final solo acepta cuando ya no queda entrada. Durante la construcción puedes guardar un borrador incompleto; para ejecutarlo, δ debe estar definida en todo Q × Σ.' : kind === 'nfa' ? 'Mantiene un conjunto de estados posibles, comenzando por S. Cada símbolo actualiza ese conjunto. La clausura ε añade todos los estados alcanzables sin consumir entrada, incluso al inicio y al final. Se acepta si algún estado activo pertenece a F al terminar la cadena.' : kind === 'pda' ? 'La configuración incluye estado, entrada pendiente y contenido de la pila. Una transición retira el tope A y lo reemplaza por una palabra γ de Γ*. El extremo izquierdo de γ queda arriba. ε permite no leer entrada o retirar sin reemplazar; no significa que se pueda ignorar el tope. Aquí aceptamos por estado final con la entrada consumida, aunque la pila no esté vacía.' : 'Tiene una cinta infinita hacia la derecha. La configuración inicial pone el cabezal sobre el marcador ⊢ y la entrada a su derecha; las otras celdas contienen blanco ␣. Una regla lee, escribe, mueve L o R y cambia de estado. El marcador nunca se sobrescribe ni se cruza. Alcanzar t acepta; alcanzar r rechaza. Una ejecución puede no terminar.'}</p><p>ε es la cadena vacía; ∅ es un conjunto sin elementos. Un resultado inconcluso indica que la simulación alcanzó un límite de recursos, y no demuestra rechazo.</p><a href="https://sites.google.com/site/sergiosramirezrico/eafit/si2002-st0270?authuser=0" target="_blank" rel="noreferrer">Ver material del curso</a></div></details>
         </section>
         <footer className="app-footer"><span>Aprender es recorrer el camino.</span><span>Basado en <a href="https://www.cs.cornell.edu/courses/cs6861/2024sp/Handouts/ACLec2-6.pdf" target="_blank" rel="noreferrer">Kozen · Automata and Computability</a></span><span>Borradores en este navegador</span></footer>

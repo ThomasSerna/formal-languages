@@ -3,7 +3,7 @@
   display: flex;
   width: 100%;
   flex: 1;
-  min-height: 260px;
+  min-height: 0;
   overflow: hidden;
   background: var(--paper);
   isolation: isolate;
@@ -13,30 +13,41 @@
   position: relative;
   flex: 1;
   min-width: 0;
-  min-height: 260px;
+  min-height: 0;
   overflow: hidden;
 }
 
 .graph-canvas > .react-flow { position: absolute; inset: 0; }
 
-.graph-editor .graph-popup {
-  position: relative;
-  inset: auto;
-  z-index: 5;
-  display: flex;
-  flex: 0 0 340px;
-  flex-direction: column;
-  width: 340px;
-  min-height: 0;
-  max-height: 100%;
-  border-left: 1px solid var(--border);
+.canvas-ripples { position: absolute; inset: 0; z-index: 4; overflow: hidden; pointer-events: none; }
+.canvas-ripple { position: absolute; width: 140px; height: 140px; border: 1.5px solid var(--accent); border-radius: 50%; opacity: 0; transform: translate(-50%, -50%) scale(1); animation: canvas-ripple 520ms var(--ease-out); }
+@keyframes canvas-ripple {
+  from { opacity: .26; transform: translate(-50%, -50%) scale(.1); }
+  to { opacity: 0; transform: translate(-50%, -50%) scale(1); }
 }
 
-.graph-editor .graph-popup__surface {
-  border-radius: 0;
-  box-shadow: none;
-  transform-origin: 0 0;
+.graph-editor .graph-popup {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  width: min(320px, calc(100% - 24px));
+  min-height: 0;
+  max-height: calc(100% - 24px);
 }
+
+.graph-editor .graph-popup[data-compact=true] { width: min(280px, calc(100% - 24px)); }
+
+.graph-editor .graph-popup__surface {
+  flex: 0 1 auto;
+  border-radius: 12px;
+  box-shadow: 0 6px 28px #251c3b26, 0 0 0 1px #ddd8e5;
+  transform-origin: var(--popup-origin, 0 0);
+}
+
+.graph-editor .inspector { flex: 0 1 auto; max-height: inherit; }
 
 .graph-editor .inspector-body {
   padding: 12px 16px;
@@ -47,21 +58,12 @@
   margin-bottom: 10px;
 }
 
-.graph-editor .inspector-form .check-label {
-  min-height: 44px;
-  margin-block: 0;
-}
-
 .graph-editor .inspector-form .button-row {
   margin-top: 12px;
 }
 
 .graph-editor .inspector-form .button-row button {
   min-height: 44px;
-}
-
-.graph-editor .inspector-help {
-  margin-top: 14px;
 }
 
 .graph-editor .react-flow__node-state {
@@ -361,21 +363,6 @@
   outline-offset: -3px;
 }
 
-.graph-editor__hint {
-  position: absolute;
-  left: 16px;
-  bottom: 18px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  max-width: calc(100% - 180px);
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-  pointer-events: none;
-}
-
 .graph-editor__empty {
   position: absolute;
   inset: 0;
@@ -424,26 +411,6 @@
 }
 
 @media (max-width: 850px) {
-  .graph-editor {
-    flex: none;
-    flex-direction: column;
-    min-height: 0;
-  }
-
-  .graph-canvas {
-    flex: none;
-    width: 100%;
-    height: 410px;
-  }
-
-  .graph-editor .graph-popup {
-    flex: 0 1 auto;
-    width: 100%;
-    max-height: 440px;
-    border-top: 1px solid var(--border);
-    border-left: 0;
-  }
-
   .graph-editor .automaton-state__handle::after {
     inset: -18px;
   }
@@ -453,18 +420,10 @@
     min-height: 48px;
   }
 
-  .graph-editor__hint {
-    max-width: calc(100% - 180px);
-  }
-}
-
-@media (max-width: 600px) {
-  .graph-canvas {
-    height: 370px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .canvas-ripple { animation: none; }
   .automaton-state__pulse,
   .automaton-transition__pulse {
     animation: none;

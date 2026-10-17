@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('los autolazos reinician solo sus capas decorativas y conservan controles, selección y foco', async ({ page }) => {
   await page.goto('');
+  await page.locator('#simulation-toggle').click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('000');
   const graph = page.locator('.graph-editor');
   const state = graph.locator('.react-flow__node[data-id="q0"]');
@@ -40,6 +41,7 @@ test('los autolazos reinician solo sus capas decorativas y conservan controles, 
 
 test('AFN muestra juntas las reglas y los estados del mismo paso', async ({ page }) => {
   await page.goto('');
+  await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^AFN / }).click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('00');
   const graph = page.locator('.graph-editor');
@@ -59,6 +61,7 @@ test('AFN muestra juntas las reglas y los estados del mismo paso', async ({ page
 
 test('la pila permite inspeccionar ambas ramas sin cambiar el cálculo ni remontar el selector', async ({ page }) => {
   await page.goto('');
+  await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^Pila / }).click();
   await page.getByRole('button', { name: 'Paso siguiente', exact: true }).click();
   const branches = page.getByRole('combobox', { name: 'Rama a inspeccionar', exact: true });
@@ -79,6 +82,7 @@ test('la pila permite inspeccionar ambas ramas sin cambiar el cálculo ni remont
 
 test('retroceder, consultar el historial y reiniciar restauran la configuración sin bloquear controles', async ({ page }) => {
   await page.goto('');
+  await page.locator('#simulation-toggle').click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('010');
   const next = page.getByRole('button', { name: 'Paso siguiente', exact: true });
   for (let step = 0; step < 3; step++) await next.click();
@@ -107,6 +111,7 @@ test('retroceder, consultar el historial y reiniciar restauran la configuración
 
 test('la reproducción rápida se pausa y cambia de modelo sin dejar temporizadores de avance', async ({ page }) => {
   await page.goto('');
+  await page.locator('#simulation-toggle').click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('000000');
   await page.getByLabel('Velocidad', { exact: true }).selectOption('300');
   await page.clock.install({ time: new Date('2026-10-16T00:00:00Z') });
@@ -136,6 +141,7 @@ test('la reproducción rápida se pausa y cambia de modelo sin dejar temporizado
 test('el movimiento reducido funciona al cargar y al cambiar la preferencia, conservando las señales activas', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('');
+  await page.locator('#simulation-toggle').click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('000');
   await page.getByRole('button', { name: 'Paso siguiente', exact: true }).click();
   const statePulse = page.locator('.automaton-state__pulse');
@@ -187,6 +193,7 @@ test('el inspector conserva el campo al escribir y cancela su aparición al redu
   });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('');
+  await page.locator('#simulation-toggle').click();
   await page.locator('.react-flow__node[data-id="q0"]').click();
   const name = page.getByLabel('Nombre del estado', { exact: true });
   await name.fill('memoria');

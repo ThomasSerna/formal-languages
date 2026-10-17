@@ -3,7 +3,10 @@ import { test, expect } from '@playwright/test';
 test('el ejemplo AFD avanza, retrocede y acepta; la entrada inválida explica el error', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('');
-  await expect(page.getByRole('heading', { name: 'Autómata finito determinista', exact: true })).toBeVisible();
+  await expect(page.locator('.graph-toolbar h1')).toHaveText('Cantidad par de unos');
+  await expect(page.locator('.simulator')).toBeHidden();
+  expect((await page.locator('.graph-canvas').boundingBox())!.height).toBeGreaterThan(550);
+  await page.locator('#simulation-toggle').click();
   const graph = await page.locator('.graph-canvas').boundingBox();
   expect(graph!.width).toBeGreaterThanOrEqual(1000);
   expect(graph!.height).toBeGreaterThanOrEqual(260);
@@ -28,6 +31,7 @@ test('el ejemplo AFD avanza, retrocede y acepta; la entrada inválida explica el
 
 test('los cuatro modelos ejecutan; Turing restaura la cinta al retroceder una escritura', async ({ page }) => {
   await page.goto('');
+  await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^AFN / }).click();
   await expect(page.locator('.state-chips .state-chip')).toHaveCount(2);
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('01');
@@ -59,7 +63,7 @@ test('crear un grafo desde cero, editar roles y conservar el borrador', async ({
   await page.getByRole('button', { name: 'Abrir lienzo vacío' }).click();
   await page.getByRole('button', { name: 'Agregar estado', exact: true }).click();
   await page.getByLabel('Nombre del estado', { exact: true }).fill('par');
-  await page.getByLabel('Estado de aceptación', { exact: true }).check();
+  await page.getByRole('button', { name: 'Aceptación', exact: true }).click();
   await page.getByRole('button', { name: 'Agregar transición', exact: true }).click();
   await page.getByLabel('Origen', { exact: true }).selectOption({ label: 'par' });
   await page.getByLabel('Destino', { exact: true }).selectOption({ label: 'par' });
@@ -71,7 +75,8 @@ test('crear un grafo desde cero, editar roles y conservar el borrador', async ({
   await expect(page.locator('.validation')).toHaveCount(0);
   await page.reload();
   await expect(page.locator('.automaton-state__name')).toHaveText('par');
-  await expect(page.locator('.graph-size')).toContainText('1 estados · 2 reglas');
+  await expect(page.locator('.automaton-transition__label')).toHaveCount(2);
+  await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: 'Usar ε' }).click();
   await expect(page.locator('.run-status')).toHaveText('Aceptada');
 });
@@ -132,7 +137,7 @@ test('Archivo se opera por teclado y cierra al elegir, pulsar Escape o tocar fue
   await expect(menu).not.toHaveAttribute('open', '');
   await expect(summary).toBeFocused();
   await summary.press('Enter');
-  await page.getByRole('heading', { name: 'Autómata finito determinista', exact: true }).click();
+  await page.locator('.react-flow__pane').click({ position: { x: 20, y: 20 } });
   await expect(menu).not.toHaveAttribute('open', '');
 });
 
@@ -143,6 +148,8 @@ test('los avisos del modelo amplían el documento sin superponer el editor ni su
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
   await configure.click();
   await popup.getByLabel('Alfabeto de entrada · Σ', { exact: true }).fill('a b');
+  await expect(page.locator('.validation-count')).toBeVisible();
+  await page.locator('#simulation-toggle').click();
   await expect(page.locator('.validation')).toHaveAttribute('open', '');
   await expect(page.locator('.validation li')).not.toHaveCount(0);
   await popup.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
@@ -180,6 +187,7 @@ for (const width of [390, 768, 1366]) {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('');
+    await page.locator('#simulation-toggle').click();
     for (const model of ['AFD', 'AFN', 'Pila', 'Turing']) {
       await page.getByRole('button', { name: new RegExp(`^${model}(?:\\s|$)`) }).click();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

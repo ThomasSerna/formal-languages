@@ -9,12 +9,9 @@ async function expectContextualInspector(popup: Locator, graph: Locator) {
   expect(box!.y).toBeGreaterThanOrEqual(editor!.y);
   expect(box!.x + box!.width).toBeLessThanOrEqual(editor!.x + editor!.width + 1);
   expect(box!.y + box!.height).toBeLessThanOrEqual(editor!.y + editor!.height + 1);
-  if ((await graph.page().evaluate(() => window.innerWidth)) > 850) {
-    expect(box!.x).toBeGreaterThanOrEqual(canvas!.x + canvas!.width - 1);
-    expect(box!.y).toBeCloseTo(canvas!.y, 0);
-  } else {
-    expect(box!.y).toBeGreaterThanOrEqual(canvas!.y + canvas!.height - 1);
-  }
+  expect(canvas!.width).toBeCloseTo(editor!.width, 0);
+  expect(box!.width).toBeLessThanOrEqual(320);
+  expect(box!.height).toBeLessThan(canvas!.height);
 }
 
 test('el inspector aparece al seleccionar y cierra con Escape o el fondo del grafo', async ({ page }) => {
@@ -26,7 +23,7 @@ test('el inspector aparece al seleccionar y cierra con Escape o el fondo del gra
   await state.click();
   await expect(popup.getByRole('heading', { name: 'Estado q0', exact: true })).toBeVisible();
   await expect(state).toBeFocused();
-  await popup.getByRole('button', { name: 'Ver modelo', exact: true }).click();
+  await page.getByRole('button', { name: 'Configurar modelo', exact: true }).click();
   await expect(popup.getByLabel('Nombre del autómata', { exact: true })).toBeFocused();
   await state.click();
   await page.keyboard.press('Escape');
@@ -54,8 +51,7 @@ test('la configuración general conserva los campos de los cuatro modelos', asyn
   await configure.click();
   await expect(popup.getByLabel('Nombre del autómata', { exact: true })).toHaveValue('Modelo de prueba');
   await expect(popup.getByLabel('Alfabeto de entrada · Σ', { exact: true })).toHaveValue('a b');
-  await popup.locator('summary').filter({ hasText: /^Ayuda y definición$/ }).click();
-  await expect(popup.getByRole('region', { name: 'Definición formal del autómata', exact: true })).toBeVisible();
+  await expect(popup.locator('details')).toHaveCount(0);
   await configure.click();
   await expect(popup.getByLabel('Nombre del autómata', { exact: true })).toHaveValue('Modelo de prueba');
   await close.click();
@@ -142,6 +138,7 @@ for (const width of [390, 768, 1366]) {
 test('cambiar de tamaño conserva la transición sin guardar y la ejecución de los cuatro modelos', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('');
+  await page.locator('#simulation-toggle').click();
   const graph = page.locator('.graph-editor');
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
   const next = page.getByRole('button', { name: 'Paso siguiente', exact: true });
@@ -195,36 +192,26 @@ test('cambiar de tamaño conserva la transición sin guardar y la ejecución de 
   }
 });
 
-test('la ayuda es opcional, accesible por teclado y conserva los campos al escribir', async ({ page }) => {
+test('el estado ofrece roles directos y conserva el campo al escribir', async ({ page }) => {
   await page.goto('');
   const graph = page.locator('.graph-editor');
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
-  await graph.locator('.react-flow__node[data-id="q0"]').click();
-  const help = popup.locator('details').filter({ has: page.locator('summary').filter({ hasText: /^Ayuda y definición$/ }) });
-  const definition = popup.getByRole('region', { name: 'Definición formal del autómata', exact: true });
-  await expect(help).not.toHaveAttribute('open', '');
-  await expect(definition).not.toBeVisible();
-  await expect(popup.getByRole('group', { name: 'Vista del inspector', exact: true })).toHaveCount(0);
-  await expect(popup.locator('.explanation, .context-note')).toHaveCount(0);
-  const summary = help.locator('summary');
-  await summary.focus();
-  await page.keyboard.press('Enter');
-  await expect(definition).toBeVisible();
-  await expect(definition).toHaveClass(/formal-definition--compact/);
+  await graph.locator('.react-flow__node[data-id="q0"]').press('Enter');
   const name = popup.getByLabel('Nombre del estado', { exact: true });
+  await expect(name).toBeFocused();
+  await expect(popup.locator('details')).toHaveCount(0);
+  await expect(popup.getByRole('button', { name: 'Ver modelo', exact: true })).toHaveCount(0);
   const field = await name.elementHandle();
   await name.fill('memoria');
   await name.pressSequentially('0');
   expect(await field!.evaluate(element => element.isConnected && element === document.activeElement)).toBe(true);
   await expect(name).toHaveValue('memoria0');
-  await expect(definition).toBeVisible();
+  await expect(popup.getByRole('button', { name: 'Inicial', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await popup.getByRole('button', { name: 'Aceptación', exact: true }).click();
+  await expect(popup.getByRole('button', { name: 'Aceptación', exact: true })).toHaveAttribute('aria-pressed', 'false');
   await graph.locator('.react-flow__node[data-id="q1"]').click();
   await expect(popup.getByRole('heading', { name: 'Estado q1', exact: true })).toBeVisible();
-  await expect(help).not.toHaveAttribute('open', '');
-  await expect(definition).not.toBeVisible();
-  const close = popup.getByRole('button', { name: 'Cerrar inspector', exact: true });
-  await close.focus();
-  await page.keyboard.press('Enter');
+  await popup.getByRole('button', { name: 'Cerrar inspector', exact: true }).press('Enter');
   await expect(popup).toHaveCount(0);
   await expect(graph.locator('.react-flow__node[data-id="q1"]')).toBeFocused();
 });
@@ -237,8 +224,8 @@ test('estado y transición básica mantienen todos sus controles accesibles en e
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
   await graph.locator('.react-flow__node[data-id="q0"]').click();
   await expect(popup.getByLabel('Nombre del estado', { exact: true })).toBeVisible();
-  await expect(popup.getByRole('checkbox', { name: 'Estado inicial', exact: true })).toBeVisible();
-  await expect(popup.getByRole('checkbox', { name: 'Estado de aceptación', exact: true })).toBeVisible();
+  await expect(popup.getByRole('button', { name: 'Inicial', exact: true })).toBeVisible();
+  await expect(popup.getByRole('button', { name: 'Aceptación', exact: true })).toBeVisible();
   await expect(popup.getByRole('button', { name: 'Eliminar estado y sus conexiones', exact: true })).toBeVisible();
   await popup.getByRole('button', { name: 'Eliminar estado y sus conexiones', exact: true }).scrollIntoViewIfNeeded();
   await expect(popup.getByRole('button', { name: 'Eliminar estado y sus conexiones', exact: true })).toBeInViewport();
@@ -271,7 +258,7 @@ test('la transición de pila mantiene visible la pista indispensable y sus error
   await replacement.fill('Z');
   await popup.getByRole('button', { name: 'Crear transición', exact: true }).click();
   await expect(popup.getByRole('alert')).toContainText('El reemplazo solo puede contener símbolos de Γ.');
-  await expect(popup.locator('details')).not.toHaveAttribute('open', '');
+  await expect(popup.locator('details')).toHaveCount(0);
   await expect(popup.getByRole('button', { name: 'Cancelar', exact: true })).toBeVisible();
 });
 
@@ -292,5 +279,5 @@ test('editar una ecuación de la definición formal regresa al grafo y abre su r
   await expect(popup.getByRole('combobox', { name: 'Destino', exact: true })).toBeFocused();
   await expect(popup.getByRole('combobox', { name: 'Destino', exact: true })).toBeInViewport();
   await expect(page.locator('.graph-canvas')).toBeInViewport();
-  await expect(page.locator('.simulator')).toBeInViewport();
+  await expect(page.locator('.simulator')).toBeHidden();
 });
