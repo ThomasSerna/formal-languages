@@ -67,17 +67,18 @@ test('la pila permite inspeccionar ambas ramas sin cambiar el cálculo ni remont
   const branches = page.getByRole('combobox', { name: 'Rama a inspeccionar', exact: true });
   await expect(branches.locator('option')).toHaveCount(2);
   await expect(page.locator('.automaton-transition__pulse')).toHaveCount(2);
-  await expect(page.locator('.stack-view > code')).toHaveText('A⊥');
+  await expect(page.locator('.stack-symbol')).toHaveText(['A', '⊥']);
+  await expect(branches.locator('option')).toHaveText(['1. p · posición 1', '2. f · posición 0']);
   const branchSelect = await branches.elementHandle();
   const pulse = await page.locator('.react-flow__node[data-id="p"] .automaton-state__pulse').elementHandle();
 
   await branches.selectOption('1');
-  await expect(page.locator('.stack-view > code')).toHaveText('⊥');
+  await expect(page.locator('.stack-symbol')).toHaveText(['⊥']);
   await expect(page.locator('.step-count strong')).toHaveText('1');
   expect(await branchSelect!.evaluate(node => node.isConnected)).toBe(true);
   expect(await pulse!.evaluate(node => node.isConnected)).toBe(true);
   await branches.selectOption('0');
-  await expect(page.locator('.stack-view > code')).toHaveText('A⊥');
+  await expect(page.locator('.stack-symbol')).toHaveText(['A', '⊥']);
 });
 
 test('retroceder, consultar el historial y reiniciar restauran la configuración sin bloquear controles', async ({ page }) => {

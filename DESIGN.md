@@ -211,7 +211,7 @@ La definición formal y la explicación del modelo permanecen debajo del editor,
 - Hasta (1200px), desaparecen las descripciones de modelo.
 - Hasta (850px), la navegación ocupa su propia fila, el título se ajusta dentro de la barra de herramientas y la referencia pasa a una columna.
 - Hasta (600px), los tres controles de edición comparten una fila con objetivos mínimos de (44px). La simulación apila sus controles dentro de la bandeja.
-- Entrada, cinta y pila conservan desplazamiento horizontal local. Los mensajes y fórmulas ajustan línea.
+- Entrada y cinta conservan desplazamiento horizontal local. La pila usa bloques verticales con el tope arriba, una base visual y desplazamiento vertical local hasta (136px). Los mensajes y fórmulas ajustan línea.
 
 ## Elevation & Depth
 
@@ -267,6 +267,8 @@ Unidades estables de notación.
 - Los estados de ejecución usan lavado de petróleo, tinta de petróleo y borde suave.
 - El símbolo actual combina borde e interior de petróleo; la entrada consumida cambia a una superficie tenue.
 - Las celdas de cinta conservan índices; el cabezal añade una etiqueta textual.
+- La pila muestra un bloque por símbolo, del tope al fondo, con una marca «Tope» además del borde de actividad. Sigue la rama y el paso inspeccionados; al cambiar de configuración vuelve al tope. Las pilas vacías y la ausencia de configuración tienen mensajes distintos.
+- Los bloques nuevos de la pila aparecen desde arriba durante (220ms); la marca del tope acompaña cada paso. La preferencia de movimiento reducido elimina ambas animaciones.
 - Los cambios de celda usan (160ms); los valores de configuración aparecen en (220ms), sin retrasar la actualización de datos.
 
 ### Cards / Containers

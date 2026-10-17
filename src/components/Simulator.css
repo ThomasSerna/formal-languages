@@ -46,10 +46,18 @@
 .simulator-pda .execution-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .branch-label { display: grid; grid-template-columns: 126px minmax(0, 1fr); align-items: center; gap: 8px; margin-bottom: 5px; font-size: 13px; font-weight: 500; }
 .branch-label select { min-height: 38px; padding: 6px 8px; font-size: 14px; text-overflow: ellipsis; }
-.stack-view { display: grid; grid-template-columns: auto minmax(30px, 1fr) minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; }
-.stack-view > .field-hint { min-width: 0; margin: 0; font-size: 12px; }
-.stack-view > code { display: block; min-width: 0; padding: 3px 7px; border: 1px solid var(--border); border-radius: 4px; color: var(--activity-ink); background: var(--activity-wash); font-size: 16px; overflow-x: auto; overscroll-behavior-inline: contain; white-space: nowrap; }
-.stack-view > .field-hint:last-child { overflow-x: auto; overscroll-behavior-inline: contain; white-space: nowrap; }
+.stack-view { display: flex; align-items: flex-start; gap: 16px; min-width: 0; margin-top: 8px; }
+.stack-view > .field-hint { min-width: 0; margin: 23px 0 0; font-size: 12px; overflow-wrap: anywhere; }
+.stack-diagram { flex: 0 0 144px; min-width: 0; }
+.stack-title { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 650; }
+.stack-scroll { max-height: 136px; padding: 6px 48px 3px 4px; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; scrollbar-color: var(--control-border) var(--paper); }
+.stack-cells { display: flex; flex-direction: column; justify-content: flex-end; gap: 3px; min-height: 42px; margin: 0; padding: 0 4px 4px; border: 1px solid var(--border); border-top: 0; border-bottom: 2px solid var(--activity); list-style: none; }
+.stack-cell { position: relative; display: flex; flex-shrink: 0; align-items: center; justify-content: center; min-height: 28px; border: 1px solid var(--border); border-radius: 4px; color: var(--activity-ink); background: var(--activity-wash); animation: stack-push 220ms var(--ease-out); }
+.stack-symbol { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; font-size: 17px; }
+.stack-top { border-color: var(--activity); }
+.stack-top-label { position: absolute; left: calc(100% + 10px); color: var(--activity-ink); font-size: 11px; font-weight: 600; animation: configuration-update 220ms var(--ease-out); }
+.stack-empty { min-height: 42px; margin: 0; padding: 6px 4px; border: 1px solid var(--border); border-top: 0; border-bottom: 2px solid var(--activity); color: var(--muted); font-size: 12px; line-height: 1.35; text-align: center; }
+@keyframes stack-push { from { opacity: .55; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 .simulator-tm .execution-main { display: grid; grid-template-columns: minmax(140px, .35fr) minmax(0, 1fr); align-items: start; gap: 0 24px; }
 .simulator-tm .step-explanation { grid-column: 1 / -1; grid-row: 2; }
 .input-preview-label { display: block; margin-bottom: 5px; }
@@ -79,8 +87,6 @@
   .playback { flex: 1 1 auto; justify-content: space-between; }
   .simulator-tm .execution-layout { grid-template-columns: minmax(0, 1fr) 220px; }
   .simulator-tm .execution-main { grid-template-columns: minmax(100px, .3fr) minmax(0, 1fr); gap: 0 16px; }
-  .stack-view { grid-template-columns: auto minmax(0, 1fr); }
-  .stack-view > .field-hint:last-child { grid-column: 1 / -1; }
 }
 @media (max-width: 850px) {
   .simulator { min-height: 0; padding: 18px 20px; }
@@ -94,9 +100,7 @@
   .simulator-tm .execution-main { grid-template-columns: minmax(140px, .35fr) minmax(0, 1fr); }
   .branch-label { grid-template-columns: 140px minmax(0, 1fr); font-size: 14px; }
   .branch-label select { min-height: 42px; font-size: 15px; }
-  .stack-view { grid-template-columns: auto minmax(40px, 1fr) minmax(0, 1fr); }
   .stack-view > .field-hint { font-size: 13px; }
-  .stack-view > .field-hint:last-child { grid-column: auto; }
   .history { margin-top: 14px; padding-top: 9px; }
   .history > summary { min-height: 34px; }
 }
@@ -122,12 +126,10 @@
   .simulator-tm .step-explanation { order: 2; margin-top: 0; }
   .tape-cell { min-width: 38px; }
   .branch-label { display: flex; gap: 6px; }
-  .stack-view { grid-template-columns: auto minmax(0, 1fr); gap: 5px 10px; }
-  .stack-view > .field-hint:last-child { grid-column: 1 / -1; }
   .history li button { min-height: 44px; padding-inline: 7px; }
   .history li strong { width: 48px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .symbol-cell, .tape-cell { transition: none; }
-  .configuration-value, .head-label, .run-status:is(.accepted, .rejected, .inconclusive) .status-dot { animation: none; }
+  .configuration-value, .head-label, .stack-cell, .stack-top-label, .run-status:is(.accepted, .rejected, .inconclusive) .status-dot { animation: none; }
 }

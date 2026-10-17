@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Machine } from '../domain';
 import type { Run } from '../engine';
 import { stateName, word } from '../format';
@@ -20,6 +20,8 @@ export default function Simulator(props: Props) {
   const [branch, setBranch] = useState(0);
   useEffect(() => setBranch(0), [run?.step, machine.kind]);
   const config = run?.configurations[branch] ?? run?.configurations[0];
+  const stackRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (stackRef.current) stackRef.current.scrollTop = 0; }, [config?.stack, run?.step]);
   const symbols = Array.from(input);
   const inputIndex = config?.inputIndex ?? (machine.kind === 'dfa' || machine.kind === 'nfa' ? Math.min(run?.step ?? 0, symbols.length) : 0);
   const canAdvance = !!run && !error && (run.status === 'running' || props.cursor < props.trace.length - 1);
@@ -40,8 +42,19 @@ export default function Simulator(props: Props) {
       </div>
       <div className="configuration-panel"><div className="configuration-heading"><strong>{machine.kind === 'nfa' ? 'Estados activos' : machine.kind === 'pda' ? 'Configuraciones activas' : 'Estado actual'}</strong></div>
         {machine.kind === 'nfa' ? <div className="state-chips">{run?.configurations.length ? run.configurations.map(item => <span className="state-chip" key={item.stateId}><span key={motionKey} className="configuration-value">{stateName(machine, item.stateId)}</span></span>) : <code>∅</code>}</div> : machine.kind === 'pda' ? <>
-          {!!run?.configurations.length && <label className="branch-label">Rama a inspeccionar<select value={branch} onChange={event => setBranch(Number(event.target.value))}>{run.configurations.map((item, index) => <option value={index} key={index}>{index + 1}. {stateName(machine, item.stateId)} · posición {item.inputIndex} · {word(item.stack ?? [])}</option>)}</select></label>}
-          <div className="stack-view"><span className="field-hint">Tope a la izquierda</span><code><span key={motionKey} className="configuration-value">{config ? word(config.stack ?? []) : '∅'}</span></code><span className="field-hint">Pendiente: <code>{word(symbols.slice(config?.inputIndex ?? 0))}</code></span></div>
+          {!!run?.configurations.length && <label className="branch-label">Rama a inspeccionar<select value={branch} onChange={event => setBranch(Number(event.target.value))}>{run.configurations.map((item, index) => <option value={index} key={index}>{index + 1}. {stateName(machine, item.stateId)} · posición {item.inputIndex}</option>)}</select></label>}
+          <div className="stack-view">
+            <div className="stack-diagram"><strong className="stack-title">Pila</strong>
+              <div className="stack-scroll" ref={stackRef} role="region" aria-label="Pila de la rama seleccionada" tabIndex={0}>
+                {config?.stack?.length ? <ol className="stack-cells" role="list" aria-label="Símbolos de la pila, del tope al fondo">
+                  {config.stack.map((symbol, index, stack) => <li key={`${stack.length - index}:${symbol}`} className={`stack-cell${index === 0 ? ' stack-top' : ''}`} aria-label={`${symbol}${index === 0 ? ', tope' : ''}`}>
+                    <span className="stack-symbol">{symbol}</span>{index === 0 && <small className="stack-top-label" key={motionKey}>Tope</small>}
+                  </li>)}
+                </ol> : <p className="stack-empty">{config ? 'Pila vacía' : 'Sin configuración'}</p>}
+              </div>
+            </div>
+            <span className="field-hint">Pendiente: <code>{word(symbols.slice(config?.inputIndex ?? 0))}</code></span>
+          </div>
           <p className="field-hint">{run?.configurations.length ?? 0} {run?.configurations.length === 1 ? 'rama activa' : 'ramas activas'}. Basta una aceptante.</p>
         </> : <span className="state-chip large"><span key={motionKey} className="configuration-value">{config ? stateName(machine, config.stateId) : '—'}</span></span>}
         <p className="field-hint">{machine.kind === 'dfa' ? 'El contorno del grafo señala el estado activo.' : machine.kind === 'nfa' ? 'Todos estos caminos se exploran a la vez.' : machine.kind === 'tm' ? 'Una transición puede escribir y volver a una celda anterior.' : 'Cada rama conserva su propia pila y posición de entrada.'}</p>
