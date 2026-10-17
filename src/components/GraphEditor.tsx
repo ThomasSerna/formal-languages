@@ -23,6 +23,7 @@ import {
 } from '@xyflow/react';
 import type { Machine } from '../domain';
 import { ruleLabel } from '../format';
+import CanvasRipples, { type CanvasRipple } from './CanvasRipples';
 import '@xyflow/react/dist/style.css';
 import './GraphEditor.css';
 
@@ -200,7 +201,8 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   const popupContainer = useRef<HTMLDivElement>(null);
   const positionFrame = useRef(0);
   const rippleSequence = useRef(0);
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [ripples, setRipples] = useState<CanvasRipple[]>([]);
+  const expireRipples = useCallback((ids: number[]) => setRipples(current => current.filter(ripple => !ids.includes(ripple.id))), []);
   const lastPopup = useRef<{ kind: Machine['kind']; node: ReactNode; compact: boolean } | null>(null);
   const [popupPresent, setPopupPresent] = useState(false);
   const popupOpen = Boolean(popup);
@@ -473,7 +475,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       <div ref={container} className="graph-canvas" onPointerDownCapture={event => {
         if (!event.isPrimary || event.button !== 0 || !(event.target instanceof Element) || !event.target.matches('.react-flow__pane') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         const bounds = event.currentTarget.getBoundingClientRect();
-        const ripple = { id: ++rippleSequence.current, x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+        const ripple = { id: ++rippleSequence.current, x: event.clientX - bounds.left, y: event.clientY - bounds.top, startedAt: performance.now() };
         setRipples(current => [...current.slice(-3), ripple]);
       }}>
       <ReactFlow<StateNode, TransitionEdge>
@@ -502,13 +504,13 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         connectionRadius={28}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#ddd8e5" />
+        <CanvasRipples ripples={ripples} width={canvasSize.width} height={canvasSize.height} onExpire={expireRipples} />
         <Controls position="bottom-right" showInteractive={false} showFitView={false}>
           <ControlButton onClick={fitAll} title="Ajustar todos los estados a la vista" aria-label="Ajustar todos los estados a la vista">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 2H2V6M10 2H14V6M2 10V14H6M14 10V14H10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </ControlButton>
         </Controls>
       </ReactFlow>
-      <div className="canvas-ripples" aria-hidden="true">{ripples.map(ripple => <span key={ripple.id} className="canvas-ripple" style={{ left: ripple.x, top: ripple.y }} onAnimationEnd={() => setRipples(current => current.filter(item => item.id !== ripple.id))} />)}</div>
       {machine.states.length === 0 && <div className="graph-editor__empty"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true"><circle cx="28" cy="26" r="18" stroke="currentColor" strokeWidth="1.5" /><path d="M1 26H10M5 21L10 26L5 31" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>Tu autómata empieza aquí</strong><p>Añade un estado para comenzar a construir el grafo.</p></div>}
       </div>
       {(popupOpen || popupPresent) && (popupOpen || lastPopup.current?.kind === machine.kind) && <div ref={popupContainer} className="graph-popup" data-compact={popupOpen ? compactPopup : lastPopup.current?.compact} data-state={popupOpen ? 'open' : 'closing'} role="dialog" aria-label="Inspector del autómata" aria-modal="false" aria-hidden={!popupOpen || undefined} inert={!popupOpen}>
