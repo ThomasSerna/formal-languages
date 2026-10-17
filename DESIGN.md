@@ -24,10 +24,10 @@ colors:
 typography:
   headline:
     fontFamily: "'Source Sans 3', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "23px"
-    fontWeight: 650
+    fontSize: "14px"
+    fontWeight: 500
     lineHeight: 1.25
-    letterSpacing: "-0.02em"
+    letterSpacing: "0"
   title:
     fontFamily: "'Source Sans 3', 'Segoe UI', system-ui, sans-serif"
     fontSize: "20px"
@@ -145,8 +145,8 @@ La aplicación no distribuye imágenes raster: la geometría operativa del grafo
 - Cabecera ciruela y superficies blancas separadas por bordes discretos.
 - Violeta para seleccionar y editar; petróleo para representar la ejecución.
 - Source Sans 3 en la interfaz, STIX Two Text en nombres matemáticos y monoespaciada en datos.
-- Inspector lateral en escritorio y apilado bajo el lienzo en pantallas pequeñas.
-- Grafo, entrada y configuración legibles en una misma secuencia de trabajo.
+- Burbujas contextuales junto a estados y reglas, dentro del lienzo en todos los tamaños.
+- Lienzo prioritario y simulación en una bandeja inferior plegable.
 
 ## Colors
 
@@ -189,7 +189,7 @@ La paleta combina ciruela, papel ligeramente violáceo y tinta oscura; los acent
 
 ### Hierarchy
 
-- **Headline:** nombre del documento; se adapta a (22px) bajo el corte de tableta y a (20px) en móvil.
+- **Headline:** nombre del documento discreto de (14px), dentro de la barra de herramientas y truncado en una línea cuando falta espacio.
 - **Title:** secciones de lectura. El inspector usa (18px) y la banda de simulación (19px), que pasa a (20px) en móvil.
 - **Body:** texto general. Ayudas y metadatos usan (12–14px); la explicación del paso usa (15px), interlineado (1.4) y máximo (75ch).
 - **Label:** botones y campos. Los botones usan el interlineado del token; las etiquetas de formulario heredan (1.5).
@@ -200,36 +200,33 @@ Los archivos de fuente y su cobertura están registrados en `public/fonts/README
 
 ## Layout
 
-La aplicación ocupa todo el ancho. La escena de edición y simulación tiene altura mínima `max(720px, 100dvh)`; puede crecer cuando el contenido lo necesita. Cabecera, contexto del documento y herramientas forman bandas compactas. El lienzo flexible tiene un mínimo de (260px); la simulación reserva al menos (218px), o (250px) en pila y Turing.
+La escena de edición ocupa todo el ancho y `100dvh`, con un mínimo de (480px) para ventanas muy bajas. La cabecera conserva la marca, los cuatro modelos y Archivo. Una sola barra agrupa creación, configuración y nombre discreto; desaparecen la franja contextual y el enlace superior a la definición.
 
-El nombre del documento precede visualmente al tipo de modelo, que aparece como información secundaria en la misma fila o se ajusta debajo cuando falta ancho.
+El lienzo flexible ocupa el espacio restante sin una columna lateral. Las propiedades flotan en burbujas no modales de (280px) para estados y (320px) para transiciones y configuración, limitadas al ancho del lienzo menos (24px). Se separan (12px) del objeto y de los bordes, cambian de lado cuando falta espacio y se reposicionan al desplazar, ampliar o mover objetos. En pantallas estrechas pueden situarse arriba o abajo del objeto; su cuerpo se desplaza si falta altura.
 
-El inspector es una columna contextual de (340px) a la derecha del lienzo. Su cuerpo se desplaza dentro de la columna; el título y el cierre permanecen fuera de ese desplazamiento. Las acciones y los campos aparecen antes del desplegable «Ayuda y definición». El inspector conserva su naturaleza no modal.
+La bandeja inferior comienza cerrada. Su cabecera de (44px) conserva una leyenda mínima y «Probar cadena», con el número de detalles de validación cuando los hay. El contenido abierto mide como máximo `min(40dvh, 340px)` y tiene desplazamiento propio. Abrir y cerrar conserva centro y zoom del grafo, entrada, cálculo, historial y rama seleccionada; cerrar pausa la reproducción. El enlace de salto abre la bandeja y enfoca la entrada.
 
-La simulación reúne entrada y reproducción arriba, y entrada consumida o cinta junto a la configuración debajo. La configuración ocupa (300px) en los autómatas finitos; pila distribuye dos columnas equivalentes. La explicación se sitúa junto a los datos del paso. El historial se despliega dentro de la banda y puede extender la página.
+La definición formal y la explicación del modelo permanecen debajo del editor, cerradas inicialmente. La guía de uso y las instrucciones permanentes desaparecen. La referencia conserva su ancho máximo de (1440px), relleno de (24px), separación de (24px) y columnas (2:1).
 
-La referencia inferior tiene un ancho máximo de (1440px), relleno de (24px), separación de (24px) y columnas en proporción (2:1). Las ayudas no aumentan la jerarquía del documento ni desplazan las acciones a una pantalla inicial aparte.
-
-- Hasta (1200px), desaparecen las descripciones de modelo y la tupla contextual; la reproducción puede pasar a otra línea.
-- Hasta (850px), la navegación ocupa su propia fila. El inspector se apila bajo el lienzo, con altura máxima de (440px); el lienzo mide (410px). La simulación y la referencia pasan a una columna.
-- Hasta (600px), el lienzo mide (370px), las herramientas y la reproducción usan dos columnas, y los controles principales alcanzan (44px). Turing apila entrada, cinta y explicación.
-- Entrada, cinta y pila conservan desplazamiento local horizontal. Fórmulas, nombres y mensajes permiten ajuste de línea; los datos no se reducen para aparentar que caben.
-
-El ritmo recurrente usa los pasos del frontmatter. Los interiores del inspector usan (12px 16px); el resto de bandas de escritorio conserva márgenes laterales de (24px), que bajan a (20px) y (12px).
+- Hasta (1200px), desaparecen las descripciones de modelo.
+- Hasta (850px), la navegación ocupa su propia fila, el título se ajusta dentro de la barra de herramientas y la referencia pasa a una columna.
+- Hasta (600px), los tres controles de edición comparten una fila con objetivos mínimos de (44px). La simulación apila sus controles dentro de la bandeja.
+- Entrada, cinta y pila conservan desplazamiento horizontal local. Los mensajes y fórmulas ajustan línea.
 
 ## Elevation & Depth
 
-La profundidad procede de cambios de tono y bordes. Grafo, simulación e inspector permanecen planos; la columna contextual tiene una separación lateral, sin sombra y sin esquinas redondeadas. La navegación seleccionada se desplaza como una superficie blanca. El único contenedor elevado reutilizable es el menú Archivo.
+Las bandas de navegación, lienzo y simulación permanecen planas. Archivo y las burbujas usan elevación para distinguir acciones temporales sobre la superficie de trabajo.
 
 ### Shadow Vocabulary
 
-- **Menú Archivo:** `0 8px 26px #251c3b2b`, para separar las acciones flotantes de la cabecera y el documento.
+- **Menú Archivo:** `0 8px 26px #251c3b2b`.
+- **Burbuja contextual:** `0 6px 28px #251c3b26`, con contorno tenue de (1px) y radio de (12px).
 
-**The Continuous Surface Rule.** Las áreas de construcción y cálculo se separan por borde y espacio; la elevación se reserva para el menú flotante.
+**The Continuous Surface Rule.** El lienzo conserva todo su ancho; la elevación se reserva para los controles flotantes.
 
 ## Shapes
 
-Los controles usan esquinas suaves; chips, símbolos y etiquetas son más compactos. Las referencias y el menú Archivo usan el radio de soporte. La envolvente del trabajo y el inspector lateral mantienen esquinas rectas.
+Los controles usan esquinas suaves; chips, símbolos y etiquetas son más compactos. Las referencias y el menú Archivo usan el radio de soporte. La envolvente del trabajo mantiene esquinas rectas; las burbujas usan un radio de (12px).
 
 Los estados son círculos de (60px) con borde de (2px). La aceptación añade un segundo círculo interior; una flecha exterior indica inicio. Las transiciones conservan dirección, curvas recíprocas y autolazos. Estas formas expresan propiedades del modelo.
 
@@ -277,8 +274,8 @@ Unidades estables de notación.
 Referencias claras, con borde y sin sombra.
 
 - La definición formal y la explicación del modelo usan desplegables nativos dentro de contenedores de soporte.
-- La guía usa lavado violeta; avisos y validación mantienen texto y acciones explícitos.
-- El inspector preserva campos estables al escribir y una única sección cerrada de ayuda contextual.
+- Avisos y validación mantienen texto y acciones explícitos; los errores del modelo están en la bandeja de simulación.
+- El inspector preserva campos estables al escribir y redimensionar, sin ayudas ni definición repetidas. Los roles del estado usan botones con icono, etiqueta y `aria-pressed`.
 
 ### Graph and simulation
 
@@ -291,8 +288,9 @@ El diagrama es operativo y conserva representación textual equivalente.
 - Cada paso produce un pulso de llegada y un trazo sobre las reglas utilizadas durante (220ms). Todas las reglas no deterministas aplicadas se resaltan simultáneamente.
 - El mensaje de paso usa una región `aria-live="polite"`. Los pulsos decorativos están ocultos al árbol accesible y no reciben eventos.
 - El ajuste manual de vista dura (240ms); recentrar un estado activo es inmediato. El movimiento reducido interrumpe también un ajuste ya iniciado.
-- El inspector entra en (220ms), con escala (0.94 → 1.01 → 1), y sale en (140ms), con escala final (0.97), desde la esquina superior izquierda de su superficie. El cierre retira la interacción y la exposición accesible inmediatamente; el teclado y el movimiento reducido evitan la animación.
-- Cambiar el objeto inspeccionado acompaña el contenido con una aparición de (160ms); escribir conserva los campos. Las ayudas, avisos y validación usan (160ms) y un desplazamiento de (3px).
+- El inspector entra en (220ms), con escala (0.94 → 1.01 → 1), y sale en (140ms), con escala final (0.97), desde el borde orientado al objeto o botón que lo abre. El cierre retira la interacción y la exposición accesible inmediatamente; el teclado y el movimiento reducido evitan la animación.
+- Cambiar el objeto inspeccionado acompaña el contenido con una aparición de (160ms); escribir conserva los campos. Avisos y validación usan (160ms) y un desplazamiento de (3px).
+- Pulsar el fondo vacío, incluso al comenzar a arrastrar, produce un aro violeta de (140px) durante (520ms). Hasta cuatro ondas permanecen en coordenadas de pantalla, sin interceptar eventos ni reaccionar a objetos o controles. El movimiento reducido omite y cancela las ondas.
 - La reproducción mantiene intervalos de (1400ms), (800ms) o (300ms). El movimiento reducido conserva datos, etiquetas y estados, sin pulsos ni transiciones.
 
 ## Do's and Don'ts
@@ -310,5 +308,5 @@ El diagrama es operativo y conserva representación textual equivalente.
 
 - **Don't** usar solo color para distinguir selección, actividad o resultados.
 - **Don't** sustituir el lienzo funcional por una imagen del grafo.
-- **Don't** añadir sombras a las bandas de trabajo o al inspector lateral.
+- **Don't** añadir sombras a las bandas de trabajo o a la simulación.
 - **Don't** reducir la notación para encajar todo el contenido en una pantalla.

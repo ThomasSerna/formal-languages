@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-17T01:50:07.977Z",
+  "generatedAt": "2026-10-17T02:34:51.450Z",
   "title": "Design System: Autómata",
   "extensions": {
     "colorMeta": {
@@ -274,7 +274,7 @@
     "typographyMeta": {
       "headline": {
         "displayName": "Nombre del documento",
-        "purpose": "Nombre de la máquina antes del tipo de modelo; adaptación a 22px y 20px."
+        "purpose": "Nombre discreto de 14px y peso 500 en la barra de herramientas; truncado en una línea si falta espacio."
       },
       "title": {
         "displayName": "Título de sección",
@@ -301,7 +301,12 @@
       {
         "name": "file-menu",
         "value": "0 8px 26px #251c3b2b",
-        "purpose": "Acciones de Archivo flotantes. Lienzo, inspector y simulación permanecen planos."
+        "purpose": "Acciones de Archivo flotantes; lienzo y simulación permanecen planos."
+      },
+      {
+        "name": "context-popup",
+        "value": "0 6px 28px #251c3b26, 0 0 0 1px #ddd8e5",
+        "purpose": "Burbujas ancladas al objeto o botón, con radio de 12px."
       }
     ],
     "motion": [
@@ -333,7 +338,7 @@
       {
         "name": "inspector-enter",
         "value": "220ms cubic-bezier(.16, 1, .3, 1)",
-        "purpose": "Opacidad y escala 0.94 → 1.01 → 1 desde la esquina superior izquierda. Teclado y movimiento reducido son inmediatos."
+        "purpose": "Opacidad y escala 0.94 → 1.01 → 1 desde el borde orientado al ancla. Teclado y movimiento reducido son inmediatos."
       },
       {
         "name": "inspector-exit",
@@ -343,7 +348,7 @@
       {
         "name": "contextual-appear",
         "value": "160ms cubic-bezier(.16, 1, .3, 1)",
-        "purpose": "Avisos y ayuda con desplazamiento de 3px. El contenido del inspector usa 160ms ease-out solo en opacidad. Teclado y movimiento reducido omiten la aparición."
+        "purpose": "Avisos y validación con desplazamiento de 3px; el contenido del inspector usa 160ms ease-out en opacidad. Teclado y movimiento reducido omiten la aparición."
       },
       {
         "name": "fit-view",
@@ -354,6 +359,11 @@
         "name": "playback",
         "value": "1400ms / 800ms / 300ms",
         "purpose": "Intervalos lenta, normal y rápida; los efectos de cada paso terminan antes del siguiente intervalo rápido."
+      },
+      {
+        "name": "canvas-ripple",
+        "value": "520ms cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Aro de 140px en el fondo al pulsar o iniciar paneo. Máximo cuatro, coordenadas de pantalla, sin interceptar eventos; movimiento reducido omite y cancela."
       }
     ],
     "breakpoints": [
@@ -372,13 +382,13 @@
     ],
     "accessibility": {
       "focus": "Contorno violeta general de 3px con separación de 3px; cabecera en tono claro; nodo con separación de 7px; regla con contorno interior de 2px.",
-      "labels": "Resultados explícitos, nodos Activo, reglas en uso, índices y etiqueta de cabezal. Modelo actual con aria-current; reglas con aria-pressed.",
+      "labels": "Resultados explícitos, nodos Activo, reglas en uso, índices y etiqueta de cabezal. Modelo actual con aria-current; reglas con aria-pressed. Roles de estado con botones aria-pressed; bandeja con aria-expanded y aria-controls.",
       "forms": "Etiquetas asociadas, aria-invalid y mensajes de campo; edición por formulario equivalente a gestos del grafo.",
       "announcement": "La explicación del paso usa aria-live polite y aria-atomic. Los pulsos y trazos decorativos usan aria-hidden y no reciben eventos.",
       "inspector": "Diálogo no modal. Escape cierra, el foco se restaura al control que lo abrió; durante la salida usa inert y aria-hidden.",
       "touch": "Controles de grafo de 44px, reglas de 44px o 48px hasta 850px; botones principales y campos de entrada de 44px hasta 600px.",
       "reducedMotion": "Se eliminan animaciones y transiciones; los efectos del inspector y el ajuste de vista cancelan su movimiento al cambiar la preferencia. Datos y estados se actualizan inmediatamente.",
-      "overflow": "Entrada, cinta y pila se desplazan dentro de su área; texto formal y mensajes ajustan línea. La vista inicial conserva zoom 0.95 si el grafo no cabe a escala legible."
+      "overflow": "Entrada, cinta y pila se desplazan dentro de su área; texto formal y mensajes ajustan línea. La vista inicial conserva zoom 0.95 si el grafo no cabe a escala legible. Burbujas limitadas al lienzo y bandeja limitada a min(40dvh, 340px), con desplazamiento interno."
     },
     "provenance": {
       "sourceFiles": [
@@ -486,8 +496,8 @@
       "Cabecera ciruela y superficies blancas separadas por bordes discretos.",
       "Violeta para seleccionar y editar; petróleo para representar la ejecución.",
       "Source Sans 3 en la interfaz, STIX Two Text en nombres matemáticos y monoespaciada en datos.",
-      "Inspector lateral en escritorio y apilado bajo el lienzo en pantallas pequeñas.",
-      "Grafo, entrada y configuración legibles en una misma secuencia de trabajo."
+      "Burbujas contextuales junto a estados y reglas, dentro del lienzo en todos los tamaños.",
+      "Lienzo prioritario y simulación en una bandeja inferior plegable."
     ],
     "rules": [
       {
@@ -502,7 +512,7 @@
       },
       {
         "name": "The Continuous Surface Rule",
-        "body": "Las áreas de construcción y cálculo se separan por borde y espacio; la elevación se reserva para el menú flotante.",
+        "body": "El lienzo conserva todo su ancho; la elevación se reserva para los controles flotantes.",
         "section": "elevation"
       }
     ],
@@ -517,7 +527,7 @@
     "donts": [
       "Don't usar solo color para distinguir selección, actividad o resultados.",
       "Don't sustituir el lienzo funcional por una imagen del grafo.",
-      "Don't añadir sombras a las bandas de trabajo o al inspector lateral.",
+      "Don't añadir sombras a las bandas de trabajo o a la simulación.",
       "Don't reducir la notación para encajar todo el contenido en una pantalla."
     ]
   }
