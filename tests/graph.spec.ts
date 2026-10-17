@@ -42,6 +42,7 @@ test('cada regla agrupada se selecciona por separado y los puntos crean una cone
   await expect(page.getByRole('heading', { name: 'Editar transición', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Lee', exact: true })).toHaveValue('1');
   await page.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
+  await expect(page.locator('.graph-popup')).toHaveCount(0);
 
   const source = graph.locator('.react-flow__node[data-id="s"] .react-flow__handle[data-handleid="out"]');
   const target = graph.locator('.react-flow__node[data-id="q2"] .react-flow__handle[data-handleid="in"]');
@@ -54,9 +55,43 @@ test('cada regla agrupada se selecciona por separado y los puntos crean una cone
   await expect(graph.locator('.react-flow__edge')).toHaveCount(5);
   await expect(page.getByRole('heading', { name: 'Editar transición', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
+  await expect(page.locator('.graph-popup')).toHaveCount(0);
 
   await source.dragTo(target);
   await expect(page.getByRole('heading', { name: 'Nueva transición', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Origen', exact: true })).toHaveValue('s');
   await expect(page.getByRole('combobox', { name: 'Destino', exact: true })).toHaveValue('q2');
+});
+
+test('Turing conserva estados legibles y sigue la ejecución; ajustar permite consultar el grafo completo', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.goto('./');
+  await page.getByRole('button', { name: /^Turing / }).click();
+  const canvas = page.locator('.graph-canvas');
+  const states = canvas.locator('.react-flow__node');
+  const initial = canvas.locator('.react-flow__node[data-id="s"]');
+  await expect(states).toHaveCount(7);
+  await expect.poll(async () => (await initial.boundingBox())?.width ?? 0).toBeGreaterThanOrEqual(55);
+  await expect(initial).toBeInViewport({ ratio: 1 });
+
+  await page.getByRole('button', { name: 'Paso siguiente', exact: true }).click();
+  await page.getByRole('button', { name: 'Paso siguiente', exact: true }).click();
+  const active = canvas.locator('.react-flow__node[data-id="q1"]');
+  await expect(active.locator('.automaton-state')).toHaveClass(/is-active/);
+  await expect(active).toBeInViewport({ ratio: 1 });
+  const readableWidth = (await active.boundingBox())!.width;
+  expect(readableWidth).toBeGreaterThanOrEqual(55);
+
+  await canvas.getByRole('button', { name: 'Ajustar todos los estados a la vista', exact: true }).click();
+  await expect.poll(async () => (await active.boundingBox())!.width).toBeLessThan(readableWidth);
+  await expect.poll(() => states.evaluateAll(nodes => {
+    const box = nodes[0].closest('.graph-canvas')!.getBoundingClientRect();
+    return nodes.every(node => {
+      const state = node.getBoundingClientRect();
+      return state.left >= box.left - 1 && state.top >= box.top - 1 && state.right <= box.right + 1 && state.bottom <= box.bottom + 1;
+    });
+  })).toBe(true);
+  const overviewWidth = (await active.boundingBox())!.width;
+  await canvas.getByRole('button', { name: 'Acercar el grafo', exact: true }).click();
+  await expect.poll(async () => (await active.boundingBox())!.width).toBeGreaterThan(overviewWidth);
 });

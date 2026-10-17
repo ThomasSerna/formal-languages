@@ -203,9 +203,8 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   const stateIds = JSON.stringify(machine.states.map((state) => state.id));
   const activeIds = JSON.stringify(activeStateIds);
   const motionKey = `${machine.kind}:${step}`;
-  const narrowCanvas = canvasSize.width > 0 && canvasSize.width < 650;
   const bounds = machine.states.length ? graphBounds(machine) : null;
-  const needsPanning = narrowCanvas && bounds !== null && (bounds.width * 0.95 > canvasSize.width - 24 || bounds.height * 0.95 > canvasSize.height - 50);
+  const needsPanning = bounds !== null && (bounds.width * 0.95 > canvasSize.width - 24 || bounds.height * 0.95 > canvasSize.height - 50);
   const selectRule = useCallback((id: string) => { onSelectTransition(id); }, [onSelectTransition]);
 
   useLayoutEffect(() => {
@@ -344,7 +343,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       if (!document.states.length) return;
       const documentBounds = graphBounds(document);
       const readableFit = documentBounds.width * 0.95 <= canvasSize.width - 24 && documentBounds.height * 0.95 <= canvasSize.height - 50;
-      if (narrowCanvas && !readableFit) {
+      if (!readableFit) {
         const initial = document.states.find((state) => document.initialStateIds.includes(state.id)) ?? document.states[0];
         void instance.setCenter(initial.x + RADIUS, initial.y + RADIUS - 35, { zoom: 0.95, duration: 0 });
       } else {
@@ -352,10 +351,10 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       }
     });
     return () => cancelAnimationFrame(frame);
-  }, [instance, stateIds, machine.kind, canvasSize, narrowCanvas]);
+  }, [instance, stateIds, machine.kind, canvasSize]);
 
   useEffect(() => {
-    if (!instance || !narrowCanvas || !activeStateIds.length) return;
+    if (!instance || !needsPanning || !activeStateIds.length) return;
     const frame = requestAnimationFrame(() => {
       const viewport = instance.getViewport();
       const outside = latestMachine.current.states.find((state) => {
@@ -367,7 +366,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       if (outside) void instance.setCenter(outside.x + RADIUS, outside.y + RADIUS - 35, { zoom: viewport.zoom, duration: 0 });
     });
     return () => cancelAnimationFrame(frame);
-  }, [instance, narrowCanvas, activeIds, activeTransitionIds, canvasSize]);
+  }, [instance, needsPanning, activeIds, activeTransitionIds, canvasSize]);
 
   const onNodesChange = useCallback((changes: NodeChange<StateNode>[]) => {
     for (const change of changes) {
