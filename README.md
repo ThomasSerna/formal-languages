@@ -28,7 +28,7 @@ Las pruebas de navegador locales usan Google Chrome instalado. En CI se instala 
 2. Selecciona un estado para cambiar su nombre o sus roles; selecciona una etiqueta para editar su regla.
 3. Agrega estados y transiciones desde la barra. También puedes conectar el punto derecho de un estado con el izquierdo de otro, arrastrando o con dos clics.
 4. Escribe la entrada o constrúyela con los botones de Σ; **Borrar último símbolo** retira el último símbolo y **ε** vacía la entrada. Reproduce el cálculo, avanza o retrocede; el deslizador recorre los pasos ya calculados. Cambiar el modelo o la entrada reinicia la ejecución; mover un estado conserva el cálculo.
-5. Abre **Definición formal** o **Entender este modelo** desde la misma barra. La definición permite editar estados o reglas desde su representación textual. Solo se abre un panel a la vez; cambiar de panel conserva el cálculo y pausa la reproducción.
+5. Abre **Demostrar lenguaje** para comparar un AFD o AFN con un lenguaje y construir una prueba guiada. **Definición formal** permite editar estados o reglas desde su representación textual; **Entender este modelo** reúne la explicación y sus fuentes bajo demanda. Solo se abre un panel a la vez; cambiar de panel conserva el cálculo y la prueba y pausa la reproducción.
 
 La cabecera conserva los cuatro modelos a la vista. **Archivo** reúne importar, exportar, cargar el ejemplo y crear un documento desde cero. En portátil, el grafo y la simulación comparten la primera pantalla; en móvil, las mismas herramientas se apilan sin perder los datos de los formularios.
 
@@ -38,7 +38,17 @@ Los estados admiten Tab, Enter/Espacio y las flechas del teclado. El formulario 
 
 El inspector aparece en una burbuja junto al estado, la regla o el control seleccionado, dentro del lienzo en todos los tamaños. La navegación y los controles usan transiciones breves; el foco responde inmediatamente. Abrir o cerrar por teclado es instantáneo. La selección de edición usa violeta; la ejecución activa, azul petróleo. Cada paso resalta los estados y las reglas utilizados y acompaña los cambios de entrada, pila y cinta; los datos se actualizan inmediatamente. En AFN y pila las reglas del paso se muestran a la vez. Las preferencias de movimiento reducido del sistema eliminan los efectos y conservan los indicadores estáticos, incluso al cambiar la preferencia con el laboratorio abierto.
 
-Los borradores se guardan por modelo en este navegador. **Exportar JSON** permite conservarlos o llevarlos a otro equipo. Importar valida el archivo antes de reemplazar el modelo y descarga una copia del borrador anterior. Los borradores con errores matemáticos se conservan; el simulador indica qué completar antes de ejecutarlos. No se guardan los historiales de ejecución.
+Los borradores se guardan por modelo en este navegador. **Exportar JSON** permite conservarlos o llevarlos a otro equipo. Importar valida el archivo antes de reemplazar el modelo y descarga una copia del borrador anterior. Los borradores con errores matemáticos se conservan; el simulador indica qué completar antes de ejecutarlos. No se guardan los historiales de ejecución ni las demostraciones.
+
+## Demostrar un lenguaje
+
+El **Constructor** expresa una condición sobre el alfabeto del autómata: cantidad de un símbolo o longitud con determinado resto, o una palabra al principio, al final o en cualquier posición. **Expresión regular** admite unión `+`, concatenación implícita, estrella `*`, paréntesis, `ε` y `∅`; `\` escapa los símbolos reservados y los espacios literales. Un campo vacío queda pendiente.
+
+**Comprobar** compara todas las configuraciones alcanzables de ambos lenguajes. **Coinciden** certifica igualdad; **No coinciden** muestra una cadena mínima que los distingue y sus recorridos; **Sin concluir** indica que el cálculo alcanzó un límite. Probar unas cuantas cadenas no certifica equivalencia.
+
+Cuando coinciden, **Construir prueba** guía tres obligaciones: la configuración inicial, todas las transiciones de cada pareja alcanzable y su aceptación. La relación finita resultante se conserva por inducción sobre la longitud de la cadena y demuestra ambas inclusiones. Los ejercicios resaltan estados y reglas; **Ver fundamento** conserva la justificación matemática bajo demanda. Una respuesta incorrecta necesita corregirse y no refuta el lenguaje.
+
+El trabajo se conserva durante la sesión al cambiar de panel o modelo. Mover o renombrar estados conserva la prueba; cambiar reglas, alfabeto o roles iniciales y finales la invalida. La comprobación y la prueba guiada están disponibles para AFD y AFN; Pila y Turing muestran la explicación de ese alcance.
 
 ## Convenciones matemáticas
 
@@ -51,7 +61,7 @@ Basado en *Automata and Computability*, de Dexter Kozen, y el material público 
 
 Cada símbolo es un punto de código Unicode. ε se representa internamente como lectura `''` o reemplazo `[]`; no es una letra del alfabeto. El formato JSON usa `schemaVersion: 1`, modelos `dfa`, `nfa`, `pda`, `tm` y campos estructurados; las etiquetas del grafo se derivan de esas reglas.
 
-Fuentes: [Kozen, lecciones de autómatas finitos](https://www.cs.cornell.edu/courses/cs6861/2024sp/Handouts/ACLec2-6.pdf), [pila, material del curso](https://asr.github.io/cursos/st0270-lenguajes-formales-y-compiladores/diapositivas/lenguajes-libres-de-contexto-y-automatas-a-pila.pdf), [Turing, notas de Cornell basadas en Kozen](https://www.cs.cornell.edu/courses/cs4820/2014sp/notes/kozen-computability-sp13.pdf). Los cuatro ejemplos del laboratorio son ejemplos docentes propios.
+Fuentes: [Kozen, lecciones de autómatas finitos](https://www.cs.cornell.edu/courses/cs6861/2024sp/Handouts/ACLec2-6.pdf), [Kozen, expresiones regulares y equivalencia](https://www.cs.cornell.edu/courses/cs6861/2024sp/Handouts/ACLec7-12.pdf), [pila, material del curso](https://asr.github.io/cursos/st0270-lenguajes-formales-y-compiladores/diapositivas/lenguajes-libres-de-contexto-y-automatas-a-pila.pdf), [Turing, notas de Cornell basadas en Kozen](https://www.cs.cornell.edu/courses/cs4820/2014sp/notes/kozen-computability-sp13.pdf). Los cuatro ejemplos del laboratorio son ejemplos docentes propios.
 
 ## Límites
 
@@ -60,10 +70,13 @@ Fuentes: [Kozen, lecciones de autómatas finitos](https://www.cs.cornell.edu/cou
 | Documento | 50 estados, 300 reglas |
 | Entrada | 256 símbolos |
 | Archivo importado | 1 MiB |
+| Constructor de lenguaje | Módulo de 2 a 10; palabra de 32 símbolos |
+| Expresión regular | 256 símbolos, 32 niveles de paréntesis |
+| Comparación de lenguajes | 10.000 parejas, 100.000 expansiones pareja–símbolo |
 | Pila | 2.000 configuraciones, 10.000 aplicaciones, profundidad 256 |
 | Turing | 10.000 pasos, 4.096 posiciones de cinta |
 
-Un límite produce **resultado inconcluso**, nunca rechazo. Una máquina de Turing o de pila puede no terminar; estos límites mantienen el navegador utilizable. El historial de Turing almacena cambios de celda para evitar copiar una cinta completa por cada paso.
+Un límite de cálculo produce **resultado inconcluso**, nunca rechazo ni equivalencia. Una máquina de Turing o de pila puede no terminar; estos límites mantienen el navegador utilizable. La comparación cede periódicamente el control al navegador y puede cancelarse. Sus autómatas internos no están sujetos al límite editorial de 50 estados. El historial de Turing almacena cambios de celda para evitar copiar una cinta completa por cada paso.
 
 ## GitHub Pages
 

@@ -17,8 +17,8 @@ for (const [width, height] of [[1280, 720], [1366, 768], [768, 900], [390, 667]]
     await expect(page.locator('.simulator')).toBeHidden();
     await expect(page.locator('.workspace-top, .guide, .guide-link, .graph-editor__hint')).toHaveCount(0);
     await expect(page.locator('.reference-section')).toHaveCount(0);
-    await expect(page.locator('.dock-controls > button')).toHaveCount(3);
-    for (const panel of ['simulation', 'formal', 'theory']) {
+    await expect(page.locator('.dock-controls > button')).toHaveCount(4);
+    for (const panel of ['simulation', 'proof', 'formal', 'theory']) {
       await expect(page.locator(`#${panel}-toggle`)).toHaveAttribute('aria-expanded', 'false');
       await expect(page.locator(`#${panel}-toggle`)).toHaveAttribute('aria-controls', `${panel}-content`);
       await expect(page.locator(`#${panel}-content`)).toHaveAttribute('role', 'region');
@@ -73,7 +73,7 @@ test('los paneles conservan cálculo, entrada, historial y rama en los cuatro mo
     const input = await page.getByLabel('Cadena de entrada', { exact: true }).inputValue();
     const execution = await page.locator('.execution-layout').textContent();
     await page.locator('.history summary').click();
-    for (const panel of ['simulation', 'formal', 'theory']) {
+    for (const panel of ['simulation', 'proof', 'formal', 'theory']) {
       await page.locator(`#${panel}-toggle`).click();
       await expect(page.locator('.simulator')).toBeHidden();
       expect(await simulator!.evaluate(element => element.isConnected)).toBe(true);
@@ -87,9 +87,9 @@ test('los paneles conservan cálculo, entrada, historial y rama en los cuatro mo
   }
 });
 
-test('los tres paneles son exclusivos y se abren con teclado', async ({ page }) => {
+test('los cuatro paneles son exclusivos y se abren con teclado', async ({ page }) => {
   await page.goto('');
-  for (const [index, panel] of ['simulation', 'formal', 'theory'].entries()) {
+  for (const [index, panel] of ['simulation', 'proof', 'formal', 'theory'].entries()) {
     const toggle = page.locator(`#${panel}-toggle`);
     await toggle.focus();
     await page.keyboard.press(index === 1 ? 'Space' : 'Enter');

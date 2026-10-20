@@ -145,7 +145,7 @@ La aplicación no distribuye imágenes raster: la geometría operativa del grafo
 - Violeta para seleccionar y editar; petróleo para representar la ejecución.
 - Source Sans 3 en la interfaz, STIX Two Text en nombres matemáticos y monoespaciada en datos.
 - Burbujas contextuales junto a estados y reglas, dentro del lienzo en todos los tamaños.
-- Lienzo prioritario y simulación en una bandeja inferior plegable.
+- Lienzo prioritario y herramientas en una bandeja inferior plegable, sin pie adicional.
 
 ## Colors
 
@@ -203,13 +203,13 @@ La escena de edición ocupa todo el ancho y `100dvh`, con un mínimo de (480px) 
 
 El lienzo flexible ocupa el espacio restante sin una columna lateral. Las propiedades flotan en burbujas no modales de (280px) para estados y (320px) para transiciones y configuración, limitadas al ancho del lienzo menos (24px). Se separan (12px) del objeto y de los bordes, cambian de lado cuando falta espacio y se reposicionan al desplazar, ampliar o mover objetos. En pantallas estrechas pueden situarse arriba o abajo del objeto; su cuerpo se desplaza si falta altura.
 
-La bandeja inferior comienza cerrada. Su cabecera conserva una leyenda mínima y tres botones de al menos (44px): «Probar cadena», «Definición formal» y «Entender este modelo». Solo abre un panel a la vez; el primero incluye el número de detalles de validación cuando los hay. El contenido abierto mide como máximo `min(40dvh, 340px)` y tiene desplazamiento propio. Abrir, cerrar o cambiar de panel conserva centro y zoom del grafo, entrada, cálculo, historial y rama seleccionada; salir de la simulación pausa la reproducción. Cambiar de modelo conserva el panel seleccionado. El enlace de salto abre la simulación y enfoca la entrada.
+La bandeja inferior comienza cerrada. Su cabecera conserva una leyenda mínima y cuatro botones de al menos (44px), en orden: «Probar cadena», «Demostrar lenguaje», «Definición formal» y «Entender este modelo». Solo abre un panel a la vez; el primero incluye el número de detalles de validación cuando los hay. El contenido abierto mide como máximo `min(40dvh, 340px)` y tiene desplazamiento propio. Abrir, cerrar o cambiar de panel conserva centro y zoom del grafo, entrada, cálculo, historial, rama seleccionada y progreso de la prueba; salir de la simulación pausa la reproducción. Cambiar de modelo conserva el panel seleccionado. El enlace de salto abre la simulación y enfoca la entrada.
 
-La definición formal y la explicación del modelo comparten la bandeja del editor, con relleno de (16px 24px), sin tarjetas ni desplegables externos. Conservan su contenido y las acciones de edición. El pie queda debajo del editor.
+La demostración, la definición formal y la explicación del modelo comparten la bandeja del editor, con relleno de (16px 24px), sin tarjetas ni desplegables externos. Conservan su contenido y las acciones de edición. Las fuentes aparecen bajo demanda dentro de la explicación del modelo. La barra inferior cierra el laboratorio sin pie ni espacio reservado debajo.
 
 - Hasta (1200px), desaparecen las descripciones de modelo.
-- Hasta (850px), la navegación ocupa su propia fila, el título se ajusta dentro de la barra de herramientas y la leyenda queda encima de los tres botones de la bandeja.
-- Hasta (600px), los tres controles de edición comparten una fila con objetivos mínimos de (44px). La simulación apila sus controles dentro de la bandeja.
+- Hasta (850px), la navegación ocupa su propia fila, el título se ajusta dentro de la barra de herramientas y la leyenda queda encima de los cuatro botones de la bandeja.
+- Hasta (600px), los tres controles de edición comparten una fila con objetivos mínimos de (44px). La bandeja muestra «Probar», «Demostrar», «Definición» y «Modelo», conservando los nombres accesibles completos y objetivos de (44px). La simulación y la demostración apilan sus controles dentro de la bandeja.
 - Entrada, teclado de símbolos y cinta conservan desplazamiento horizontal local. El autómata de pila separa cadena, ramas y pila en tres columnas: la cadena ocupa el espacio flexible, el selector de ramas queda limitado a (260px) y la pila ocupa una columna de (164px). Hasta (850px), la cadena ocupa una fila y las ramas y la pila comparten la siguiente. La pila usa bloques verticales con el tope arriba, una base visual y desplazamiento vertical local hasta (184px). El resaltado de entrada sigue la rama seleccionada. Turing muestra la cinta sin duplicar la entrada inicial. Los mensajes y fórmulas ajustan línea.
 
 ## Elevation & Depth
@@ -274,7 +274,7 @@ Unidades estables de notación.
 
 Referencias claras, con borde y sin sombra.
 
-- La definición formal y la explicación del modelo usan la misma barra de apertura que la simulación, con regiones etiquetadas y contenido oculto conservado en el DOM.
+- La demostración, la definición formal y la explicación del modelo usan la misma barra de apertura que la simulación, con regiones etiquetadas y contenido oculto conservado en el DOM.
 - Avisos y validación mantienen texto y acciones explícitos; los errores del modelo están en la bandeja de simulación.
 - El inspector preserva campos estables al escribir y redimensionar, sin ayudas ni definición repetidas. Los roles del estado usan botones con icono, etiqueta y `aria-pressed`.
 
@@ -296,6 +296,17 @@ El diagrama es operativo y conserva representación textual equivalente.
 - Cambiar el objeto inspeccionado acompaña el contenido con una aparición de (160ms); escribir conserva los campos. Avisos y validación usan (160ms) y un desplazamiento de (3px).
 - Pulsar el fondo vacío, incluso al comenzar a arrastrar, produce una onda de puntos halftone de (3px) en una cuadrícula de (8px) durante (1800ms). Las franjas lavanda de contorno orgánico se expanden hasta el extremo del lienzo y se desvanecen. Un único canvas transparente queda sobre la retícula y debajo de nodos, reglas y controles; conserva hasta cuatro ondas en coordenadas de pantalla, sin interceptar eventos ni reaccionar a objetos o controles. La cuadrícula de puntos se rasteriza una vez y cada fotograma actualiza una máscara pequeña de opacidad; solo se dibuja mientras hay ondas y la resolución se limita a (2×). El movimiento reducido omite y cancela las ondas.
 - La reproducción mantiene intervalos de (1400ms), (800ms) o (300ms). El movimiento reducido conserva datos, etiquetas y estados, sin pulsos ni transiciones.
+
+### Language proof
+
+La interacción conduce la demostración y el fundamento permanece bajo demanda.
+
+- «Lenguaje → Base → Paso inductivo → Aceptación» muestra una tarea, una indicación breve y una acción principal por vez. «Ver fundamento» contiene fórmulas y justificación, sin ocupar permanentemente el panel.
+- «Constructor» ofrece una sola condición; «Expresión regular» ofrece notación matemática con errores junto al fragmento. La descripción del lenguaje se actualiza con los controles.
+- «Coinciden», «No coinciden» y «Sin concluir» mantienen etiquetas explícitas. La equivalencia comprobada se distingue del progreso educativo; un error del ejercicio conserva las respuestas y ofrece una pista.
+- Un contraejemplo muestra la cadena mínima, la aceptación de cada lado y recorridos sincronizados. Los botones de estados y símbolos enlazan el ejercicio con el grafo mediante resaltados estáticos compatibles con movimiento reducido.
+- Base, todos los sucesores y aceptación construyen una relación finita. Las parejas conocidas se enlazan para evitar repetir ciclos; una palabra representativa solo facilita la navegación. Las configuraciones generales usan identificadores estables y una tabla consultable.
+- El trabajo permanece durante la sesión sin alterar JSON ni borradores. Mover o renombrar estados lo conserva; editar el significado matemático lo invalida. Pila y Turing muestran una explicación breve del alcance con fundamento ampliable.
 
 ## Do's and Don'ts
 

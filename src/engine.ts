@@ -1,4 +1,5 @@
-import { LIMITS, type Machine, type FiniteTransition, type TmMachine } from './domain'
+import { LIMITS, type Machine, type TmMachine } from './domain'
+import { epsilonClosure, indexFiniteTransitions, moveFinite } from './finite'
 
 export interface ValidationIssue {
   message: string
@@ -156,18 +157,6 @@ export function validateInput(machine: Machine, input: string): string | null {
   return invalid === undefined ? null : `El símbolo «${invalid}» no pertenece al alfabeto Σ.`
 }
 
-function epsilonClosure(states: string[], transitions: FiniteTransition[]) {
-  const reachable = new Set(states)
-  const transitionIds = new Set<string>()
-  for (const state of reachable) for (const edge of transitions) {
-    if (edge.from === state && edge.read === '') {
-      transitionIds.add(edge.id)
-      reachable.add(edge.to)
-    }
-  }
-  return { states: [...reachable], transitionIds: [...transitionIds] }
-}
-
 const pdaKey = (configuration: Configuration) => JSON.stringify([
   configuration.stateId, configuration.inputIndex, configuration.stack,
 ])
@@ -194,7 +183,7 @@ export function createRun(machine: Machine, input: string): Run {
     if (accepted(machine, run, run.configurations[0])) run.status = 'accepted'
   } else {
     const closure = machine.kind === 'nfa'
-      ? epsilonClosure(machine.initialStateIds, machine.transitions)
+      ? epsilonClosure(machine.initialStateIds, indexFiniteTransitions(machine.transitions))
       : { states: machine.initialStateIds, transitionIds: [] }
     run.configurations = closure.states.map((stateId) => ({ stateId, inputIndex: 0 }))
     run.transitionIds = closure.transitionIds
@@ -277,17 +266,14 @@ export function stepRun(machine: Machine, run: Run): Run {
   }
   const inputIndex = run.configurations[0]?.inputIndex ?? 0
   const read = run.input[inputIndex]
-  const from = new Set(run.configurations.map((configuration) => configuration.stateId))
-  const edges = machine.transitions.filter((edge) => from.has(edge.from) && edge.read === read)
-  const destinations = [...new Set(edges.map((edge) => edge.to))]
-  const closure = machine.kind === 'nfa' ? epsilonClosure(destinations, machine.transitions) : { states: destinations, transitionIds: [] }
-  const configurations = closure.states.map((stateId) => ({ stateId, inputIndex: inputIndex + 1 }))
+  const next = moveFinite(run.configurations.map((configuration) => configuration.stateId), read, indexFiniteTransitions(machine.transitions))
+  const configurations = next.states.map((stateId) => ({ stateId, inputIndex: inputIndex + 1 }))
   const complete = inputIndex + 1 === run.input.length
   const status = !configurations.length ? 'rejected' : complete
     ? configurations.some((configuration) => accepted(machine, run, configuration)) ? 'accepted' : 'rejected' : 'running'
   return {
     ...run, status, step: run.step + 1, configurations,
-    transitionIds: [...new Set([...edges.map((edge) => edge.id), ...closure.transitionIds])],
+    transitionIds: next.transitionIds,
     message: status === 'accepted' ? `Leímos «${read}». Cadena aceptada: se consumió toda la entrada y se alcanzó F.`
       : status === 'rejected' ? `Leímos «${read}». Cadena rechazada: ${!configurations.length ? 'no queda ninguna ruta posible' : 'ningún estado alcanzado pertenece a F'}.`
         : `Leímos «${read}». ${configurations.length === 1 ? 'Un estado activo' : `${configurations.length} estados activos`}${machine.kind === 'nfa' ? ', incluida su clausura ε' : ''}.`,
