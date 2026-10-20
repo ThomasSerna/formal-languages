@@ -98,8 +98,14 @@ h3 { margin-bottom: 12px; font-size: 16px; font-weight: 650; }
 .simulation-dock-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 44px; padding-inline: 24px; }
 .simulation-dock-header .graph-legend { color: var(--muted); font-size: 12px; }
 .simulation-dock-header button { min-height: 44px; color: var(--accent); }
+.dock-controls { display: flex; align-items: stretch; gap: 8px; }
+.dock-controls button[aria-expanded=true] { color: var(--accent-hover); background: var(--accent-wash); }
+.dock-controls button svg { flex-shrink: 0; }
 .validation-count { padding: 2px 6px; border-radius: 4px; color: #704713; background: #fff0d4; font-size: 12px; }
-#simulation-content { max-height: min(40dvh, 340px); overflow: auto; overscroll-behavior: contain; border-top: 1px solid var(--border); }
+.dock-content { max-height: min(40dvh, 340px); overflow: auto; overscroll-behavior: contain; border-top: 1px solid var(--border); }
+.reference-content { padding: 16px 24px; }
+.reference-content .formal-definition, .reference-content .theory { margin-top: 0; }
+.reference-content .formula { margin-top: 0; }
 .laboratory-tools { max-width: 1440px; margin: auto; padding: 24px; }
 .notice { display: flex; flex-shrink: 0; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 24px; background: var(--accent-wash); color: #49365f; font-size: 14px; }
 .replace-confirm { display: flex; flex-shrink: 0; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 12px 24px; border-bottom: 1px solid #e4d2ad; color: #704713; background: #fff8eb; font-size: 14px; }
@@ -131,10 +137,6 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-w
 @keyframes contextual-appear { from { opacity: .65; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 [data-input=keyboard] .model-nav::before { transition: none; }
 [data-input=keyboard] :is(.notice, .validation, .replace-confirm, .form-error), [data-input=keyboard] details[open] > :is(.formal-definition, .theory, ol) { animation: none; }
-.reference-section { display: grid; grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr); gap: 24px; align-items: start; }
-.reference-section > details { min-width: 0; padding: 20px 24px; border: 1px solid var(--border); border-radius: 8px; background: var(--paper); scroll-margin-top: 16px; }
-.reference-section summary { font-size: 17px; }
-.reference-section summary > span { display: block; margin-left: 0; margin-top: 4px; font-size: 13px; }
 .formal-definition { margin-top: 20px; min-width: 0; font-size: 15px; }
 .formal-definition .formula, .transition-domain { overflow-wrap: anywhere; line-height: 1.8; }
 .formal-components { display: grid; gap: 8px; margin: 18px 0 24px; }
@@ -175,11 +177,13 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-w
   .app-header { flex-wrap: wrap; gap: 12px; padding: 12px 20px; }
   .model-nav { flex-basis: 100%; order: 3; max-width: none; margin: 0; }
   .header-actions { gap: 20px; }
-  .graph-toolbar, .simulation-dock-header { padding-inline: 20px; }
+  .graph-toolbar, .simulation-dock-header, .reference-content { padding-inline: 20px; }
   .graph-toolbar { flex-wrap: wrap; gap: 4px; }
   .graph-toolbar h1 { width: 100%; }
   .laboratory-tools { padding: 20px; }
-  .reference-section { grid-template-columns: 1fr; gap: 16px; }
+  .simulation-dock-header { flex-wrap: wrap; gap: 0; padding-top: 6px; }
+  .dock-controls { width: 100%; }
+  .dock-controls button { flex: 1; }
 }
 @media (max-width: 600px) {
   .app-header { padding: 12px; }
@@ -188,15 +192,17 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-w
   .graph-toolbar { padding: 8px 12px; }
   .graph-toolbar .button-row { width: 100%; flex-wrap: nowrap; gap: 6px; }
   .graph-toolbar button { flex: 1; min-height: 44px; padding-inline: 8px; font-size: 13px; }
-  .simulation-dock-header { padding-inline: 12px; gap: 4px; flex-wrap: wrap; }
+  .simulation-dock-header, .reference-content { padding-inline: 12px; }
   .graph-legend { gap: 12px; }
   .simulation-dock-header .graph-legend { font-size: 11px; }
-  .simulation-dock-header button { margin-left: auto; padding-inline: 4px; font-size: 13px; }
+  .dock-controls { gap: 4px; }
+  .simulation-dock-header button { min-width: 0; padding-inline: 4px; gap: 4px; font-size: 13px; }
+  .dock-controls button:first-child { flex-wrap: wrap; }
+  .dock-controls .validation-count { font-size: 11px; }
   .notice, .replace-confirm, .validation { padding: 12px; }
   .notice { align-items: flex-start; }
   .laboratory-tools { padding: 20px 12px; }
   .inspector-body button, .formal-states button, .transition-function__actions button { min-height: 44px; }
-  .reference-section > details { padding: 18px 14px; }
   .app-footer > span { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {

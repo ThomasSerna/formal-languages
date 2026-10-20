@@ -106,8 +106,7 @@ components:
     padding: "3px 9px"
   reference-panel:
     backgroundColor: "{colors.paper}"
-    rounded: "{rounded.support}"
-    padding: "20px 24px"
+    padding: "16px 24px"
   graph-state:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
@@ -204,12 +203,12 @@ La escena de edición ocupa todo el ancho y `100dvh`, con un mínimo de (480px) 
 
 El lienzo flexible ocupa el espacio restante sin una columna lateral. Las propiedades flotan en burbujas no modales de (280px) para estados y (320px) para transiciones y configuración, limitadas al ancho del lienzo menos (24px). Se separan (12px) del objeto y de los bordes, cambian de lado cuando falta espacio y se reposicionan al desplazar, ampliar o mover objetos. En pantallas estrechas pueden situarse arriba o abajo del objeto; su cuerpo se desplaza si falta altura.
 
-La bandeja inferior comienza cerrada. Su cabecera de (44px) conserva una leyenda mínima y «Probar cadena», con el número de detalles de validación cuando los hay. El contenido abierto mide como máximo `min(40dvh, 340px)` y tiene desplazamiento propio. Abrir y cerrar conserva centro y zoom del grafo, entrada, cálculo, historial y rama seleccionada; cerrar pausa la reproducción. El enlace de salto abre la bandeja y enfoca la entrada.
+La bandeja inferior comienza cerrada. Su cabecera conserva una leyenda mínima y tres botones de al menos (44px): «Probar cadena», «Definición formal» y «Entender este modelo». Solo abre un panel a la vez; el primero incluye el número de detalles de validación cuando los hay. El contenido abierto mide como máximo `min(40dvh, 340px)` y tiene desplazamiento propio. Abrir, cerrar o cambiar de panel conserva centro y zoom del grafo, entrada, cálculo, historial y rama seleccionada; salir de la simulación pausa la reproducción. Cambiar de modelo conserva el panel seleccionado. El enlace de salto abre la simulación y enfoca la entrada.
 
-La definición formal y la explicación del modelo permanecen debajo del editor, cerradas inicialmente. La guía de uso y las instrucciones permanentes desaparecen. La referencia conserva su ancho máximo de (1440px), relleno de (24px), separación de (24px) y columnas (2:1).
+La definición formal y la explicación del modelo comparten la bandeja del editor, con relleno de (16px 24px), sin tarjetas ni desplegables externos. Conservan su contenido y las acciones de edición. El pie queda debajo del editor.
 
 - Hasta (1200px), desaparecen las descripciones de modelo.
-- Hasta (850px), la navegación ocupa su propia fila, el título se ajusta dentro de la barra de herramientas y la referencia pasa a una columna.
+- Hasta (850px), la navegación ocupa su propia fila, el título se ajusta dentro de la barra de herramientas y la leyenda queda encima de los tres botones de la bandeja.
 - Hasta (600px), los tres controles de edición comparten una fila con objetivos mínimos de (44px). La simulación apila sus controles dentro de la bandeja.
 - Entrada y cinta conservan desplazamiento horizontal local. El autómata de pila separa cadena, ramas y pila en tres columnas: la cadena ocupa el espacio flexible, el selector de ramas queda limitado a (260px) y la pila ocupa una columna de (164px). Hasta (850px), la cadena ocupa una fila y las ramas y la pila comparten la siguiente. La pila usa bloques verticales con el tope arriba, una base visual y desplazamiento vertical local hasta (184px). La entrada pendiente acompaña a la cadena. Los mensajes y fórmulas ajustan línea.
 
@@ -275,7 +274,7 @@ Unidades estables de notación.
 
 Referencias claras, con borde y sin sombra.
 
-- La definición formal y la explicación del modelo usan desplegables nativos dentro de contenedores de soporte.
+- La definición formal y la explicación del modelo usan la misma barra de apertura que la simulación, con regiones etiquetadas y contenido oculto conservado en el DOM.
 - Avisos y validación mantienen texto y acciones explícitos; los errores del modelo están en la bandeja de simulación.
 - El inspector preserva campos estables al escribir y redimensionar, sin ayudas ni definición repetidas. Los roles del estado usan botones con icono, etiqueta y `aria-pressed`.
 

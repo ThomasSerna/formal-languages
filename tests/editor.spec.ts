@@ -265,8 +265,8 @@ test('la transición de pila mantiene visible la pista indispensable y sus error
 test('editar una ecuación de la definición formal regresa al grafo y abre su regla', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('');
-  const definition = page.locator('.reference-section > details').filter({ has: page.locator('summary', { hasText: 'Definición formal' }) });
-  if (await definition.getAttribute('open') === null) await definition.locator('summary').click();
+  const definition = page.locator('#formal-content');
+  await page.locator('#formal-toggle').click();
   await expect(definition.locator('table')).toHaveCount(0);
   await expect(definition).toContainText('δ(q0, 0) = q0');
   await definition.getByRole('button', { name: /^Editar transición / }).first().click();
@@ -280,4 +280,6 @@ test('editar una ecuación de la definición formal regresa al grafo y abre su r
   await expect(popup.getByRole('combobox', { name: 'Destino', exact: true })).toBeInViewport();
   await expect(page.locator('.graph-canvas')).toBeInViewport();
   await expect(page.locator('.simulator')).toBeHidden();
+  await expect(definition).toBeVisible();
+  await expect(page.locator('#formal-toggle')).toHaveAttribute('aria-expanded', 'true');
 });

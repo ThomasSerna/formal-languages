@@ -141,7 +141,7 @@ test('Archivo se opera por teclado y cierra al elegir, pulsar Escape o tocar fue
   await expect(menu).not.toHaveAttribute('open', '');
 });
 
-test('los avisos del modelo amplían el documento sin superponer el editor ni su barra', async ({ page }) => {
+test('los avisos del modelo y las referencias respetan el editor y la barra inferior', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto('');
   const configure = page.getByRole('button', { name: 'Configurar modelo', exact: true });
@@ -154,13 +154,28 @@ test('los avisos del modelo amplían el documento sin superponer el editor ni su
   await expect(page.locator('.validation li')).not.toHaveCount(0);
   await popup.getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
 
-  const toolbar = await page.locator('.graph-toolbar').boundingBox();
-  const canvas = await page.locator('.graph-canvas').boundingBox();
-  const dock = await page.locator('.simulation-dock').boundingBox();
-  const reference = await page.locator('#formal-reference').boundingBox();
-  expect(canvas!.y).toBeGreaterThanOrEqual(toolbar!.y + toolbar!.height);
-  expect(dock!.y).toBeGreaterThanOrEqual(canvas!.y + canvas!.height);
-  expect(reference!.y).toBeGreaterThanOrEqual(dock!.y + dock!.height);
+  await expect(page.locator('#formal-reference')).toBeHidden();
+  for (const panel of ['simulation', 'formal']) {
+    if (panel === 'formal') await page.locator('#formal-toggle').click();
+    const toolbar = (await page.locator('.graph-toolbar').boundingBox())!;
+    const canvas = (await page.locator('.graph-canvas').boundingBox())!;
+    const dock = (await page.locator('.simulation-dock').boundingBox())!;
+    const header = (await page.locator('.simulation-dock-header').boundingBox())!;
+    const content = (await page.locator(`#${panel}-content`).boundingBox())!;
+    expect(canvas.y).toBeGreaterThanOrEqual(toolbar.y + toolbar.height);
+    expect(dock.y).toBeGreaterThanOrEqual(canvas.y + canvas.height);
+    expect(content.y).toBeGreaterThanOrEqual(header.y + header.height);
+    expect(content.y + content.height).toBeLessThanOrEqual(dock.y + dock.height);
+    expect(content.height).toBeLessThanOrEqual(720 * .4 + 1);
+    expect(dock.y + dock.height).toBeLessThanOrEqual(720);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+  await expect(page.locator('#formal-reference')).toBeVisible();
+  await expect(page.locator('#simulation-content')).toBeHidden();
+  await expect(page.locator('#formal-content .formal-definition')).toBeVisible();
+  const editor = (await page.locator('.editor-screen').boundingBox())!;
+  const footer = (await page.locator('.app-footer').boundingBox())!;
+  expect(footer.y).toBeGreaterThanOrEqual(editor.y + editor.height);
   await configure.click();
   await expect(popup.getByLabel('Alfabeto de entrada · Σ', { exact: true })).toHaveValue('a b');
 });

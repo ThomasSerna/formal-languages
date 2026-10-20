@@ -12,7 +12,7 @@ React, TypeScript and Vite; static GitHub Pages deployment, requested by the use
 Spanish-speaking university students studying formal languages at EAFIT. Students build graphs, understand every formal component and inspect how configurations change while processing input.
 
 ## Confirmed experience
-Start with an editable DFA example and immediate access to all four models. Prioritize the graph, anchored property popups and a collapsed simulation tray. Formal and theory references remain available below, closed initially; no permanent usage guide. DFA, NFA with epsilon, nondeterministic pushdown automata, deterministic single-tape Turing machines. Kozen notation, including multiple NFA initial states and the semi-infinite Turing tape. PDA acceptance is by final state after consuming all input.
+Start with an editable DFA example and immediate access to all four models. Prioritize the graph and anchored property popups. A shared lower bar opens simulation, formal definition or model theory, one panel at a time and all closed initially. Switching panels preserves the mounted simulation and pauses playback when leaving it. No permanent usage guide. DFA, NFA with epsilon, nondeterministic pushdown automata, deterministic single-tape Turing machines. Kozen notation, including multiple NFA initial states and the semi-infinite Turing tape. PDA acceptance is by final state after consuming all input.
 
 ## Constraints
 Keyboard and touch access; accessible forms as alternatives to graph gestures. Local drafts and versioned JSON import/export. Distinguish invalid machines, rejection and resource-limited inconclusive runs. Local feature commits; no push or publication in this task.

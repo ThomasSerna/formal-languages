@@ -24,19 +24,17 @@ Las pruebas de navegador locales usan Google Chrome instalado. En CI se instala 
 
 ## Cómo usarlo
 
-1. Abre el ejemplo AFD y avanza con **Paso siguiente**. Observa la entrada, la regla y los estados resaltados.
+1. Abre **Probar cadena** en la barra inferior del ejemplo AFD y avanza con **Paso siguiente**. Observa la entrada, la regla y los estados resaltados.
 2. Selecciona un estado para cambiar su nombre o sus roles; selecciona una etiqueta para editar su regla.
 3. Agrega estados y transiciones desde la barra. También puedes conectar el punto derecho de un estado con el izquierdo de otro, arrastrando o con dos clics.
 4. Prueba una entrada diferente, reproduce el cálculo o retrocede. Cambiar el modelo o la entrada reinicia la ejecución; mover un estado conserva el cálculo.
-5. Abre **Definición formal** para relacionar el dibujo con la tupla y editar estados o reglas desde su representación textual.
+5. Abre **Definición formal** o **Entender este modelo** desde la misma barra. La definición permite editar estados o reglas desde su representación textual. Solo se abre un panel a la vez; cambiar de panel conserva el cálculo y pausa la reproducción.
 
 La cabecera conserva los cuatro modelos a la vista. **Archivo** reúne importar, exportar, cargar el ejemplo y crear un documento desde cero. En portátil, el grafo y la simulación comparten la primera pantalla; en móvil, las mismas herramientas se apilan sin perder los datos de los formularios.
 
 Los estados admiten Tab, Enter/Espacio y las flechas del teclado. El formulario permite crear también autolazos. En pila, inspecciona cada rama por separado: estado, pila y posición de entrada no se comparten entre ramas.
 
-El inspector muestra primero los campos de edición. **Ayuda y definición** reúne la explicación contextual y la tupla del modelo; comienza plegada al seleccionar otro objeto y conserva su estado al escribir.
-
-El inspector ocupa el lado derecho del grafo en escritorio y aparece debajo del lienzo en móvil. La navegación y los controles usan transiciones breves; el foco responde inmediatamente. Abrir o cerrar por teclado es instantáneo. La selección de edición usa violeta; la ejecución activa, azul petróleo. Cada paso resalta los estados y las reglas utilizados y acompaña los cambios de entrada, pila y cinta; los datos se actualizan inmediatamente. En AFN y pila las reglas del paso se muestran a la vez. Las preferencias de movimiento reducido del sistema eliminan los efectos y conservan los indicadores estáticos, incluso al cambiar la preferencia con el laboratorio abierto.
+El inspector aparece en una burbuja junto al estado, la regla o el control seleccionado, dentro del lienzo en todos los tamaños. La navegación y los controles usan transiciones breves; el foco responde inmediatamente. Abrir o cerrar por teclado es instantáneo. La selección de edición usa violeta; la ejecución activa, azul petróleo. Cada paso resalta los estados y las reglas utilizados y acompaña los cambios de entrada, pila y cinta; los datos se actualizan inmediatamente. En AFN y pila las reglas del paso se muestran a la vez. Las preferencias de movimiento reducido del sistema eliminan los efectos y conservan los indicadores estáticos, incluso al cambiar la preferencia con el laboratorio abierto.
 
 Los borradores se guardan por modelo en este navegador. **Exportar JSON** permite conservarlos o llevarlos a otro equipo. Importar valida el archivo antes de reemplazar el modelo y descarga una copia del borrador anterior. Los borradores con errores matemáticos se conservan; el simulador indica qué completar antes de ejecutarlos. No se guardan los historiales de ejecución.
 

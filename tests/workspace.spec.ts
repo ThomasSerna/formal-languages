@@ -16,7 +16,21 @@ for (const [width, height] of [[1280, 720], [1366, 768], [768, 900], [390, 667]]
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await expect(page.locator('.simulator')).toBeHidden();
     await expect(page.locator('.workspace-top, .guide, .guide-link, .graph-editor__hint')).toHaveCount(0);
-    await expect(page.locator('.reference-section > details[open]')).toHaveCount(0);
+    await expect(page.locator('.reference-section')).toHaveCount(0);
+    await expect(page.locator('.dock-controls > button')).toHaveCount(3);
+    for (const panel of ['simulation', 'formal', 'theory']) {
+      await expect(page.locator(`#${panel}-toggle`)).toHaveAttribute('aria-expanded', 'false');
+      await expect(page.locator(`#${panel}-toggle`)).toHaveAttribute('aria-controls', `${panel}-content`);
+      await expect(page.locator(`#${panel}-content`)).toHaveAttribute('role', 'region');
+      await expect(page.locator(`#${panel}-content`)).toHaveAttribute('aria-labelledby', `${panel}-toggle`);
+      await expect(page.locator(`#${panel}-content`)).toBeHidden();
+      expect((await page.locator(`#${panel}-toggle`).boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    }
+    if (width <= 480) {
+      const legend = (await page.locator('.graph-legend').boundingBox())!;
+      const controls = (await page.locator('.dock-controls').boundingBox())!;
+      expect(legend.y + legend.height).toBeLessThanOrEqual(controls.y);
+    }
     await expect(page.locator('.graph-toolbar h1')).toHaveCSS('font-size', '14px');
     const fullCanvas = (await canvas.boundingBox())!;
     expect(fullCanvas.height).toBeGreaterThan(height * (width > 850 ? .75 : .5));
@@ -48,7 +62,7 @@ for (const [width, height] of [[1280, 720], [1366, 768], [768, 900], [390, 667]]
   });
 }
 
-test('la bandeja conserva cálculo, entrada y rama en los cuatro modelos', async ({ page }) => {
+test('los paneles conservan cálculo, entrada, historial y rama en los cuatro modelos', async ({ page }) => {
   await page.goto('');
   await page.locator('#simulation-toggle').click();
   const simulator = await page.locator('.simulator').elementHandle();
@@ -58,14 +72,57 @@ test('la bandeja conserva cálculo, entrada y rama en los cuatro modelos', async
     if (model === 'Pila') await page.getByRole('combobox', { name: 'Rama a inspeccionar', exact: true }).selectOption('1');
     const input = await page.getByLabel('Cadena de entrada', { exact: true }).inputValue();
     const execution = await page.locator('.execution-layout').textContent();
-    await page.locator('#simulation-toggle').click();
-    await expect(page.locator('.simulator')).toBeHidden();
-    expect(await simulator!.evaluate(element => element.isConnected)).toBe(true);
-    await page.locator('#simulation-toggle').click();
-    await expect(page.getByLabel('Cadena de entrada', { exact: true })).toHaveValue(input);
-    await expect(page.locator('.step-count strong')).toHaveText('1');
-    await expect(page.locator('.execution-layout')).toHaveText(execution!);
-    if (model === 'Pila') await expect(page.getByRole('combobox', { name: 'Rama a inspeccionar', exact: true })).toHaveValue('1');
+    await page.locator('.history summary').click();
+    for (const panel of ['simulation', 'formal', 'theory']) {
+      await page.locator(`#${panel}-toggle`).click();
+      await expect(page.locator('.simulator')).toBeHidden();
+      expect(await simulator!.evaluate(element => element.isConnected)).toBe(true);
+      await page.locator('#simulation-toggle').click();
+      await expect(page.getByLabel('Cadena de entrada', { exact: true })).toHaveValue(input);
+      await expect(page.locator('.step-count strong')).toHaveText('1');
+      await expect(page.locator('.execution-layout')).toHaveText(execution!);
+      await expect(page.locator('.history')).toHaveAttribute('open', '');
+      if (model === 'Pila') await expect(page.getByRole('combobox', { name: 'Rama a inspeccionar', exact: true })).toHaveValue('1');
+    }
+  }
+});
+
+test('los tres paneles son exclusivos y se abren con teclado', async ({ page }) => {
+  await page.goto('');
+  for (const [index, panel] of ['simulation', 'formal', 'theory'].entries()) {
+    const toggle = page.locator(`#${panel}-toggle`);
+    await toggle.focus();
+    await page.keyboard.press(index === 1 ? 'Space' : 'Enter');
+    await expect(toggle).toBeFocused();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator(`#${panel}-content`)).toBeVisible();
+    await expect(page.locator('.dock-content:visible')).toHaveCount(1);
+    await expect(page.locator('.dock-controls > button[aria-expanded="true"]')).toHaveCount(1);
+  }
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.dock-content:visible')).toHaveCount(0);
+  await expect(page.locator('.dock-controls > button[aria-expanded="true"]')).toHaveCount(0);
+});
+
+test('la referencia seleccionada permanece abierta y cambia con el modelo', async ({ page }) => {
+  await page.goto('');
+  const models = [
+    ['AFD', 'M = (Q, Σ, δ, s, F)', 'Autómata finito determinista.'],
+    ['AFN', 'N = (Q, Σ, Δ, S, F)', 'Autómata finito no determinista.'],
+    ['Pila', 'P = (Q, Σ, Γ, δ, s, ⊥, F)', 'Autómata de pila.'],
+    ['Turing', 'M = (Q, Σ, Γ, ⊢, ␣, δ, s, t, r)', 'Máquina de Turing.'],
+  ];
+  for (const panel of ['formal', 'theory']) {
+    await page.locator(`#${panel}-toggle`).click();
+    for (const [model, tuple, theory] of models) {
+      await page.getByRole('button', { name: new RegExp(`^${model}\\b`) }).click();
+      await expect(page.locator(`#${panel}-toggle`)).toHaveAttribute('aria-expanded', 'true');
+      await expect(page.locator('.dock-content:visible')).toHaveCount(1);
+      await expect(page.locator(`#${panel}-content`)).toBeVisible();
+      if (panel === 'formal') await expect(page.locator('#formal-content .formula')).toHaveText(tuple);
+      else await expect(page.locator('#theory-content .theory strong')).toHaveText(theory);
+      await expect(page.locator('.simulator')).toBeHidden();
+    }
   }
 });
 
@@ -98,8 +155,11 @@ test('la burbuja cambia de lado en el borde y sigue el desplazamiento del lienzo
 
 test('el enlace de salto abre la bandeja y plegarla pausa la reproducción', async ({ page }) => {
   await page.goto('');
+  await page.locator('#formal-toggle').click();
   await page.locator('.skip-link').focus();
   await page.keyboard.press('Enter');
+  await expect(page.locator('#formal-content')).toBeHidden();
+  await expect(page.locator('#simulation-toggle')).toHaveAttribute('aria-expanded', 'true');
   await expect(page.getByLabel('Cadena de entrada', { exact: true })).toBeFocused();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('000000');
   await page.getByLabel('Velocidad', { exact: true }).selectOption('300');
@@ -112,6 +172,16 @@ test('el enlace de salto abre la bandeja y plegarla pausa la reproducción', asy
   await expect(page.locator('.step-count strong')).toHaveText('1');
   await page.locator('#simulation-toggle').click();
   await expect(page.getByRole('button', { name: 'Reproducir', exact: true })).toBeVisible();
+  for (const [index, panel] of ['formal', 'theory'].entries()) {
+    await page.getByRole('button', { name: 'Reproducir', exact: true }).click();
+    await page.clock.runFor(300);
+    await expect(page.locator('.step-count strong')).toHaveText(String(index + 2));
+    await page.locator(`#${panel}-toggle`).click();
+    await page.clock.runFor(900);
+    await expect(page.locator('.step-count strong')).toHaveText(String(index + 2));
+    await page.locator('#simulation-toggle').click();
+    await expect(page.getByRole('button', { name: 'Reproducir', exact: true })).toBeVisible();
+  }
 });
 
 test('los botones de roles conservan la multiplicidad de cada modelo', async ({ page }) => {

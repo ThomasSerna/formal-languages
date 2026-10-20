@@ -16,6 +16,12 @@ const MODEL_DESCRIPTIONS: Record<MachineKind, string> = { dfa: 'Un símbolo, un 
 type TapeChange = { index: number; before: string | undefined; after: string | undefined };
 type Entry = { run: Run; change?: TapeChange };
 type Simulation = { current: Run; entries: Entry[]; cursor: number };
+type Panel = 'simulation' | 'formal' | 'theory';
+const PANELS: { id: Panel; label: string }[] = [
+  { id: 'simulation', label: 'Probar cadena' },
+  { id: 'formal', label: 'Definición formal' },
+  { id: 'theory', label: 'Entender este modelo' },
+];
 
 // Keep tape edits, not a complete copy of a growing tape for every history entry.
 function historyRun(run: Run): Run {
@@ -53,7 +59,7 @@ export default function App() {
   const [selectedTransitionId, setSelectedTransitionId] = useState<string | null>(null);
   const [addingTransition, setAddingTransition] = useState(false);
   const [inspectorOpen, setInspectorOpen] = useState(false);
-  const [simulationOpen, setSimulationOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<Panel | null>(null);
   const [popupAnchor, setPopupAnchor] = useState<PopupAnchor | null>(null);
   const [simulation, setSimulation] = useState<Simulation | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -112,10 +118,10 @@ export default function App() {
     setSelectedStateId(null); setSelectedTransitionId(null); setAddingTransition(false); setNewConnection(null); openInspector({ kind: 'toolbar', element: editorRef.current?.querySelector<HTMLButtonElement>('[data-configure-model]') ?? null });
     focusInspector.current = true;
   }
-  function toggleSimulation(focusInput = false) {
-    const open = focusInput || !simulationOpen;
-    setSimulationOpen(open);
-    if (!open) setPlaying(false);
+  function togglePanel(panel: Panel, focusInput = false) {
+    const next = focusInput || activePanel !== panel ? panel : null;
+    setActivePanel(next);
+    if (next !== 'simulation') setPlaying(false);
     if (focusInput) requestAnimationFrame(() => document.getElementById('input-word')?.focus());
   }
   function selectModel(next: MachineKind) {
@@ -187,7 +193,7 @@ export default function App() {
   }
 
   return <>
-    <a className="skip-link" href="#input-word" onClick={event => { event.preventDefault(); toggleSimulation(true); }}>Ir a la simulación</a>
+    <a className="skip-link" href="#input-word" onClick={event => { event.preventDefault(); togglePanel('simulation', true); }}>Ir a la simulación</a>
     <main className="app-main" data-input="keyboard" onPointerDownCapture={event => { event.currentTarget.dataset.input = 'pointer'; if (fileMenuRef.current && !fileMenuRef.current.contains(event.target as Node)) fileMenuRef.current.open = false; }} onKeyDownCapture={event => { event.currentTarget.dataset.input = 'keyboard'; }}>
       <section ref={editorRef} className="editor-screen" aria-label="Laboratorio de autómatas">
         <header className="app-header">
@@ -215,18 +221,20 @@ export default function App() {
             popup={inspectorOpen && <Inspector key={`${kind}-${inspectorSession.current}`} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} addingTransition={addingTransition} onChange={changeMachine} onSelectState={selectState} onSelectTransition={selectTransition} onCancelTransition={() => { setAddingTransition(false); setNewConnection(null); }} connection={newConnection} onClose={() => closeInspector(true)} />} />
         </section>
         <div className="simulation-dock">
-        <div className="simulation-dock-header"><div className="graph-legend"><span><i className="legend-initial" />Inicial</span><span><i className="legend-final" />Aceptación</span><span><i className="legend-active" />Activo</span></div><button id="simulation-toggle" className="text-button" aria-expanded={simulationOpen} aria-controls="simulation-content" onClick={() => toggleSimulation()}><span>Probar cadena</span>{issues.length > 0 && <span className="validation-count">{issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</span>}<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ transform: simulationOpen ? 'rotate(180deg)' : undefined }}><path d="m4 10 4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button></div>
-        <div id="simulation-content" hidden={!simulationOpen}>
+        <div className="simulation-dock-header"><div className="graph-legend"><span><i className="legend-initial" />Inicial</span><span><i className="legend-final" />Aceptación</span><span><i className="legend-active" />Activo</span></div><div className="dock-controls">{PANELS.map(panel => <button key={panel.id} id={`${panel.id}-toggle`} className="text-button" aria-expanded={activePanel === panel.id} aria-controls={`${panel.id}-content`} onClick={() => togglePanel(panel.id)}><span>{panel.label}</span>{panel.id === 'simulation' && issues.length > 0 && <span className="validation-count">{issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</span>}<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ transform: activePanel === panel.id ? 'rotate(180deg)' : undefined }}><path d="m4 10 4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button>)}</div></div>
+        <div id="simulation-content" className="dock-content" role="region" aria-labelledby="simulation-toggle" hidden={activePanel !== 'simulation'}>
         {issues.length > 0 && <details className="validation" open><summary>Completa el modelo antes de ejecutar · {issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</summary><ul>{issues.slice(0, 12).map((issue, index) => <li key={index}><button onClick={() => { if (issue.transitionId) selectTransition(issue.transitionId); else if (issue.stateId) selectState(issue.stateId); else showModel(); }}>{issue.message}</button></li>)}</ul>{issues.length > 12 && <p>Hay {issues.length - 12} detalles adicionales. Completa los primeros para continuar.</p>}</details>}
         <Simulator machine={machine} input={input} onInput={value => { reset(); setInputs(current => ({ ...current, [kind]: value })); }} run={run} error={inputError || (issues.length ? 'Completa los detalles del modelo que aparecen arriba.' : null)} playing={playing} speed={speed} onSpeed={setSpeed} onNext={() => { setPlaying(false); nextStep(); }} onPrevious={() => { setPlaying(false); setSimulation(previous => previous && previous.cursor > 0 ? seekSimulation(previous, previous.cursor - 1) : previous); }} onReset={reset} onTogglePlay={() => setPlaying(value => !value)} trace={simulation?.entries.map(entry => ({ step: entry.run.step, status: entry.run.status, message: entry.run.message })) ?? []} cursor={simulation?.cursor ?? 0} onSeek={index => { setPlaying(false); setSimulation(previous => previous ? seekSimulation(previous, index) : null); }} />
+        </div>
+        <div id="formal-content" className="dock-content reference-content" role="region" aria-labelledby="formal-toggle" hidden={activePanel !== 'formal'}>
+          <div id="formal-reference"><FormalDefinition machine={machine} onSelectState={selectState} onSelectTransition={selectTransition} /></div>
+        </div>
+        <div id="theory-content" className="dock-content reference-content" role="region" aria-labelledby="theory-toggle" hidden={activePanel !== 'theory'}>
+          <div className="theory"><p><strong>{MODEL_NAMES[kind]}.</strong> {kind === 'dfa' ? 'Tiene exactamente una transición por cada par estado–símbolo. Un estado final solo acepta cuando ya no queda entrada. Durante la construcción puedes guardar un borrador incompleto; para ejecutarlo, δ debe estar definida en todo Q × Σ.' : kind === 'nfa' ? 'Mantiene un conjunto de estados posibles, comenzando por S. Cada símbolo actualiza ese conjunto. La clausura ε añade todos los estados alcanzables sin consumir entrada, incluso al inicio y al final. Se acepta si algún estado activo pertenece a F al terminar la cadena.' : kind === 'pda' ? 'La configuración incluye estado, entrada pendiente y contenido de la pila. Una transición retira el tope A y lo reemplaza por una palabra γ de Γ*. El extremo izquierdo de γ queda arriba. ε permite no leer entrada o retirar sin reemplazar; no significa que se pueda ignorar el tope. Aquí aceptamos por estado final con la entrada consumida, aunque la pila no esté vacía.' : 'Tiene una cinta infinita hacia la derecha. La configuración inicial pone el cabezal sobre el marcador ⊢ y la entrada a su derecha; las otras celdas contienen blanco ␣. Una regla lee, escribe, mueve L o R y cambia de estado. El marcador nunca se sobrescribe ni se cruza. Alcanzar t acepta; alcanzar r rechaza. Una ejecución puede no terminar.'}</p><p>ε es la cadena vacía; ∅ es un conjunto sin elementos. Un resultado inconcluso indica que la simulación alcanzó un límite de recursos, y no demuestra rechazo.</p><a href="https://sites.google.com/site/sergiosramirezrico/eafit/si2002-st0270?authuser=0" target="_blank" rel="noreferrer">Ver material del curso</a></div>
         </div>
         </div>
       </section>
       <div className="laboratory-tools">
-        <section className="reference-section" aria-label="Representación textual">
-          <details id="formal-reference"><summary>Definición formal <span>Estados y funciones de transición</span></summary><FormalDefinition machine={machine} onSelectState={selectState} onSelectTransition={selectTransition} /></details>
-          <details><summary>Entender este modelo <span>Notación y criterios de aceptación</span></summary><div className="theory"><p><strong>{MODEL_NAMES[kind]}.</strong> {kind === 'dfa' ? 'Tiene exactamente una transición por cada par estado–símbolo. Un estado final solo acepta cuando ya no queda entrada. Durante la construcción puedes guardar un borrador incompleto; para ejecutarlo, δ debe estar definida en todo Q × Σ.' : kind === 'nfa' ? 'Mantiene un conjunto de estados posibles, comenzando por S. Cada símbolo actualiza ese conjunto. La clausura ε añade todos los estados alcanzables sin consumir entrada, incluso al inicio y al final. Se acepta si algún estado activo pertenece a F al terminar la cadena.' : kind === 'pda' ? 'La configuración incluye estado, entrada pendiente y contenido de la pila. Una transición retira el tope A y lo reemplaza por una palabra γ de Γ*. El extremo izquierdo de γ queda arriba. ε permite no leer entrada o retirar sin reemplazar; no significa que se pueda ignorar el tope. Aquí aceptamos por estado final con la entrada consumida, aunque la pila no esté vacía.' : 'Tiene una cinta infinita hacia la derecha. La configuración inicial pone el cabezal sobre el marcador ⊢ y la entrada a su derecha; las otras celdas contienen blanco ␣. Una regla lee, escribe, mueve L o R y cambia de estado. El marcador nunca se sobrescribe ni se cruza. Alcanzar t acepta; alcanzar r rechaza. Una ejecución puede no terminar.'}</p><p>ε es la cadena vacía; ∅ es un conjunto sin elementos. Un resultado inconcluso indica que la simulación alcanzó un límite de recursos, y no demuestra rechazo.</p><a href="https://sites.google.com/site/sergiosramirezrico/eafit/si2002-st0270?authuser=0" target="_blank" rel="noreferrer">Ver material del curso</a></div></details>
-        </section>
         <footer className="app-footer"><span>Aprender es recorrer el camino.</span><span>Basado en <a href="https://www.cs.cornell.edu/courses/cs6861/2024sp/Handouts/ACLec2-6.pdf" target="_blank" rel="noreferrer">Kozen · Automata and Computability</a></span><span>Borradores en este navegador</span></footer>
       </div>
     </main>
