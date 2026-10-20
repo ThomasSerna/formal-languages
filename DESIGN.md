@@ -189,7 +189,7 @@ La paleta combina ciruela, papel ligeramente violáceo y tinta oscura; los acent
 ### Hierarchy
 
 - **Headline:** nombre del documento discreto de (14px), dentro de la barra de herramientas y truncado en una línea cuando falta espacio.
-- **Title:** secciones de lectura. El inspector usa (18px) y la banda de simulación (19px), que pasa a (20px) en móvil.
+- **Title:** secciones de lectura. El inspector usa (18px); la simulación se identifica desde la barra inferior sin repetir un título.
 - **Body:** texto general. Ayudas y metadatos usan (12–14px); la explicación del paso usa (15px), interlineado (1.4) y máximo (75ch).
 - **Label:** botones y campos. Los botones usan el interlineado del token; las etiquetas de formulario heredan (1.5).
 - **Notation:** reglas del grafo. La entrada usa (16px), los símbolos (17px), la cinta (18px) y el estado actual (19px).
@@ -210,7 +210,7 @@ La definición formal y la explicación del modelo comparten la bandeja del edit
 - Hasta (1200px), desaparecen las descripciones de modelo.
 - Hasta (850px), la navegación ocupa su propia fila, el título se ajusta dentro de la barra de herramientas y la leyenda queda encima de los tres botones de la bandeja.
 - Hasta (600px), los tres controles de edición comparten una fila con objetivos mínimos de (44px). La simulación apila sus controles dentro de la bandeja.
-- Entrada y cinta conservan desplazamiento horizontal local. El autómata de pila separa cadena, ramas y pila en tres columnas: la cadena ocupa el espacio flexible, el selector de ramas queda limitado a (260px) y la pila ocupa una columna de (164px). Hasta (850px), la cadena ocupa una fila y las ramas y la pila comparten la siguiente. La pila usa bloques verticales con el tope arriba, una base visual y desplazamiento vertical local hasta (184px). La entrada pendiente acompaña a la cadena. Los mensajes y fórmulas ajustan línea.
+- Entrada, teclado de símbolos y cinta conservan desplazamiento horizontal local. El autómata de pila separa cadena, ramas y pila en tres columnas: la cadena ocupa el espacio flexible, el selector de ramas queda limitado a (260px) y la pila ocupa una columna de (164px). Hasta (850px), la cadena ocupa una fila y las ramas y la pila comparten la siguiente. La pila usa bloques verticales con el tope arriba, una base visual y desplazamiento vertical local hasta (184px). El resaltado de entrada sigue la rama seleccionada. Turing muestra la cinta sin duplicar la entrada inicial. Los mensajes y fórmulas ajustan línea.
 
 ## Elevation & Depth
 
@@ -288,6 +288,9 @@ El diagrama es operativo y conserva representación textual equivalente.
 - Cuando el grafo completo no cabe a escala legible, abre alrededor del estado inicial con zoom (0.95), en cualquier ancho de pantalla. La vista permite desplazamiento y recentra un estado activo fuera del área visible. «Ajustar todos los estados» ofrece la vista general explícita, con escala entre (0.25) y (1.15); la vista inicial no promete mostrar todo el grafo a la vez.
 - Cada paso produce un pulso de llegada y un trazo sobre las reglas utilizadas durante (220ms). Todas las reglas no deterministas aplicadas se resaltan simultáneamente.
 - El mensaje de paso usa una región `aria-live="polite"`. Los pulsos decorativos están ocultos al árbol accesible y no reciben eventos.
+- La entrada admite escritura o botones de Σ de (44px). El borrado retira un punto de código Unicode completo y ε vacía la entrada; el teclado respeta el límite existente sin truncar el pegado manual.
+- «Reproducir/Pausar» es la acción principal. Anterior, siguiente y reiniciar usan iconos SVG con nombres accesibles; el selector de velocidad conserva las tres opciones. El deslizador recorre solo el historial calculado, pausa al desplazarse y representa pasos, no símbolos consumidos.
+- «Detalle del paso» comienza cerrado y muestra el mensaje completo. El historial textual continúa desplegable. Resultado, validación y motivo de inconclusión permanecen visibles; las ayudas repetidas se retiran.
 - El ajuste manual de vista dura (240ms); recentrar un estado activo es inmediato. El movimiento reducido interrumpe también un ajuste ya iniciado.
 - El inspector entra en (220ms), con escala (0.94 → 1.01 → 1), y sale en (140ms), con escala final (0.97), desde el borde orientado al objeto o botón que lo abre. El cierre retira la interacción y la exposición accesible inmediatamente; el teclado y el movimiento reducido evitan la animación.
 - Cambiar el objeto inspeccionado acompaña el contenido con una aparición de (160ms); escribir conserva los campos. Avisos y validación usan (160ms) y un desplazamiento de (3px).

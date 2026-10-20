@@ -14,6 +14,8 @@ Spanish-speaking university students studying formal languages at EAFIT. Student
 ## Confirmed experience
 Start with an editable DFA example and immediate access to all four models. Prioritize the graph and anchored property popups. A shared lower bar opens simulation, formal definition or model theory, one panel at a time and all closed initially. Switching panels preserves the mounted simulation and pauses playback when leaving it. No permanent usage guide. DFA, NFA with epsilon, nondeterministic pushdown automata, deterministic single-tape Turing machines. Kozen notation, including multiple NFA initial states and the semi-infinite Turing tape. PDA acceptance is by final state after consuming all input.
 
+Simulation uses alphabet buttons alongside editable input, Unicode symbol deletion, an empty-string action, compact playback and a calculated-step history slider. Graph activity, current symbols, stack and tape lead the explanation; full step messages remain available on demand and through accessible announcements. Results, errors and inconclusive reasons remain visible.
+
 ## Constraints
 Keyboard and touch access; accessible forms as alternatives to graph gestures. Local drafts and versioned JSON import/export. Distinguish invalid machines, rejection and resource-limited inconclusive runs. Local feature commits; no push or publication in this task.
 
