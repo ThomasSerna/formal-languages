@@ -106,7 +106,6 @@ h3 { margin-bottom: 12px; font-size: 16px; font-weight: 650; }
 .reference-content { padding: 16px 24px; }
 .reference-content .formal-definition, .reference-content .theory { margin-top: 0; }
 .reference-content .formula { margin-top: 0; }
-.laboratory-tools { max-width: 1440px; margin: auto; padding: 24px; }
 .notice { display: flex; flex-shrink: 0; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 24px; background: var(--accent-wash); color: #49365f; font-size: 14px; }
 .replace-confirm { display: flex; flex-shrink: 0; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 12px 24px; border-bottom: 1px solid #e4d2ad; color: #704713; background: #fff8eb; font-size: 14px; }
 .validation { padding: 12px 24px; border-bottom: 1px solid #e4d2ad; background: #fff8eb; color: #704713; font-size: 14px; }
@@ -156,8 +155,6 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-w
 .theory { margin-top: 20px; max-width: 70ch; color: var(--muted); font-size: 15px; line-height: 1.75; }
 .theory p + p { margin-top: 16px; }
 .theory a { display: inline-block; margin-top: 16px; font-size: 14px; }
-.app-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-top: 28px; color: var(--muted); font-size: 13px; }
-.app-footer a { color: inherit; }
 @media (hover: hover) and (pointer: fine) {
   button:hover:not(:disabled) { border-color: #a493bb; background: var(--accent-wash); }
   button.primary:hover:not(:disabled) { border-color: var(--accent-hover); background: var(--accent-hover); }
@@ -180,7 +177,6 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-w
   .graph-toolbar, .simulation-dock-header, .reference-content { padding-inline: 20px; }
   .graph-toolbar { flex-wrap: wrap; gap: 4px; }
   .graph-toolbar h1 { width: 100%; }
-  .laboratory-tools { padding: 20px; }
   .simulation-dock-header { flex-wrap: wrap; gap: 0; padding-top: 6px; }
   .dock-controls { width: 100%; }
   .dock-controls button { flex: 1; }
@@ -201,9 +197,7 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-w
   .dock-controls .validation-count { font-size: 11px; }
   .notice, .replace-confirm, .validation { padding: 12px; }
   .notice { align-items: flex-start; }
-  .laboratory-tools { padding: 20px 12px; }
   .inspector-body button, .formal-states button, .transition-function__actions button { min-height: 44px; }
-  .app-footer > span { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; }

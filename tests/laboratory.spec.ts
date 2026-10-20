@@ -173,9 +173,7 @@ test('los avisos del modelo y las referencias respetan el editor y la barra infe
   await expect(page.locator('#formal-reference')).toBeVisible();
   await expect(page.locator('#simulation-content')).toBeHidden();
   await expect(page.locator('#formal-content .formal-definition')).toBeVisible();
-  const editor = (await page.locator('.editor-screen').boundingBox())!;
-  const footer = (await page.locator('.app-footer').boundingBox())!;
-  expect(footer.y).toBeGreaterThanOrEqual(editor.y + editor.height);
+  await expect(page.locator('.app-footer, .laboratory-tools')).toHaveCount(0);
   await configure.click();
   await expect(popup.getByLabel('Alfabeto de entrada · Σ', { exact: true })).toHaveValue('a b');
 });

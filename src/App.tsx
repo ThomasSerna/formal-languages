@@ -234,9 +234,6 @@ export default function App() {
         </div>
         </div>
       </section>
-      <div className="laboratory-tools">
-        <footer className="app-footer"><span>Aprender es recorrer el camino.</span><span>Basado en <a href="https://www.cs.cornell.edu/courses/cs6861/2024sp/Handouts/ACLec2-6.pdf" target="_blank" rel="noreferrer">Kozen · Automata and Computability</a></span><span>Borradores en este navegador</span></footer>
-      </div>
     </main>
   </>;
 }
