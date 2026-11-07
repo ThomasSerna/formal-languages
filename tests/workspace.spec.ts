@@ -17,8 +17,9 @@ for (const [width, height] of [[1280, 720], [1366, 768], [768, 900], [390, 667]]
     await expect(page.locator('.simulator')).toBeHidden();
     await expect(page.locator('.workspace-top, .guide, .guide-link, .graph-editor__hint')).toHaveCount(0);
     await expect(page.locator('.reference-section')).toHaveCount(0);
-    await expect(page.locator('.dock-controls > button')).toHaveCount(4);
-    for (const panel of ['simulation', 'proof', 'formal', 'theory']) {
+    const panels = ['simulation', 'proof', 'formal', 'theory'];
+    await expect(page.locator('.dock-controls > button')).toHaveCount(panels.length);
+    for (const panel of panels) {
       await expect(page.locator(`#${panel}-toggle`)).toHaveAttribute('aria-expanded', 'false');
       await expect(page.locator(`#${panel}-toggle`)).toHaveAttribute('aria-controls', `${panel}-content`);
       await expect(page.locator(`#${panel}-content`)).toHaveAttribute('role', 'region');
@@ -73,7 +74,9 @@ test('los paneles conservan cálculo, entrada, historial y rama en los cuatro mo
     const input = await page.getByLabel('Cadena de entrada', { exact: true }).inputValue();
     const execution = await page.locator('.execution-layout').textContent();
     await page.locator('.history summary').click();
-    for (const panel of ['simulation', 'proof', 'formal', 'theory']) {
+    const panels = model === 'AFD' || model === 'AFN' ? ['simulation', 'proof', 'formal', 'theory'] : ['simulation', 'formal', 'theory'];
+    await expect(page.locator('.dock-controls > button')).toHaveCount(panels.length);
+    for (const panel of panels) {
       await page.locator(`#${panel}-toggle`).click();
       await expect(page.locator('.simulator')).toBeHidden();
       expect(await simulator!.evaluate(element => element.isConnected)).toBe(true);

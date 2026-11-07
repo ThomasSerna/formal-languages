@@ -46,7 +46,7 @@ El **Constructor** expresa una condición sobre el alfabeto del autómata: canti
 
 **Comprobar** compara todas las configuraciones alcanzables de ambos lenguajes. **Coinciden** certifica igualdad; **No coinciden** muestra una cadena mínima que los distingue y sus recorridos; **Sin concluir** indica que el cálculo alcanzó un límite. **Ver fundamento** conserva la justificación matemática y la relación de parejas bajo demanda. Probar unas cuantas cadenas no certifica equivalencia.
 
-El trabajo se conserva durante la sesión al cambiar de panel o modelo. Mover o renombrar estados conserva la comprobación; cambiar reglas, alfabeto o roles iniciales y finales la invalida. La comprobación está disponible para AFD y AFN; Pila y Turing muestran la explicación de ese alcance.
+El trabajo se conserva durante la sesión al cambiar de panel o modelo. Mover o renombrar estados conserva la comprobación; cambiar reglas, alfabeto o roles iniciales y finales la invalida. Esta opción aparece únicamente en AFD y AFN.
 
 ## Convenciones matemáticas
 

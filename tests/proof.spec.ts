@@ -127,7 +127,7 @@ test('los paneles y cambios de modelo conservan la comprobación; mover o renomb
   await expect(button(region, 'Comprobar')).toBeVisible();
 });
 
-test('abrir la comprobación pausa la reproducción y los modelos generales explican su alcance', async ({ page }) => {
+test('abrir la comprobación pausa la reproducción y la opción solo aparece en AFD y AFN', async ({ page }) => {
   await page.goto('');
   await page.locator('#simulation-toggle').click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('000000');
@@ -144,10 +144,14 @@ test('abrir la comprobación pausa la reproducción y los modelos generales expl
   await openProof(page);
   for (const model of ['Pila', 'Turing']) {
     await page.getByRole('button', { name: new RegExp(`^${model}\\b`) }).click();
-    await expect(proof(page)).toBeVisible();
-    await expect(proof(page)).toContainText(/AFD.*AFN/);
-    await expect(button(proof(page), 'Comprobar')).toHaveCount(0);
-    await expect(proof(page).getByText('Ver fundamento', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Comprobar lenguaje', exact: true })).toHaveCount(0);
+    await expect(page.locator('.dock-controls > button')).toHaveCount(3);
+    await expect(proof(page)).toBeHidden();
+  }
+  for (const model of ['AFD', 'AFN']) {
+    await page.getByRole('button', { name: new RegExp(`^${model}\\b`) }).click();
+    await expect(page.getByRole('button', { name: 'Comprobar lenguaje', exact: true })).toBeVisible();
+    await expect(page.locator('.dock-controls > button')).toHaveCount(4);
   }
 });
 

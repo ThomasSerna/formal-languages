@@ -85,6 +85,8 @@ export default function App() {
   const initialRun = useMemo(() => issues.length || inputError ? null : createRun(machine, input), [machine, input, issues.length, inputError]);
   const run = simulation?.current ?? initialRun;
   const proofKey = useMemo(() => machine.kind === 'dfa' || machine.kind === 'nfa' ? semanticKey(machine) : '', [machine]);
+  const hasProof = kind === 'dfa' || kind === 'nfa';
+  const visiblePanels = useMemo(() => hasProof ? PANELS : PANELS.filter(panel => panel.id !== 'proof'), [hasProof]);
   const proofHighlight = activePanel === 'proof' && proofActivity?.kind === kind && proofActivity.key === proofKey ? proofActivity : null;
   const reset = useCallback(() => { setPlaying(false); setSimulation(null); }, []);
 
@@ -133,6 +135,7 @@ export default function App() {
   }
   function selectModel(next: MachineKind) {
     reset(); closeInspector(); setKind(next); setConfirmReplace(null); setNotice('');
+    if (next !== 'dfa' && next !== 'nfa' && activePanel === 'proof') setActivePanel(null);
   }
   function replaceMachine(action: 'blank' | 'example') {
     const next = action === 'blank' ? createBlankMachine(kind) : structuredClone(EXAMPLES[kind]);
@@ -228,17 +231,17 @@ export default function App() {
             popup={inspectorOpen && <Inspector key={`${kind}-${inspectorSession.current}`} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} addingTransition={addingTransition} onChange={changeMachine} onSelectState={selectState} onSelectTransition={selectTransition} onCancelTransition={() => { setAddingTransition(false); setNewConnection(null); }} connection={newConnection} onClose={() => closeInspector(true)} />} />
         </section>
         <div className="simulation-dock">
-        <div className="simulation-dock-header"><div className="graph-legend"><span><i className="legend-initial" />Inicial</span><span><i className="legend-final" />Aceptación</span><span><i className="legend-active" />Activo</span></div><div className="dock-controls">{PANELS.map(panel => <button key={panel.id} id={`${panel.id}-toggle`} className="text-button" aria-label={panel.label} aria-describedby={panel.id === 'simulation' && issues.length ? 'simulation-validation-count' : undefined} aria-expanded={activePanel === panel.id} aria-controls={`${panel.id}-content`} onClick={() => togglePanel(panel.id)}><span className="dock-label-full">{panel.label}</span><span className="dock-label-compact" aria-hidden="true">{panel.compact}</span>{panel.id === 'simulation' && issues.length > 0 && <span id="simulation-validation-count" className="validation-count">{issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</span>}<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ transform: activePanel === panel.id ? 'rotate(180deg)' : undefined }}><path d="m4 10 4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button>)}</div></div>
+        <div className="simulation-dock-header"><div className="graph-legend"><span><i className="legend-initial" />Inicial</span><span><i className="legend-final" />Aceptación</span><span><i className="legend-active" />Activo</span></div><div className="dock-controls">{visiblePanels.map(panel => <button key={panel.id} id={`${panel.id}-toggle`} className="text-button" aria-label={panel.label} aria-describedby={panel.id === 'simulation' && issues.length ? 'simulation-validation-count' : undefined} aria-expanded={activePanel === panel.id} aria-controls={`${panel.id}-content`} onClick={() => togglePanel(panel.id)}><span className="dock-label-full">{panel.label}</span><span className="dock-label-compact" aria-hidden="true">{panel.compact}</span>{panel.id === 'simulation' && issues.length > 0 && <span id="simulation-validation-count" className="validation-count">{issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</span>}<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ transform: activePanel === panel.id ? 'rotate(180deg)' : undefined }}><path d="m4 10 4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button>)}</div></div>
         <div id="simulation-content" className="dock-content" role="region" aria-labelledby="simulation-toggle" hidden={activePanel !== 'simulation'}>
         {issues.length > 0 && <details className="validation" open><summary>Completa el modelo antes de ejecutar · {issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</summary><ul>{issues.slice(0, 12).map((issue, index) => <li key={index}><button onClick={() => { if (issue.transitionId) selectTransition(issue.transitionId); else if (issue.stateId) selectState(issue.stateId); else showModel(); }}>{issue.message}</button></li>)}</ul>{issues.length > 12 && <p>Hay {issues.length - 12} detalles adicionales. Completa los primeros para continuar.</p>}</details>}
         <Simulator machine={machine} input={input} onInput={value => { reset(); setInputs(current => ({ ...current, [kind]: value })); }} run={run} error={inputError || (issues.length ? 'Completa los detalles del modelo que aparecen arriba.' : null)} playing={playing} speed={speed} onSpeed={setSpeed} onNext={() => { setPlaying(false); nextStep(); }} onPrevious={() => { setPlaying(false); setSimulation(previous => previous && previous.cursor > 0 ? seekSimulation(previous, previous.cursor - 1) : previous); }} onReset={reset} onTogglePlay={() => setPlaying(value => !value)} trace={simulation?.entries.map(entry => ({ step: entry.run.step, status: entry.run.status, message: entry.run.message })) ?? []} cursor={simulation?.cursor ?? 0} onSeek={index => { setPlaying(false); setSimulation(previous => previous ? seekSimulation(previous, index) : null); }} />
         </div>
-        <div id="proof-content" className="dock-content" role="region" aria-labelledby="proof-toggle" hidden={activePanel !== 'proof'}>
+        <div id="proof-content" className="dock-content" role="region" aria-labelledby="proof-toggle" hidden={!hasProof || activePanel !== 'proof'}>
           {(['dfa', 'nfa'] as const).map(model => {
             const finite = machines[model];
             return (finite.kind === 'dfa' || finite.kind === 'nfa') && <div key={model} hidden={kind !== model}><LanguageProof machine={finite} visible={kind === model} active={activePanel === 'proof' && kind === model} onHighlight={setProofActivity} onTryWord={word => { reset(); setInputs(current => ({ ...current, [model]: word })); setActivePanel('simulation'); requestAnimationFrame(() => document.getElementById('input-word')?.focus()); }} /></div>;
           })}
-          {(kind === 'pda' || kind === 'tm') && <div className="reference-content proof-unavailable"><p>La comprobación exacta está disponible para AFD y AFN.</p><details><summary>Ver fundamento</summary><p>La equivalencia de autómatas de pila generales y de máquinas de Turing es indecidible: ningún algoritmo resuelve todos los casos. Los autómatas de pila deterministas admiten otros procedimientos, fuera de esta herramienta.</p></details></div>}
+
         </div>
         <div id="formal-content" className="dock-content reference-content" role="region" aria-labelledby="formal-toggle" hidden={activePanel !== 'formal'}>
           <div id="formal-reference"><FormalDefinition machine={machine} onSelectState={selectState} onSelectTransition={selectTransition} /></div>

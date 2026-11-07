@@ -203,7 +203,7 @@ La escena de edición ocupa todo el ancho y `100dvh`, con un mínimo de (480px) 
 
 El lienzo flexible ocupa el espacio restante sin una columna lateral. Las propiedades flotan en burbujas no modales de (280px) para estados y (320px) para transiciones y configuración, limitadas al ancho del lienzo menos (24px). Se separan (12px) del objeto y de los bordes, cambian de lado cuando falta espacio y se reposicionan al desplazar, ampliar o mover objetos. En pantallas estrechas pueden situarse arriba o abajo del objeto; su cuerpo se desplaza si falta altura.
 
-La bandeja inferior comienza cerrada. Su cabecera conserva una leyenda mínima y cuatro botones de al menos (44px), en orden: «Probar cadena», «Comprobar lenguaje», «Definición formal» y «Entender este modelo». Solo abre un panel a la vez; el primero incluye el número de detalles de validación cuando los hay. El contenido abierto mide como máximo `min(40dvh, 340px)` y tiene desplazamiento propio. Abrir, cerrar o cambiar de panel conserva centro y zoom del grafo, entrada, cálculo, historial, rama seleccionada y comprobación del lenguaje; salir de la simulación pausa la reproducción. Cambiar de modelo conserva el panel seleccionado. El enlace de salto abre la simulación y enfoca la entrada.
+La bandeja inferior comienza cerrada. Su cabecera conserva una leyenda mínima y botones de al menos (44px), en orden: «Probar cadena», «Comprobar lenguaje» (solo en AFD y AFN), «Definición formal» y «Entender este modelo». Solo abre un panel a la vez; el primero incluye el número de detalles de validación cuando los hay. El contenido abierto mide como máximo `min(40dvh, 340px)` y tiene desplazamiento propio. Abrir, cerrar o cambiar de panel conserva centro y zoom del grafo, entrada, cálculo, historial, rama seleccionada y comprobación del lenguaje; salir de la simulación pausa la reproducción. Cambiar de modelo conserva el panel seleccionado cuando está disponible en ese modelo. El enlace de salto abre la simulación y enfoca la entrada.
 
 La demostración, la definición formal y la explicación del modelo comparten la bandeja del editor, con relleno de (16px 24px), sin tarjetas ni desplegables externos. Conservan su contenido y las acciones de edición. Las fuentes aparecen bajo demanda dentro de la explicación del modelo. La barra inferior cierra el laboratorio sin pie ni espacio reservado debajo.
 
@@ -306,7 +306,7 @@ La comprobación es directa y el fundamento permanece bajo demanda.
 - «Coinciden», «No coinciden» y «Sin concluir» mantienen etiquetas explícitas. «Ver fundamento» contiene fórmulas, justificación y una tabla consultable de parejas alcanzables, sin ocupar permanentemente el panel.
 - Un contraejemplo muestra la cadena mínima, la aceptación de cada lado y recorridos sincronizados.
 - Las configuraciones generales usan identificadores estables y una tabla consultable.
-- El trabajo permanece durante la sesión sin alterar JSON ni borradores. Mover o renombrar estados lo conserva; editar el significado matemático lo invalida. Pila y Turing muestran una explicación breve del alcance con fundamento ampliable.
+- El trabajo permanece durante la sesión sin alterar JSON ni borradores. Mover o renombrar estados lo conserva; editar el significado matemático lo invalida. La opción solo aparece en AFD y AFN.
 
 ## Do's and Don'ts
 
