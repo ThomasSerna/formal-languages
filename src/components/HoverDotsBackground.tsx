@@ -1,118 +1,238 @@
 import { useEffect, useRef } from 'react';
 
-export type HoverPoint = { x: number; y: number; startedAt: number };
-
 const CELL_SIZE = 16;
-const HOVER_DURATION = 650;
-const HOVER_RADIUS = 110;
+const HOVER_RADIUS = 115;
+const BASE_RADIUS = 1.35;
+const GROW_RADIUS = 1.45;
+const BASE_ALPHA = 0.14;
+const GROW_ALPHA = 0.68;
 
-export default function HoverDotsBackground({
-  points,
-  activeCursor,
-  onExpire,
-}: {
-  points: HoverPoint[];
-  activeCursor: { x: number; y: number } | null;
-  onExpire: (cutoff: number) => void;
-}) {
+function distToSegmentSq(
+  px: number,
+  py: number,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+): number {
+  const abx = bx - ax;
+  const aby = by - ay;
+  const lenSq = abx * abx + aby * aby;
+  if (lenSq < 0.0001) {
+    const dx = px - ax;
+    const dy = py - ay;
+    return dx * dx + dy * dy;
+  }
+  const t = Math.max(0, Math.min(1, ((px - ax) * abx + (py - ay) * aby) / lenSq));
+  const cx = ax + t * abx;
+  const cy = ay + t * aby;
+  const dx = px - cx;
+  const dy = py - cy;
+  return dx * dx + dy * dy;
+}
+
+export default function HoverDotsBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const surface = canvasRef.current;
     const context = surface?.getContext('2d');
-    if (!surface || !context) return;
-
-    const parent = surface.parentElement;
-    if (!parent) return;
+    const parent = surface?.parentElement;
+    if (!surface || !context || !parent) return;
 
     let width = parent.clientWidth || window.innerWidth;
     let height = parent.clientHeight || window.innerHeight;
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    let columns = Math.ceil(width / CELL_SIZE);
+    let rows = Math.ceil(height / CELL_SIZE);
+    let intensities = new Float32Array(columns * rows);
 
-    const resize = () => {
-      width = parent.clientWidth || window.innerWidth;
-      height = parent.clientHeight || window.innerHeight;
-      surface.width = Math.ceil(width * ratio);
-      surface.height = Math.ceil(height * ratio);
-      context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    };
-    resize();
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let reducedMotion = mediaQuery.matches;
 
-    const observer = new ResizeObserver(resize);
-    observer.observe(parent);
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let cursorActive = false;
+    let targetX = 0;
+    let targetY = 0;
+    let smoothX = 0;
+    let smoothY = 0;
     let frame = 0;
+    let lastTime = 0;
 
-    const draw = (now: number) => {
+    const renderFrame = (now: number) => {
+      frame = 0;
+      const dt = lastTime > 0 ? Math.min(48, Math.max(1, now - lastTime)) : 16;
+      lastTime = now;
+
+      const prevX = smoothX;
+      const prevY = smoothY;
+      if (cursorActive) {
+        const follow = 1 - Math.exp(-dt * 0.035);
+        smoothX += (targetX - smoothX) * follow;
+        smoothY += (targetY - smoothY) * follow;
+      }
+
+      const decay = Math.exp(-dt * 0.0042);
+      const attack = 1 - Math.exp(-dt * 0.028);
+      const radiusSq = HOVER_RADIUS * HOVER_RADIUS;
+
+      const minCol = cursorActive
+        ? Math.max(0, Math.floor((Math.min(prevX, smoothX) - HOVER_RADIUS) / CELL_SIZE))
+        : 0;
+      const maxCol = cursorActive
+        ? Math.min(columns - 1, Math.ceil((Math.max(prevX, smoothX) + HOVER_RADIUS) / CELL_SIZE))
+        : -1;
+      const minRow = cursorActive
+        ? Math.max(0, Math.floor((Math.min(prevY, smoothY) - HOVER_RADIUS) / CELL_SIZE))
+        : 0;
+      const maxRow = cursorActive
+        ? Math.min(rows - 1, Math.ceil((Math.max(prevY, smoothY) + HOVER_RADIUS) / CELL_SIZE))
+        : -1;
+
       context.clearRect(0, 0, width, height);
-      const columns = Math.ceil(width / CELL_SIZE);
-      const rows = Math.ceil(height / CELL_SIZE);
 
-      const activePoints = reducedMotion
-        ? []
-        : points.filter((point) => now - point.startedAt < HOVER_DURATION);
+      // Batch all resting dots into a single draw call for maximum frame rate stability
+      context.beginPath();
+      const activeCells: number[] = [];
+      let hasActiveDots = false;
 
       for (let row = 0; row < rows; row++) {
         const y = (row + 0.5) * CELL_SIZE;
-        for (let col = 0; col < columns; col++) {
-          const x = (col + 0.5) * CELL_SIZE;
-          let intensity = 0;
+        const rowOffset = row * columns;
+        const inRowRange = !reducedMotion && cursorActive && row >= minRow && row <= maxRow;
 
-          if (!reducedMotion && activeCursor) {
-            const dist = Math.hypot(x - activeCursor.x, y - activeCursor.y);
-            if (dist < HOVER_RADIUS) {
-              intensity = Math.max(intensity, Math.exp(-((dist / 48) ** 2)));
+        for (let col = 0; col < columns; col++) {
+          const idx = rowOffset + col;
+          const x = (col + 0.5) * CELL_SIZE;
+          let val = reducedMotion ? 0 : intensities[idx] * decay;
+
+          if (inRowRange && col >= minCol && col <= maxCol) {
+            const dSq = distToSegmentSq(x, y, prevX, prevY, smoothX, smoothY);
+            if (dSq < radiusSq) {
+              const dist = Math.sqrt(dSq);
+              const u = 1 - dist / HOVER_RADIUS;
+              const target = u * u * (3 - 2 * u);
+              if (target > val) {
+                val += (target - val) * attack;
+              }
             }
           }
 
-          for (const point of activePoints) {
-            const dist = Math.hypot(x - point.x, y - point.y);
-            if (dist > HOVER_RADIUS) continue;
-            const elapsed = Math.max(0, now - point.startedAt);
-            const fade = Math.max(0, 1 - elapsed / HOVER_DURATION);
-            const spatial = Math.exp(-((dist / 46) ** 2));
-            intensity = Math.max(intensity, spatial * fade);
-          }
-
-          context.beginPath();
-          if (intensity > 0.04) {
-            const radius = 1.45 + intensity * 1.35;
-            context.arc(x, y, radius, 0, Math.PI * 2);
-            context.fillStyle = `rgba(106, 69, 184, ${(0.18 + intensity * 0.68).toFixed(3)})`;
-            context.fill();
+          if (val > 0.002) {
+            intensities[idx] = val;
+            activeCells.push(idx);
+            hasActiveDots = true;
           } else {
-            context.arc(x, y, 1.35, 0, Math.PI * 2);
-            context.fillStyle = 'rgba(106, 69, 184, 0.14)';
-            context.fill();
+            intensities[idx] = 0;
+            context.moveTo(x + BASE_RADIUS, y);
+            context.arc(x, y, BASE_RADIUS, 0, Math.PI * 2);
           }
         }
       }
 
-      if (!reducedMotion && points.some((point) => now - point.startedAt >= HOVER_DURATION)) {
-        onExpire(now - HOVER_DURATION);
+      context.fillStyle = `rgba(106, 69, 184, ${BASE_ALPHA})`;
+      context.fill();
+
+      for (let i = 0; i < activeCells.length; i++) {
+        const idx = activeCells[i];
+        const val = intensities[idx];
+        const row = Math.floor(idx / columns);
+        const col = idx - row * columns;
+        const x = (col + 0.5) * CELL_SIZE;
+        const y = (row + 0.5) * CELL_SIZE;
+        const r = BASE_RADIUS + val * GROW_RADIUS;
+        const alpha = BASE_ALPHA + val * GROW_ALPHA;
+
+        context.beginPath();
+        context.arc(x, y, r, 0, Math.PI * 2);
+        context.fillStyle = `rgba(106, 69, 184, ${alpha.toFixed(3)})`;
+        context.fill();
       }
 
-      if (!reducedMotion && (activePoints.length > 0 || activeCursor !== null)) {
-        frame = requestAnimationFrame(draw);
+      const activeState = !reducedMotion && (cursorActive || hasActiveDots);
+      surface.dataset.hoverActive = activeState ? 'true' : 'false';
+
+      if (activeState) {
+        frame = requestAnimationFrame(renderFrame);
+      } else {
+        lastTime = 0;
       }
     };
 
-    draw(performance.now());
+    const scheduleFrame = () => {
+      if (!frame) {
+        frame = requestAnimationFrame(renderFrame);
+      }
+    };
+
+    const resize = () => {
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      width = parent.clientWidth || window.innerWidth;
+      height = parent.clientHeight || window.innerHeight;
+      const nextCols = Math.ceil(width / CELL_SIZE);
+      const nextRows = Math.ceil(height / CELL_SIZE);
+      if (nextCols !== columns || nextRows !== rows) {
+        columns = nextCols;
+        rows = nextRows;
+        intensities = new Float32Array(columns * rows);
+      }
+      surface.width = Math.ceil(width * ratio);
+      surface.height = Math.ceil(height * ratio);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      renderFrame(performance.now());
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (reducedMotion) return;
+      const bounds = parent.getBoundingClientRect();
+      const x = event.clientX - bounds.left;
+      const y = event.clientY - bounds.top;
+      if (!cursorActive) {
+        smoothX = x;
+        smoothY = y;
+      }
+      targetX = x;
+      targetY = y;
+      cursorActive = true;
+      surface.dataset.hoverActive = 'true';
+      scheduleFrame();
+    };
+
+    const onPointerLeave = () => {
+      cursorActive = false;
+      scheduleFrame();
+    };
+
+    const onMotionChange = () => {
+      reducedMotion = mediaQuery.matches;
+      if (reducedMotion) {
+        cursorActive = false;
+        intensities.fill(0);
+        surface.dataset.hoverActive = 'false';
+      }
+      scheduleFrame();
+    };
+
+    resize();
+
+    const observer = new ResizeObserver(resize);
+    observer.observe(parent);
+    parent.addEventListener('pointermove', onPointerMove, { passive: true });
+    parent.addEventListener('pointerleave', onPointerLeave, { passive: true });
+    mediaQuery.addEventListener('change', onMotionChange);
 
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      parent.removeEventListener('pointermove', onPointerMove);
+      parent.removeEventListener('pointerleave', onPointerLeave);
+      mediaQuery.removeEventListener('change', onMotionChange);
     };
-  }, [points, activeCursor, onExpire]);
-
-  const hasActivity = points.length > 0 || activeCursor !== null;
+  }, []);
 
   return (
     <canvas
       ref={canvasRef}
       className="landing-dots-canvas"
-      data-hover-active={hasActivity ? 'true' : 'false'}
+      data-hover-active="false"
       aria-hidden="true"
     />
   );

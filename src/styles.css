@@ -64,9 +64,7 @@ h3 { margin-bottom: 12px; font-size: 16px; font-weight: 650; }
 .landing-dots-canvas { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
 .landing-ambient { position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse 75% 50% at 50% 0%, rgba(106, 69, 184, 0.14), rgba(240, 234, 249, 0.45) 55%, transparent 80%); pointer-events: none; }
 .landing-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 880px; margin: 0 auto; }
-.landing-badge { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 10px; width: max-content; max-width: 100%; padding: 7px 16px; border: 1px solid #cbd5e1; border-radius: 9999px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: 14px; color: #1e293b; transition: border-color 160ms ease; }
-.landing-badge__action { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 2px 6px; border: 0; border-radius: 9999px; background: transparent; color: #050040; font-size: 14px; font-weight: 600; cursor: pointer; }
-.landing-title { max-width: 850px; margin: 32px auto 0; font-size: clamp(2.35rem, 6vw, 4.4rem); font-weight: 500; line-height: 1.08; letter-spacing: -0.03em; color: #050040; text-wrap: balance; }
+.landing-title { max-width: 850px; margin: 0 auto; font-size: clamp(2.35rem, 6vw, 4.4rem); font-weight: 500; line-height: 1.08; letter-spacing: -0.03em; color: #050040; text-wrap: balance; }
 .landing-subtitle { max-width: 672px; margin: 24px auto 0; font-size: clamp(0.92rem, 1.4vw, 1.04rem); font-weight: 400; line-height: 1.65; color: #475569; }
 .landing-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; width: 100%; margin-top: 24px; }
 .landing-btn-primary { min-height: 46px; padding: 12px 26px; border: 1px solid #1e293b; border-radius: 9999px; background: #1e293b; color: #fff; font-size: 14px; font-weight: 500; transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease; }
@@ -99,7 +97,6 @@ h3 { margin-bottom: 12px; font-size: 16px; font-weight: 650; }
   max-width: calc(100% - 24px);
   user-select: none;
 }
-.liquid-svg-defs { position: absolute; width: 0; height: 0; pointer-events: none; }
 .nimbus-glass {
   position: absolute;
   inset: 0;
@@ -107,8 +104,8 @@ h3 { margin-bottom: 12px; font-size: 16px; font-weight: 650; }
   z-index: -2;
   overflow: hidden;
   background: var(--n-tint);
-  -webkit-backdrop-filter: url(#nimbus-refract) blur(12px) saturate(1.25) brightness(1.06);
-  backdrop-filter: url(#nimbus-refract) blur(12px) saturate(1.25) brightness(1.06);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15);
+  backdrop-filter: blur(12px) saturate(1.15);
   box-shadow:
     inset 0 1px 1px var(--n-rim),
     inset 0 0 0 1px rgba(255, 255, 255, 0.55),
@@ -129,7 +126,12 @@ h3 { margin-bottom: 12px; font-size: 16px; font-weight: 650; }
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
-  transition: color 200ms ease, background-color 200ms ease;
+  transition: color 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
+}
+.liquid-home-btn.active {
+  color: #3b1d70;
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px rgba(106, 69, 184, 0.22);
 }
 .liquid-nav-icon { flex-shrink: 0; transition: transform 350ms cubic-bezier(0.3, 1.6, 0.5, 1); }
 .liquid-nav-divider { width: 1px; height: 20px; background: rgba(98, 93, 112, 0.2); flex-shrink: 0; }
@@ -158,17 +160,14 @@ h3 { margin-bottom: 12px; font-size: 16px; font-weight: 650; }
   left: 0;
   width: calc((100% - 3 * var(--nav-gap)) / 4);
   border-radius: 999px;
-  background:
-    radial-gradient(120% 140% at 30% 0%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 55%),
-    rgba(255, 255, 255, 0.8);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.98),
-    inset 0 -2px 6px rgba(106, 69, 184, 0.24),
-    inset 0 0 0 1px rgba(106, 69, 184, 0.3),
-    0 6px 16px -6px rgba(37, 28, 59, 0.32);
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px rgba(106, 69, 184, 0.22);
   transform: translateX(calc(var(--model-index) * (100% + var(--nav-gap))));
-  transition: transform 240ms cubic-bezier(0.22, 1.35, 0.36, 1);
+  transition: transform 200ms var(--ease-out), opacity 160ms ease;
   pointer-events: none;
+}
+.model-nav[data-active="false"]::before {
+  opacity: 0;
 }
 .model-nav button {
   justify-content: center;
@@ -205,11 +204,12 @@ h3 { margin-bottom: 12px; font-size: 16px; font-weight: 650; }
 
 .graph-toolbar {
   position: absolute;
-  top: 12px;
-  left: 16px;
+  bottom: 12px;
+  right: 16px;
   z-index: 30;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
   padding: 0;
   border: 0;
@@ -248,7 +248,7 @@ h3 { margin-bottom: 12px; font-size: 16px; font-weight: 650; }
 }
 .file-menu { position: relative; z-index: 40; }
 .file-menu > summary::-webkit-details-marker { display: none; }
-.file-menu-actions { position: absolute; top: calc(100% + 8px); right: 0; width: 220px; padding: 6px; border-radius: 12px; background: var(--paper); box-shadow: 0 8px 26px #251c3b2b, 0 0 0 1px var(--border); }
+.file-menu-actions { position: absolute; bottom: calc(100% + 8px); right: 0; width: 220px; padding: 6px; border-radius: 12px; background: var(--paper); box-shadow: 0 8px 26px #251c3b2b, 0 0 0 1px var(--border); }
 .file-menu-actions button { width: 100%; justify-content: flex-start; min-height: 44px; padding-inline: 12px; border: 1px solid transparent; border-radius: 8px; background: transparent; box-shadow: none; font-size: 14px; text-align: left; }
 .file-menu-actions :focus-visible { outline-color: var(--accent); }
 .file-menu-actions hr { margin: 6px; border: 0; border-top: 1px solid var(--border); }
@@ -339,12 +339,10 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-w
   button:hover:not(:disabled) { border-color: #a493bb; background: var(--accent-wash); }
   button.primary:hover:not(:disabled) { border-color: var(--accent-hover); background: var(--accent-hover); }
   button.text-button:hover { border-color: transparent; }
-  .landing-badge:hover { border-color: #94a3b8; }
-  .landing-badge__action:hover { background: transparent; color: var(--accent); }
   .landing-btn-primary:hover:not(:disabled) { border-color: #0f172a; background: #0f172a; color: #fff; }
   .landing-btn-secondary:hover:not(:disabled) { border-color: #94a3b8; background: rgba(226, 232, 240, 0.45); }
   .landing-model-card:hover { border-color: var(--accent); background: #fff; transform: translateY(-2px); }
-  .liquid-home-btn:hover { color: var(--n-fg); background: rgba(255, 255, 255, 0.45); }
+  .liquid-home-btn:hover:not(.active) { color: var(--n-fg); background: rgba(255, 255, 255, 0.45); }
   .liquid-home-btn:hover .liquid-nav-icon { transform: translateY(-1px) scale(1.06); }
   .model-nav button:hover:not(.active) { color: var(--n-fg); background: rgba(255, 255, 255, 0.35); }
   .model-nav button.active:hover { background: transparent; }
@@ -359,8 +357,8 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-w
 }
 @media (max-width: 960px) {
   .liquid-navbar-shell { top: 8px; }
-  .graph-toolbar { top: 58px; left: 12px; right: 12px; justify-content: flex-start; }
-  .notice, .replace-confirm { top: 106px; left: 12px; right: 12px; }
+  .graph-toolbar { bottom: 10px; right: 12px; }
+  .notice, .replace-confirm { top: 58px; left: 12px; right: 12px; }
 }
 @media (max-width: 850px) {
   .landing-models { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -376,7 +374,7 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-w
   .liquid-home-btn { height: 34px; padding: 0 7px; gap: 4px; font-size: 12px; }
   .model-nav { flex: 1; min-width: 0; gap: 2px; }
   .model-nav button { min-height: 34px; min-width: 0; padding-inline: 4px; font-size: 12px; }
-  .graph-toolbar { top: 50px; left: 8px; right: 8px; }
+  .graph-toolbar { bottom: 8px; left: 8px; right: 8px; }
   .graph-toolbar .button-row { width: 100%; min-width: 0; flex-wrap: nowrap; gap: 4px; }
   .graph-toolbar button, .file-menu > summary { flex: 1; min-width: 0; min-height: 44px; padding: 6px 4px; gap: 3px; font-size: 11px; }
   .graph-toolbar button svg, .file-menu > summary svg { width: 13px; height: 13px; flex-shrink: 0; }
@@ -390,7 +388,7 @@ summary > span { margin-left: 12px; color: var(--muted); font-size: 13px; font-w
   .dock-controls button:first-child { flex-wrap: wrap; }
   .dock-controls .validation-count { font-size: 11px; }
   .notice, .replace-confirm, .validation { padding: 12px; }
-  .notice, .replace-confirm { top: 100px; left: 8px; right: 8px; }
+  .notice, .replace-confirm { top: 54px; left: 8px; right: 8px; }
   .notice { align-items: flex-start; }
   .inspector-body button, .formal-states button, .transition-function__actions button { min-height: 44px; }
 }

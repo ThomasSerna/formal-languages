@@ -226,7 +226,7 @@ export default function App() {
   if (view === 'landing') {
     return (
       <main className="app-main" data-input="keyboard" onPointerDownCapture={event => { event.currentTarget.dataset.input = 'pointer'; }} onKeyDownCapture={event => { event.currentTarget.dataset.input = 'keyboard'; }}>
-        <LandingHero onEnterLab={enterLab} />
+        <LandingHero kind={kind} onEnterLab={enterLab} onGoHome={goHome} />
       </main>
     );
   }
@@ -236,7 +236,7 @@ export default function App() {
     <main className="app-main" data-input="keyboard" onPointerDownCapture={event => { event.currentTarget.dataset.input = 'pointer'; if (fileMenuRef.current && !fileMenuRef.current.contains(event.target as Node)) fileMenuRef.current.open = false; }} onKeyDownCapture={event => { event.currentTarget.dataset.input = 'keyboard'; }}>
       <section ref={editorRef} className="editor-screen" aria-label="Laboratorio de autómatas">
         <section className={`workspace workspace-${kind}`} aria-label="Editor del autómata">
-          <LiquidGlassNavbar kind={kind} onSelectModel={selectModel} onGoHome={goHome} />
+          <LiquidGlassNavbar kind={kind} activeView="lab" onSelectModel={selectModel} onGoHome={goHome} />
           <div className="graph-toolbar" role="toolbar" aria-label="Herramientas del grafo">
             <div className="button-row">
               <button onClick={addState}>Agregar estado</button>

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { MachineKind } from '../domain';
 import { MODEL_NAMES, MODEL_SHORT } from '../format';
-import HoverDotsBackground, { type HoverPoint } from './HoverDotsBackground';
+import HoverDotsBackground from './HoverDotsBackground';
+import LiquidGlassNavbar from './LiquidGlassNavbar';
 
 const KINDS: MachineKind[] = ['dfa', 'nfa', 'pda', 'tm'];
 const MODEL_DESCRIPTIONS: Record<MachineKind, string> = {
@@ -12,75 +13,31 @@ const MODEL_DESCRIPTIONS: Record<MachineKind, string> = {
 };
 
 export default function LandingHero({
+  kind,
   onEnterLab,
+  onGoHome,
 }: {
+  kind: MachineKind;
   onEnterLab: (kind?: MachineKind) => void;
+  onGoHome: () => void;
 }) {
-  const [points, setPoints] = useState<HoverPoint[]>([]);
-  const [activeCursor, setActiveCursor] = useState<{ x: number; y: number } | null>(null);
   const [modelsOpen, setModelsOpen] = useState(false);
-
-  const expirePoints = useCallback((cutoff: number) => {
-    setPoints((current) => current.filter((point) => point.startedAt > cutoff));
-  }, []);
-
-  useEffect(() => {
-    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const clearHover = () => {
-      if (preference.matches) {
-        setPoints([]);
-        setActiveCursor(null);
-      }
-    };
-    preference.addEventListener('change', clearHover);
-    return () => preference.removeEventListener('change', clearHover);
-  }, []);
 
   return (
     <section
       className="landing-screen"
       aria-label="Presentación del laboratorio de autómatas"
-      onPointerMove={(event) => {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        const bounds = event.currentTarget.getBoundingClientRect();
-        const x = event.clientX - bounds.left;
-        const y = event.clientY - bounds.top;
-        const now = performance.now();
-        setActiveCursor({ x, y });
-        setPoints((current) => {
-          const last = current[current.length - 1];
-          if (last && Math.hypot(x - last.x, y - last.y) < 10 && now - last.startedAt < 28) {
-            return current;
-          }
-          return [...current.slice(-20), { x, y, startedAt: now }];
-        });
-      }}
-      onPointerLeave={() => setActiveCursor(null)}
     >
-      <HoverDotsBackground points={points} activeCursor={activeCursor} onExpire={expirePoints} />
+      <LiquidGlassNavbar
+        kind={kind}
+        activeView="landing"
+        onSelectModel={(selected) => onEnterLab(selected)}
+        onGoHome={onGoHome}
+      />
+      <HoverDotsBackground />
       <div className="landing-ambient" aria-hidden="true" />
 
       <div className="landing-content">
-        <div className="landing-badge">
-          <span>Laboratorio interactivo · Lenguajes formales</span>
-          <button
-            type="button"
-            className="landing-badge__action"
-            onClick={() => setModelsOpen((open) => !open)}
-          >
-            <span>Ver modelos</span>
-            <svg width="19" height="19" viewBox="0 0 19 19" fill="none" aria-hidden="true">
-              <path
-                d="M3.959 9.5h11.083m0 0L9.501 3.958M15.042 9.5l-5.541 5.54"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
-
         <h1 className="landing-title">Construye y ejecuta autómatas paso a paso</h1>
 
         <p className="landing-subtitle">

@@ -195,7 +195,7 @@ function graphBounds(machine: Machine) {
 }
 
 function fitViewportForCanvas(bounds: { x: number; y: number; width: number; height: number }, width: number, height: number) {
-  const topClearance = window.matchMedia('(max-width: 960px)').matches ? 104 : 58;
+  const topClearance = window.matchMedia('(max-width: 680px)').matches ? 96 : 48;
   const usableHeight = Math.max(120, height - topClearance);
   const vp = getViewportForBounds(bounds, width, usableHeight, 0.25, 1.15, 0.12);
   return { ...vp, y: vp.y + topClearance };
@@ -241,9 +241,9 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       ? canvas.querySelector<HTMLElement>(popupAnchor.kind === 'state' ? `.react-flow__node[data-id="${CSS.escape(popupAnchor.id)}"]` : `[data-transition-id="${CSS.escape(popupAnchor.id)}"]`) : null;
     const bounds = canvas.getBoundingClientRect();
     const anchor = element?.getBoundingClientRect();
-    const toolbar = canvas.closest('.workspace')?.querySelector<HTMLElement>('.graph-toolbar')?.getBoundingClientRect();
+    const navbar = canvas.closest('.workspace')?.querySelector<HTMLElement>('.liquid-navbar-shell')?.getBoundingClientRect();
     const margin = 12;
-    const safeTop = toolbar ? Math.max(margin, Math.ceil(toolbar.bottom - bounds.top + 8)) : margin;
+    const safeTop = navbar ? Math.max(margin, Math.ceil(navbar.bottom - bounds.top + 8)) : margin;
     const width = panel.offsetWidth;
     panel.style.maxHeight = `${Math.max(0, bounds.height - safeTop - margin)}px`;
     let left = margin;
@@ -270,10 +270,12 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         originY = below >= above ? top : top + panel.offsetHeight;
       }
     } else if (anchor) {
+      const aboveToolbar = Math.max(180, Math.floor(anchor.top - bounds.top - safeTop - 8));
+      panel.style.maxHeight = `${Math.max(0, Math.min(bounds.height - safeTop - margin, aboveToolbar))}px`;
       left = anchor.left - bounds.left;
-      top = Math.max(safeTop, Math.ceil(anchor.bottom - bounds.top + 8));
+      top = Math.max(safeTop, Math.floor(anchor.top - bounds.top - panel.offsetHeight - 8));
       originX = (anchor.left + anchor.right) / 2 - bounds.left - left;
-      originY = top;
+      originY = top + panel.offsetHeight;
     }
     left = Math.max(margin, Math.min(left, bounds.width - width - margin));
     top = Math.max(safeTop, Math.min(top, bounds.height - panel.offsetHeight - margin));
@@ -439,7 +441,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       }
       if (!document.states.length) return;
       const documentBounds = graphBounds(document);
-      const topClearance = window.matchMedia('(max-width: 960px)').matches ? 104 : 58;
+      const topClearance = window.matchMedia('(max-width: 680px)').matches ? 96 : 48;
       const readableFit = documentBounds.width * 0.95 <= canvasSize.width - 24 && documentBounds.height * 0.95 <= canvasSize.height - topClearance - 50;
       if (!readableFit) {
         const initial = document.states.find((state) => document.initialStateIds.includes(state.id)) ?? document.states[0];
@@ -520,7 +522,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#ddd8e5" />
         <CanvasRipples ripples={ripples} width={canvasSize.width} height={canvasSize.height} onExpire={expireRipples} />
-        <Controls position="bottom-right" showInteractive={false} showFitView={false}>
+        <Controls position="top-right" showInteractive={false} showFitView={false}>
           <ControlButton onClick={fitAll} title="Ajustar todos los estados a la vista" aria-label="Ajustar todos los estados a la vista">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 2H2V6M10 2H14V6M2 10V14H6M14 10V14H10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </ControlButton>

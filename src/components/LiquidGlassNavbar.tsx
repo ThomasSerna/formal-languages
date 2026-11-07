@@ -13,10 +13,12 @@ const MODEL_DESCRIPTIONS: Record<MachineKind, string> = {
 
 export default function LiquidGlassNavbar({
   kind,
+  activeView = 'lab',
   onSelectModel,
   onGoHome,
 }: {
   kind: MachineKind;
+  activeView?: 'landing' | 'lab';
   onSelectModel: (kind: MachineKind) => void;
   onGoHome: () => void;
 }) {
@@ -35,22 +37,17 @@ export default function LiquidGlassNavbar({
     return () => window.clearTimeout(timer);
   }, [swappingKey]);
 
+  const isLab = activeView === 'lab';
+
   return (
     <div className="liquid-navbar-shell" role="banner">
-      <svg width="0" height="0" className="liquid-svg-defs" aria-hidden="true">
-        <defs>
-          <filter id="nimbus-refract" x="-10%" y="-10%" width="120%" height="120%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.018 0.04" numOctaves="2" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-        </defs>
-      </svg>
       <div className="nimbus-glass" aria-hidden="true" />
 
       <a
-        className="liquid-home-btn"
+        className={`liquid-home-btn${!isLab ? ' active' : ''}`}
         href={import.meta.env.BASE_URL}
         aria-label="Inicio"
+        aria-current={!isLab ? 'page' : undefined}
         onClick={(event) => {
           event.preventDefault();
           setHomeSeed((s) => s + 1);
@@ -73,30 +70,39 @@ export default function LiquidGlassNavbar({
 
       <span className="liquid-nav-divider" aria-hidden="true" />
 
-      <nav className="model-nav nimbus-nav" data-model={kind} data-tone="light" aria-label="Tipo de autómata">
-        {KINDS.map((item) => (
-          <button
-            key={item}
-            type="button"
-            className={`nimbus-item${item === kind ? ' active' : ''}`}
-            aria-current={item === kind ? 'page' : undefined}
-            onClick={() => {
-              setSeeds((prev) => ({ ...prev, [item]: prev[item] + 1 }));
-              setSwappingKey(item);
-              onSelectModel(item);
-            }}
-            onPointerEnter={() => setSeeds((prev) => ({ ...prev, [item]: prev[item] + 1 }))}
-          >
-            <span className="model-abbr">
-              <RandomLetterSwap
-                label={MODEL_SHORT[item]}
-                seed={seeds[item]}
-                swapping={swappingKey === item}
-              />
-            </span>
-            <span className="sr-only model-description"> {MODEL_DESCRIPTIONS[item]}</span>
-          </button>
-        ))}
+      <nav
+        className="model-nav nimbus-nav"
+        data-model={kind}
+        data-active={isLab ? 'true' : 'false'}
+        data-tone="light"
+        aria-label="Tipo de autómata"
+      >
+        {KINDS.map((item) => {
+          const isActive = isLab && item === kind;
+          return (
+            <button
+              key={item}
+              type="button"
+              className={`nimbus-item${isActive ? ' active' : ''}`}
+              aria-current={isActive ? 'page' : undefined}
+              onClick={() => {
+                setSeeds((prev) => ({ ...prev, [item]: prev[item] + 1 }));
+                setSwappingKey(item);
+                onSelectModel(item);
+              }}
+              onPointerEnter={() => setSeeds((prev) => ({ ...prev, [item]: prev[item] + 1 }))}
+            >
+              <span className="model-abbr">
+                <RandomLetterSwap
+                  label={MODEL_SHORT[item]}
+                  seed={seeds[item]}
+                  swapping={swappingKey === item}
+                />
+              </span>
+              <span className="sr-only model-description"> {MODEL_DESCRIPTIONS[item]}</span>
+            </button>
+          );
+        })}
       </nav>
     </div>
   );
