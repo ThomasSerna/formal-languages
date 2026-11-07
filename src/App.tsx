@@ -12,6 +12,7 @@ import Simulator from './components/Simulator';
 import FormalDefinition from './components/FormalDefinition';
 import LanguageProof from './components/LanguageProof';
 import type { ProofActivity } from './components/LanguageProof';
+import LandingHero from './components/LandingHero';
 import { semanticKey } from './languages';
 
 const KINDS: MachineKind[] = ['dfa', 'nfa', 'pda', 'tm'];
@@ -56,6 +57,7 @@ function seekSimulation(sim: Simulation, target: number): Simulation {
 }
 
 export default function App() {
+  const [view, setView] = useState<'landing' | 'lab'>(() => window.location.hash === '#lab' ? 'lab' : 'landing');
   const [machines, setMachines] = useState<Record<MachineKind, Machine>>(() => Object.fromEntries(KINDS.map(kind => [kind, loadDraft(kind) ?? structuredClone(EXAMPLES[kind])])) as Record<MachineKind, Machine>);
   const [kind, setKind] = useState<MachineKind>('dfa');
   const [inputs, setInputs] = useState({ ...EXAMPLE_INPUTS });
@@ -190,6 +192,18 @@ export default function App() {
     (field ?? editorRef.current?.querySelector<HTMLElement>('.close-inspector'))?.focus({ preventScroll: true });
   }, [inspectorOpen, selectedStateId, selectedTransitionId, addingTransition]);
 
+  useEffect(() => {
+    const syncHash = () => setView(window.location.hash === '#lab' ? 'lab' : 'landing');
+    window.addEventListener('hashchange', syncHash);
+    return () => window.removeEventListener('hashchange', syncHash);
+  }, []);
+
+  function enterLab(nextKind?: MachineKind) {
+    if (nextKind) selectModel(nextKind);
+    window.history.replaceState(null, '', '#lab');
+    setView('lab');
+  }
+
   async function importFile(file?: File) {
     if (!file) return;
     try {
@@ -200,6 +214,14 @@ export default function App() {
       const saveError = changeMachine(imported); selectModel(imported.kind); setNotice(saveError ?? 'Archivo importado. Se descargó una copia del borrador anterior.');
     } catch (error) { setNotice(error instanceof Error ? error.message : 'No se pudo leer el archivo JSON.'); }
     if (importRef.current) importRef.current.value = '';
+  }
+
+  if (view === 'landing') {
+    return (
+      <main className="app-main" data-input="keyboard" onPointerDownCapture={event => { event.currentTarget.dataset.input = 'pointer'; }} onKeyDownCapture={event => { event.currentTarget.dataset.input = 'keyboard'; }}>
+        <LandingHero onEnterLab={enterLab} />
+      </main>
+    );
   }
 
   return <>
