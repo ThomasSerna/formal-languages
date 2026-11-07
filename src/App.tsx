@@ -13,10 +13,10 @@ import FormalDefinition from './components/FormalDefinition';
 import LanguageProof from './components/LanguageProof';
 import type { ProofActivity } from './components/LanguageProof';
 import LandingHero from './components/LandingHero';
+import LiquidGlassNavbar from './components/LiquidGlassNavbar';
 import { semanticKey } from './languages';
 
 const KINDS: MachineKind[] = ['dfa', 'nfa', 'pda', 'tm'];
-const MODEL_DESCRIPTIONS: Record<MachineKind, string> = { dfa: 'Un símbolo, un camino.', nfa: 'Varios caminos, una posibilidad.', pda: 'Una memoria en forma de pila.', tm: 'Lee, escribe y vuelve atrás.' };
 type TapeChange = { index: number; before: string | undefined; after: string | undefined };
 type Entry = { run: Run; change?: TapeChange };
 type Simulation = { current: Run; entries: Entry[]; cursor: number };
@@ -204,6 +204,13 @@ export default function App() {
     setView('lab');
   }
 
+  function goHome() {
+    reset();
+    closeInspector();
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    setView('landing');
+  }
+
   async function importFile(file?: File) {
     if (!file) return;
     try {
@@ -228,27 +235,28 @@ export default function App() {
     <a className="skip-link" href="#input-word" onClick={event => { event.preventDefault(); togglePanel('simulation', true); }}>Ir a la simulación</a>
     <main className="app-main" data-input="keyboard" onPointerDownCapture={event => { event.currentTarget.dataset.input = 'pointer'; if (fileMenuRef.current && !fileMenuRef.current.contains(event.target as Node)) fileMenuRef.current.open = false; }} onKeyDownCapture={event => { event.currentTarget.dataset.input = 'keyboard'; }}>
       <section ref={editorRef} className="editor-screen" aria-label="Laboratorio de autómatas">
-        <header className="app-header">
-          <a className="brand" href={import.meta.env.BASE_URL} aria-label="Autómata, inicio"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M9 23L18 10L28 23" /><circle cx="9" cy="25" r="5" /><circle cx="18" cy="9" r="5" /><circle cx="28" cy="25" r="5" /></svg><span>autómata</span></a>
-          <nav className="model-nav" data-model={kind} aria-label="Tipo de autómata">{KINDS.map(item => <button key={item} className={item === kind ? 'active' : ''} aria-current={item === kind ? 'page' : undefined} onClick={() => selectModel(item)}><span className="model-abbr">{MODEL_SHORT[item]}</span><span className="model-description">{MODEL_DESCRIPTIONS[item]}</span></button>)}</nav>
-          <div className="header-actions">
-            <details ref={fileMenuRef} className="file-menu" onKeyDown={event => { if (event.key === 'Escape' && event.currentTarget.open) { event.preventDefault(); event.stopPropagation(); event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }} onClickCapture={event => { if ((event.target as HTMLElement).closest('button')) { event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }}>
-              <summary>Archivo<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m4 5.5 3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
-              <div className="file-menu-actions">
-                <button onClick={() => importRef.current?.click()}>Importar</button>
-                <button onClick={() => exportMachine(machine)}>Exportar JSON</button>
-                <hr />
-                <button onClick={() => setConfirmReplace('example')}>Cargar ejemplo</button>
-                <button onClick={() => setConfirmReplace('blank')}>Crear desde cero</button>
-              </div>
-            </details>
-            <input ref={importRef} className="sr-only" type="file" accept=".json,application/json" aria-label="Importar autómata JSON" onChange={event => void importFile(event.target.files?.[0])} />
-          </div>
-        </header>
         <section className={`workspace workspace-${kind}`} aria-label="Editor del autómata">
+          <LiquidGlassNavbar kind={kind} onSelectModel={selectModel} onGoHome={goHome} />
+          <div className="graph-toolbar" role="toolbar" aria-label="Herramientas del grafo">
+            <div className="button-row">
+              <button onClick={addState}>Agregar estado</button>
+              <button disabled={!machine.states.length} onClick={event => { setSelectedTransitionId(null); setAddingTransition(true); setNewConnection(null); openInspector({ kind: 'toolbar', element: event.currentTarget }); }}>Agregar transición</button>
+              <button data-configure-model onClick={showModel}>Configurar modelo</button>
+              <details ref={fileMenuRef} className="file-menu" onKeyDown={event => { if (event.key === 'Escape' && event.currentTarget.open) { event.preventDefault(); event.stopPropagation(); event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }} onClickCapture={event => { if ((event.target as HTMLElement).closest('button')) { event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }}>
+                <summary>Archivo<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m4 5.5 3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
+                <div className="file-menu-actions">
+                  <button onClick={() => importRef.current?.click()}>Importar</button>
+                  <button onClick={() => exportMachine(machine)}>Exportar JSON</button>
+                  <hr />
+                  <button onClick={() => setConfirmReplace('example')}>Cargar ejemplo</button>
+                  <button onClick={() => setConfirmReplace('blank')}>Crear desde cero</button>
+                </div>
+              </details>
+              <input ref={importRef} className="sr-only" type="file" accept=".json,application/json" aria-label="Importar autómata JSON" onChange={event => void importFile(event.target.files?.[0])} />
+            </div>
+          </div>
           {notice && <div className="notice" role="status"><span>{notice}</span><button className="text-button" onClick={() => setNotice('')}>Cerrar aviso</button></div>}
           {confirmReplace && <div className="replace-confirm" role="group" aria-label="Confirmar reemplazo"><p>Se reemplazará el borrador de {MODEL_SHORT[kind]}. Puedes exportarlo antes para conservarlo.</p><div className="button-row"><button onClick={() => exportMachine(machine)}>Exportar borrador</button><button className="primary" onClick={() => replaceMachine(confirmReplace)}>{confirmReplace === 'blank' ? 'Abrir lienzo vacío' : 'Restaurar ejemplo'}</button><button onClick={() => setConfirmReplace(null)}>Cancelar</button></div></div>}
-          <div className="graph-toolbar"><div className="button-row"><button onClick={addState}>Agregar estado</button><button disabled={!machine.states.length} onClick={event => { setSelectedTransitionId(null); setAddingTransition(true); setNewConnection(null); openInspector({ kind: 'toolbar', element: event.currentTarget }); }}>Agregar transición</button><button data-configure-model onClick={showModel}>Configurar modelo</button></div><h1 title={machine.name || 'Autómata sin nombre'}>{machine.name || 'Autómata sin nombre'}</h1></div>
           <GraphEditor step={activePanel === 'proof' ? proofHighlight?.step ?? 0 : run?.step ?? 0} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} activeStateIds={activePanel === 'proof' ? proofHighlight?.states ?? [] : run?.configurations.map(config => config.stateId) ?? []} activeTransitionIds={activePanel === 'proof' ? proofHighlight?.transitionIds ?? [] : run?.transitionIds ?? []} onSelectState={id => selectState(id, true)} onSelectTransition={id => selectTransition(id, true)} onMoveState={(id, x, y) => changeMachine({ ...machine, states: machine.states.map(state => state.id === id ? { ...state, x, y } : state) }, true)} onConnect={(from, to) => { setSelectedStateId(from); setSelectedTransitionId(null); setNewConnection({ from, to }); setAddingTransition(true); openInspector({ kind: 'state', id: to }); }} popupAnchor={popupAnchor} compactPopup={Boolean(selectedStateId) && !addingTransition}
             popup={inspectorOpen && <Inspector key={`${kind}-${inspectorSession.current}`} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} addingTransition={addingTransition} onChange={changeMachine} onSelectState={selectState} onSelectTransition={selectTransition} onCancelTransition={() => { setAddingTransition(false); setNewConnection(null); }} connection={newConnection} onClose={() => closeInspector(true)} />} />
         </section>

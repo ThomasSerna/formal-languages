@@ -194,6 +194,13 @@ function graphBounds(machine: Machine) {
   return { x: left, y: top, width: right - left, height: bottom - top };
 }
 
+function fitViewportForCanvas(bounds: { x: number; y: number; width: number; height: number }, width: number, height: number) {
+  const topClearance = window.matchMedia('(max-width: 960px)').matches ? 104 : 58;
+  const usableHeight = Math.max(120, height - topClearance);
+  const vp = getViewportForBounds(bounds, width, usableHeight, 0.25, 1.15, 0.12);
+  return { ...vp, y: vp.y + topClearance };
+}
+
 export default function GraphEditor({ machine, selectedStateId, selectedTransitionId, activeStateIds, activeTransitionIds, step, onSelectState, onSelectTransition, onMoveState, onConnect, popup, popupAnchor, compactPopup }: GraphEditorProps) {
   const [instance, setInstance] = useState<ReactFlowInstance<StateNode, TransitionEdge> | null>(null);
   const container = useRef<HTMLDivElement>(null);
@@ -234,13 +241,15 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       ? canvas.querySelector<HTMLElement>(popupAnchor.kind === 'state' ? `.react-flow__node[data-id="${CSS.escape(popupAnchor.id)}"]` : `[data-transition-id="${CSS.escape(popupAnchor.id)}"]`) : null;
     const bounds = canvas.getBoundingClientRect();
     const anchor = element?.getBoundingClientRect();
+    const toolbar = canvas.closest('.workspace')?.querySelector<HTMLElement>('.graph-toolbar')?.getBoundingClientRect();
     const margin = 12;
+    const safeTop = toolbar ? Math.max(margin, Math.ceil(toolbar.bottom - bounds.top + 8)) : margin;
     const width = panel.offsetWidth;
-    panel.style.maxHeight = `${Math.max(0, bounds.height - margin * 2)}px`;
+    panel.style.maxHeight = `${Math.max(0, bounds.height - safeTop - margin)}px`;
     let left = margin;
-    let top = margin;
+    let top = safeTop;
     let originX = 0;
-    let originY = 0;
+    let originY = safeTop;
     if (anchor && popupAnchor?.kind !== 'toolbar') {
       const right = anchor.right - bounds.left + margin;
       const before = anchor.left - bounds.left - width - margin;
@@ -252,20 +261,22 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         originY = centerY;
       } else {
         left = (anchor.left + anchor.right) / 2 - bounds.left - width / 2;
-        const above = anchor.top - bounds.top - margin * 2;
+        const above = anchor.top - bounds.top - safeTop - margin;
         const below = bounds.bottom - anchor.bottom - margin * 2;
         const space = Math.max(above, below);
-        panel.style.maxHeight = `${Math.max(0, Math.min(bounds.height - margin * 2, space))}px`;
+        panel.style.maxHeight = `${Math.max(0, Math.min(bounds.height - safeTop - margin, space))}px`;
         top = below >= above ? anchor.bottom - bounds.top + margin : anchor.top - bounds.top - panel.offsetHeight - margin;
         originX = width / 2;
         originY = below >= above ? top : top + panel.offsetHeight;
       }
     } else if (anchor) {
       left = anchor.left - bounds.left;
+      top = Math.max(safeTop, Math.ceil(anchor.bottom - bounds.top + 8));
       originX = (anchor.left + anchor.right) / 2 - bounds.left - left;
+      originY = top;
     }
     left = Math.max(margin, Math.min(left, bounds.width - width - margin));
-    top = Math.max(margin, Math.min(top, bounds.height - panel.offsetHeight - margin));
+    top = Math.max(safeTop, Math.min(top, bounds.height - panel.offsetHeight - margin));
     panel.style.left = `${left}px`;
     panel.style.top = `${top}px`;
     popupSurface.current?.style.setProperty('--popup-origin', `${originX}px ${Math.max(0, Math.min(panel.offsetHeight, originY - top))}px`);
@@ -343,7 +354,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
   }, [popupOpen, machine.kind]);
   const fitAll = useCallback(() => {
     if (!instance || !canvasSize.width || !machine.states.length) return;
-    const viewport = getViewportForBounds(graphBounds(machine), canvasSize.width, canvasSize.height, 0.25, 1.15, 0.12);
+    const viewport = fitViewportForCanvas(graphBounds(machine), canvasSize.width, canvasSize.height);
     void instance.setViewport(viewport, { duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 240 });
   }, [instance, machine, canvasSize]);
 
@@ -428,12 +439,13 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       }
       if (!document.states.length) return;
       const documentBounds = graphBounds(document);
-      const readableFit = documentBounds.width * 0.95 <= canvasSize.width - 24 && documentBounds.height * 0.95 <= canvasSize.height - 50;
+      const topClearance = window.matchMedia('(max-width: 960px)').matches ? 104 : 58;
+      const readableFit = documentBounds.width * 0.95 <= canvasSize.width - 24 && documentBounds.height * 0.95 <= canvasSize.height - topClearance - 50;
       if (!readableFit) {
         const initial = document.states.find((state) => document.initialStateIds.includes(state.id)) ?? document.states[0];
         void instance.setCenter(initial.x + RADIUS, initial.y + RADIUS - 35, { zoom: 0.95, duration: 0 });
       } else {
-        void instance.setViewport(getViewportForBounds(documentBounds, canvasSize.width, canvasSize.height, 0.25, 1.15, 0.12), { duration: 0 });
+        void instance.setViewport(fitViewportForCanvas(documentBounds, canvasSize.width, canvasSize.height), { duration: 0 });
       }
     });
     return () => cancelAnimationFrame(frame);
@@ -447,7 +459,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         if (!activeStateIds.includes(state.id)) return false;
         const x = (state.x + RADIUS) * viewport.zoom + viewport.x;
         const y = (state.y + RADIUS) * viewport.zoom + viewport.y;
-        return x < 45 || x > canvasSize.width - 45 || y < 70 || y > canvasSize.height - 70;
+        return x < 45 || x > canvasSize.width - 45 || y < 85 || y > canvasSize.height - 70;
       });
       if (outside) void instance.setCenter(outside.x + RADIUS, outside.y + RADIUS - 35, { zoom: viewport.zoom, duration: 0 });
     });
@@ -478,6 +490,9 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         const ripple = { id: ++rippleSequence.current, x: event.clientX - bounds.left, y: event.clientY - bounds.top, startedAt: performance.now() };
         setRipples(current => [...current.slice(-3), ripple]);
       }}>
+      <h1 className="graph-watermark" title={machine.name || 'Autómata sin nombre'}>
+        {machine.name || 'Autómata sin nombre'}
+      </h1>
       <ReactFlow<StateNode, TransitionEdge>
         nodes={nodes}
         edges={edges}
