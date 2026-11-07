@@ -15,7 +15,7 @@ async function expectContextualInspector(popup: Locator, graph: Locator) {
 }
 
 test('el inspector aparece al seleccionar y cierra con Escape o el fondo del grafo', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
   const graph = page.locator('.graph-editor');
   const state = graph.locator('.react-flow__node[data-id="q0"]');
@@ -30,7 +30,7 @@ test('el inspector aparece al seleccionar y cierra con Escape o el fondo del gra
   await expect(popup).toHaveCount(0);
   await expect(state).toBeFocused();
   await state.click();
-  await graph.locator('.react-flow__pane').click({ position: { x: 20, y: 20 } });
+  await graph.locator('.react-flow__pane').click({ position: { x: 20, y: 120 } });
   await expect(popup).toHaveCount(0);
   await page.getByRole('button', { name: 'Agregar transición', exact: true }).click();
   await expect(popup.getByRole('heading', { name: 'Nueva transición', exact: true })).toBeVisible();
@@ -39,7 +39,7 @@ test('el inspector aparece al seleccionar y cierra con Escape o el fondo del gra
 });
 
 test('la configuración general conserva los campos de los cuatro modelos', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
   const configure = page.getByRole('button', { name: 'Configurar modelo', exact: true });
   const close = page.getByRole('button', { name: 'Cerrar inspector', exact: true });
@@ -79,7 +79,7 @@ test('la configuración general conserva los campos de los cuatro modelos', asyn
 });
 
 test('eliminar una transición o un estado cierra su inspector', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   const graph = page.locator('.graph-editor');
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
   await graph.getByRole('button', { name: 'Regla 0, de q0 a q0', exact: true }).click();
@@ -97,7 +97,7 @@ for (const width of [390, 768, 1366]) {
   test(`el inspector contextual permite editar los cuatro modelos a ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('');
+    await page.goto('#lab');
     const graph = page.locator('.graph-editor');
     const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
     const state = graph.locator('.react-flow__node[data-id="q0"]');
@@ -137,7 +137,7 @@ for (const width of [390, 768, 1366]) {
 
 test('cambiar de tamaño conserva la transición sin guardar y la ejecución de los cuatro modelos', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   const graph = page.locator('.graph-editor');
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
@@ -193,7 +193,7 @@ test('cambiar de tamaño conserva la transición sin guardar y la ejecución de 
 });
 
 test('el estado ofrece roles directos y conserva el campo al escribir', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   const graph = page.locator('.graph-editor');
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
   await graph.locator('.react-flow__node[data-id="q0"]').press('Enter');
@@ -219,7 +219,7 @@ test('el estado ofrece roles directos y conserva el campo al escribir', async ({
 test('estado y transición básica mantienen todos sus controles accesibles en el inspector', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('');
+  await page.goto('#lab');
   const graph = page.locator('.graph-editor');
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
   await graph.locator('.react-flow__node[data-id="q0"]').click();
@@ -248,7 +248,7 @@ test('estado y transición básica mantienen todos sus controles accesibles en e
 });
 
 test('la transición de pila mantiene visible la pista indispensable y sus errores', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.getByRole('button', { name: /^Pila / }).click();
   await page.getByRole('button', { name: 'Agregar transición', exact: true }).click();
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
@@ -264,7 +264,7 @@ test('la transición de pila mantiene visible la pista indispensable y sus error
 
 test('editar una ecuación de la definición formal regresa al grafo y abre su regla', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.goto('');
+  await page.goto('#lab');
   const definition = page.locator('#formal-content');
   await page.locator('#formal-toggle').click();
   await expect(definition.locator('table')).toHaveCount(0);

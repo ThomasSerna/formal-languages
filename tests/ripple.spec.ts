@@ -15,19 +15,19 @@ async function paintedPixels(layer: Locator) {
       if (data[index] <= 8) continue;
       count++;
       const pixel = (index - 3) / 4;
-      maxDistance = Math.max(maxDistance, Math.hypot((pixel % width) / ratio - 20, Math.floor(pixel / width) / ratio - 20));
+      maxDistance = Math.max(maxDistance, Math.hypot((pixel % width) / ratio - 20, Math.floor(pixel / width) / ratio - 120));
     }
     return { count, maxDistance };
   });
 }
 
 test('pulsar y arrastrar el fondo crea ondas fijas sin bloquear el paneo', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await pauseClock(page);
   const canvas = page.locator('.graph-canvas');
   const pane = canvas.locator('.react-flow__pane');
   const waves = canvas.locator('canvas.canvas-ripples');
-  await pane.click({ position: { x: 20, y: 20 } });
+  await pane.click({ position: { x: 20, y: 120 } });
   await expect(waves).toHaveAttribute('data-ripples', '1');
   await expect(waves).toHaveCSS('pointer-events', 'none');
   await expect(waves).toHaveAttribute('aria-hidden', 'true');
@@ -35,14 +35,14 @@ test('pulsar y arrastrar el fondo crea ondas fijas sin bloquear el paneo', async
   const layerBounds = await waves.boundingBox();
   const before = await canvas.locator('.react-flow__viewport').getAttribute('style');
   const bounds = (await canvas.boundingBox())!;
-  await page.mouse.move(bounds.x + 45, bounds.y + 45);
+  await page.mouse.move(bounds.x + 45, bounds.y + 145);
   await page.mouse.down();
   await expect(waves).toHaveAttribute('data-ripples', '2');
-  await page.mouse.move(bounds.x + 105, bounds.y + 85, { steps: 5 });
+  await page.mouse.move(bounds.x + 105, bounds.y + 185, { steps: 5 });
   await page.mouse.up();
   await expect.poll(() => canvas.locator('.react-flow__viewport').getAttribute('style')).not.toBe(before);
   expect(await waves.boundingBox()).toEqual(layerBounds);
-  for (let index = 0; index < 5; index++) await pane.click({ position: { x: 20 + index * 10, y: 20 } });
+  for (let index = 0; index < 5; index++) await pane.click({ position: { x: 20 + index * 10, y: 120 } });
   await expect(waves).toHaveAttribute('data-ripples', '4');
   await page.clock.runFor(1820);
   await expect(waves).toHaveAttribute('data-ripples', '0');
@@ -50,7 +50,7 @@ test('pulsar y arrastrar el fondo crea ondas fijas sin bloquear el paneo', async
 });
 
 test('los elementos del autómata, controles y otros punteros no producen ondas', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await pauseClock(page);
   const canvas = page.locator('.graph-canvas');
   const waves = canvas.locator('.canvas-ripples');
@@ -67,7 +67,7 @@ test('los elementos del autómata, controles y otros punteros no producen ondas'
   await pane.dispatchEvent('pointerdown', { isPrimary: true, button: 2 });
   await pane.dispatchEvent('pointerdown', { isPrimary: false, button: 0, pointerType: 'touch' });
   await expect(waves).toHaveAttribute('data-ripples', '0');
-  await pane.click({ position: { x: 20, y: 20 } });
+  await pane.click({ position: { x: 20, y: 120 } });
   await page.clock.runFor(160);
   const picture = await waves.evaluate((layer: HTMLCanvasElement) => layer.toDataURL());
   await canvas.getByRole('button', { name: 'Alejar el grafo', exact: true }).click();
@@ -77,34 +77,34 @@ test('los elementos del autómata, controles y otros punteros no producen ondas'
 
 test('las ondas se limpian y respetan cambios de movimiento reducido', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('');
+  await page.goto('#lab');
   await pauseClock(page);
   const pane = page.locator('.react-flow__pane');
   const waves = page.locator('.canvas-ripples');
-  await pane.click({ position: { x: 20, y: 20 } });
+  await pane.click({ position: { x: 20, y: 120 } });
   await expect(waves).toHaveAttribute('data-ripples', '0');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await pane.click({ position: { x: 20, y: 20 } });
+  await pane.click({ position: { x: 20, y: 120 } });
   await expect(waves).toHaveAttribute('data-ripples', '1');
   await page.clock.runFor(1820);
   await expect(waves).toHaveAttribute('data-ripples', '0');
-  await pane.click({ position: { x: 20, y: 20 } });
+  await pane.click({ position: { x: 20, y: 120 } });
   await page.clock.runFor(160);
   expect((await paintedPixels(waves)).count).toBeGreaterThan(0);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(waves).toHaveAttribute('data-ripples', '0');
   expect((await paintedPixels(waves)).count).toBe(0);
-  await pane.click({ position: { x: 20, y: 20 } });
+  await pane.click({ position: { x: 20, y: 120 } });
   await expect(waves).toHaveAttribute('data-ripples', '0');
 });
 
 for (const [width, height] of [[1366, 768], [390, 667]]) {
   test(`la textura se expande y desaparece a ${width}×${height}`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height });
-    await page.goto('');
+    await page.goto('#lab');
     await pauseClock(page);
     const layer = page.locator('canvas.canvas-ripples');
-    await page.locator('.react-flow__pane').click({ position: { x: 20, y: 20 } });
+    await page.locator('.react-flow__pane').click({ position: { x: 20, y: 120 } });
     await page.clock.runFor(120);
     const start = await paintedPixels(layer);
     expect(start.count).toBeGreaterThan(100);
@@ -125,13 +125,13 @@ for (const [width, height] of [[1366, 768], [390, 667]]) {
 }
 
 test('el canvas se adapta al tamaño y termina cada onda sin borrar las siguientes', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await pauseClock(page);
   const pane = page.locator('.react-flow__pane');
   const layer = page.locator('canvas.canvas-ripples');
-  await pane.click({ position: { x: 20, y: 20 } });
+  await pane.click({ position: { x: 20, y: 120 } });
   await page.clock.runFor(1000);
-  await pane.click({ position: { x: 20, y: 20 } });
+  await pane.click({ position: { x: 20, y: 120 } });
   await expect(layer).toHaveAttribute('data-ripples', '2');
   await page.setViewportSize({ width: 390, height: 667 });
   await page.clock.runFor(32);

@@ -15,7 +15,7 @@ async function compareParity(page: Page) {
 }
 
 test('el constructor comprueba la paridad del ejemplo AFD sin etapas de prueba formal', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   const region = proof(page);
   await compareParity(page);
   await expect(region).toContainText('Equivalencia comprobada · 2 parejas alcanzables.');
@@ -24,7 +24,7 @@ test('el constructor comprueba la paridad del ejemplo AFD sin etapas de prueba f
 });
 
 test('una afirmación falsa entrega ε como contraejemplo y lo transfiere a la simulación', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   const region = proof(page);
   await openProof(page);
   await region.getByRole('combobox', { name: 'Condición', exact: true }).selectOption('length');
@@ -39,7 +39,7 @@ test('una afirmación falsa entrega ε como contraejemplo y lo transfiere a la s
 });
 
 test('el contraejemplo mínimo no vacío sincroniza los dos recorridos y la regla del grafo', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await openProof(page);
   const region = proof(page);
   await region.getByRole('combobox', { name: 'Condición', exact: true }).selectOption('length');
@@ -60,7 +60,7 @@ test('el contraejemplo mínimo no vacío sincroniza los dos recorridos y la regl
 });
 
 test('una expresión regular comprueba el AFN', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.getByRole('button', { name: /^AFN\b/ }).click();
   const region = proof(page);
   await openProof(page);
@@ -74,7 +74,7 @@ test('una expresión regular comprueba el AFN', async ({ page }) => {
 });
 
 test('la entrada regular vacía queda pendiente y una expresión incompleta explica el error', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await openProof(page);
   const region = proof(page);
   await button(region, 'Expresión regular').click();
@@ -88,7 +88,7 @@ test('la entrada regular vacía queda pendiente y una expresión incompleta expl
 });
 
 test('los paneles y cambios de modelo conservan la comprobación; mover o renombrar estados conserva el resultado', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('110');
   await page.getByRole('button', { name: 'Paso siguiente', exact: true }).click();
@@ -128,7 +128,7 @@ test('los paneles y cambios de modelo conservan la comprobación; mover o renomb
 });
 
 test('abrir la comprobación pausa la reproducción y la opción solo aparece en AFD y AFN', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('000000');
   await page.getByLabel('Velocidad', { exact: true }).selectOption('300');
@@ -159,7 +159,7 @@ for (const width of [390, 768, 1366]) {
   test(`la comprobación se opera por teclado y respeta el lienzo a ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('');
+    await page.goto('#lab');
     await expect(page.locator('.app-footer, .laboratory-tools')).toHaveCount(0);
     await expect(page.getByText('Aprender es recorrer el camino.', { exact: true })).toHaveCount(0);
     const controls = page.locator('.dock-controls > button');

@@ -10,7 +10,7 @@ for (const [width, height] of [[1280, 720], [1366, 768], [768, 900], [390, 667]]
   test(`lienzo y burbujas sin desbordamiento a ${width}×${height}`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height });
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('');
+    await page.goto('#lab');
     const canvas = page.locator('.graph-canvas');
     const toggle = page.locator('#simulation-toggle');
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
@@ -32,7 +32,7 @@ for (const [width, height] of [[1280, 720], [1366, 768], [768, 900], [390, 667]]
       const controls = (await page.locator('.dock-controls').boundingBox())!;
       expect(legend.y + legend.height).toBeLessThanOrEqual(controls.y);
     }
-    await expect(page.locator('.graph-toolbar h1')).toHaveCSS('font-size', '14px');
+    await expect(page.locator('.graph-watermark')).toBeVisible();
     const fullCanvas = (await canvas.boundingBox())!;
     expect(fullCanvas.height).toBeGreaterThan(height * (width > 850 ? .75 : .5));
     await page.screenshot({ path: testInfo.outputPath('lienzo.png') });
@@ -64,7 +64,7 @@ for (const [width, height] of [[1280, 720], [1366, 768], [768, 900], [390, 667]]
 }
 
 test('los paneles conservan cálculo, entrada, historial y rama en los cuatro modelos', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   const simulator = await page.locator('.simulator').elementHandle();
   for (const model of ['AFD', 'AFN', 'Pila', 'Turing']) {
@@ -91,7 +91,7 @@ test('los paneles conservan cálculo, entrada, historial y rama en los cuatro mo
 });
 
 test('los cuatro paneles son exclusivos y se abren con teclado', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   for (const [index, panel] of ['simulation', 'proof', 'formal', 'theory'].entries()) {
     const toggle = page.locator(`#${panel}-toggle`);
     await toggle.focus();
@@ -108,7 +108,7 @@ test('los cuatro paneles son exclusivos y se abren con teclado', async ({ page }
 });
 
 test('la referencia seleccionada permanece abierta y cambia con el modelo', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   const models = [
     ['AFD', 'M = (Q, Σ, δ, s, F)', 'Autómata finito determinista.'],
     ['AFN', 'N = (Q, Σ, Δ, S, F)', 'Autómata finito no determinista.'],
@@ -132,7 +132,7 @@ test('la referencia seleccionada permanece abierta y cambia con el modelo', asyn
 test('la burbuja cambia de lado en el borde y sigue el desplazamiento del lienzo', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('');
+  await page.goto('#lab');
   const canvas = page.locator('.graph-canvas');
   const state = canvas.locator('.react-flow__node[data-id="q0"]');
   const bounds = (await canvas.boundingBox())!;
@@ -148,16 +148,16 @@ test('la burbuja cambia de lado en el borde y sigue el desplazamiento del lienzo
   expect(bubble.x + bubble.width).toBeLessThanOrEqual(node.x - 11);
   expect(bubble.y + bubble.height).toBeLessThanOrEqual(bounds.y + bounds.height - 11);
   const field = await popup.getByLabel('Nombre del estado', { exact: true }).elementHandle();
-  await page.mouse.move(bounds.x + 20, bounds.y + 20);
+  await page.mouse.move(bounds.x + 20, bounds.y + 120);
   await page.mouse.down();
-  await page.mouse.move(bounds.x + 60, bounds.y + 40, { steps: 5 });
+  await page.mouse.move(bounds.x + 60, bounds.y + 140, { steps: 5 });
   await page.mouse.up();
   await expect.poll(async () => (await popup.boundingBox())!.x - bubble.x).toBeCloseTo(40, 0);
   expect(await field!.evaluate(element => element.isConnected)).toBe(true);
 });
 
 test('el enlace de salto abre la bandeja y plegarla pausa la reproducción', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#formal-toggle').click();
   await page.locator('.skip-link').focus();
   await page.keyboard.press('Enter');
@@ -189,7 +189,7 @@ test('el enlace de salto abre la bandeja y plegarla pausa la reproducción', asy
 
 test('los botones de roles conservan la multiplicidad de cada modelo', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('');
+  await page.goto('#lab');
   for (const model of ['AFD', 'AFN', 'Pila', 'Turing']) {
     await page.getByRole('button', { name: new RegExp(`^${model}\\b`) }).click();
     await page.getByRole('button', { name: 'Ajustar todos los estados a la vista', exact: true }).click();

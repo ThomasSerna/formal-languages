@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('el grafo conserva la selección, permite mover con teclado y dibuja autolazos y recíprocas', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('./');
+  await page.goto('#lab');
   const graph = page.locator('.graph-editor');
   await expect(graph.locator('.react-flow__node')).toHaveCount(2);
   await expect(graph.locator('.react-flow__edge')).toHaveCount(4);
@@ -28,7 +28,7 @@ test('el grafo conserva la selección, permite mover con teclado y dibuja autola
 });
 
 test('cada regla agrupada se selecciona por separado y los puntos crean una conexión', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('#lab');
   await page.locator('.model-nav button').nth(1).click();
   const graph = page.locator('.graph-editor');
   await expect(graph.locator('.react-flow__node')).toHaveCount(4);
@@ -65,7 +65,7 @@ test('cada regla agrupada se selecciona por separado y los puntos crean una cone
 
 test('Turing conserva estados legibles y sigue la ejecución; ajustar permite consultar el grafo completo', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.goto('./');
+  await page.goto('#lab');
   await page.getByRole('button', { name: /^Turing / }).click();
   await page.locator('#simulation-toggle').click();
   const canvas = page.locator('.graph-canvas');

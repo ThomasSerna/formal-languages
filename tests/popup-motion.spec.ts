@@ -21,7 +21,7 @@ async function holdPopupMotion(page: Page) {
 
 test('el inspector nace junto al estado y conserva campos y superficie al editar', async ({ page }) => {
   await holdPopupMotion(page);
-  await page.goto('');
+  await page.goto('#lab');
   const state = page.locator('.react-flow__node[data-id="q0"]');
   await state.click();
   const popup = page.locator('.graph-popup');
@@ -44,7 +44,7 @@ test('el inspector nace junto al estado y conserva campos y superficie al editar
 
 test('cerrar congela y desactiva el panel; reabrir descarta una transición cancelada', async ({ page }) => {
   await holdPopupMotion(page);
-  await page.goto('');
+  await page.goto('#lab');
   const add = page.getByRole('button', { name: 'Agregar transición', exact: true });
   await add.click();
   const popup = page.locator('.graph-popup');
@@ -74,7 +74,7 @@ test('cerrar congela y desactiva el panel; reabrir descarta una transición canc
 
 test('Escape interrumpe la entrada y la apertura por teclado es inmediata', async ({ page }) => {
   await holdPopupMotion(page);
-  await page.goto('');
+  await page.goto('#lab');
   const state = page.locator('.react-flow__node[data-id="q0"]');
   await state.click();
   await page.keyboard.press('Escape');
@@ -94,7 +94,7 @@ test('Escape interrumpe la entrada y la apertura por teclado es inmediata', asyn
 test('movimiento reducido resuelve de inmediato entradas y salidas, incluso al cambiar en caliente', async ({ page }) => {
   await holdPopupMotion(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('');
+  await page.goto('#lab');
   const configure = page.getByRole('button', { name: 'Configurar modelo', exact: true });
   const popup = page.locator('.graph-popup');
   await configure.click();
@@ -116,7 +116,7 @@ test('movimiento reducido resuelve de inmediato entradas y salidas, incluso al c
 
 test('cambiar de modelo descarta la salida pendiente sin reabrir el inspector anterior', async ({ page }) => {
   await holdPopupMotion(page);
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('.react-flow__node[data-id="q0"]').click();
   await page.locator('.graph-popup').getByRole('button', { name: 'Cerrar inspector', exact: true }).click();
   await expect(page.locator('.graph-popup')).toHaveAttribute('data-state', 'closing');

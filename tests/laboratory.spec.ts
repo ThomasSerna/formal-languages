@@ -1,9 +1,42 @@
 import { test, expect } from '@playwright/test';
 
-test('el ejemplo AFD avanza, retrocede y acepta; la entrada inválida explica el error', async ({ page }) => {
+test('la página principal muestra el landing page con animación hover y navega al laboratorio y de regreso', async ({ page }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('');
-  await expect(page.locator('.graph-toolbar h1')).toHaveText('Cantidad par de unos');
+  const landing = page.locator('.landing-screen');
+  await expect(landing).toBeVisible();
+  await expect(landing.getByRole('heading', { name: 'Construye y ejecuta autómatas paso a paso', exact: true })).toBeVisible();
+  const hoverCanvas = landing.locator('canvas.landing-dots-canvas');
+  await expect(hoverCanvas).toHaveAttribute('data-hover-active', 'false');
+  await page.mouse.move(320, 260);
+  await expect(hoverCanvas).toHaveAttribute('data-hover-active', 'true');
+
+  const exploreBtn = landing.getByRole('button', { name: 'Explorar modelos', exact: true });
+  await exploreBtn.click();
+  await expect(exploreBtn).toHaveAttribute('aria-expanded', 'true');
+  await expect(landing.locator('.landing-model-card')).toHaveCount(4);
+
+  await landing.getByRole('button', { name: 'Abrir laboratorio', exact: true }).click();
+  await expect(page.locator('.editor-screen')).toBeVisible();
+  await expect(page.locator('.app-header, .brand')).toHaveCount(0);
+  await expect(page.locator('.liquid-navbar-shell')).toBeVisible();
+  await expect(page.locator('#nimbus-refract')).toHaveCount(1);
+  await expect(page.locator('.graph-watermark')).toHaveText('Cantidad par de unos');
+  expect(await page.locator('.graph-watermark').evaluate(el => getComputedStyle(el).pointerEvents)).toBe('none');
+
+  const afnButton = page.locator('.model-nav button').nth(1);
+  await afnButton.click();
+  await expect(page.locator('.model-nav')).toHaveAttribute('data-model', 'nfa');
+  await expect(afnButton.locator('.letter-swap__slot')).toHaveCount(3);
+
+  await page.getByRole('link', { name: 'Inicio', exact: true }).click();
+  await expect(landing).toBeVisible();
+});
+
+test('el ejemplo AFD avanza, retrocede y acepta; la entrada inválida explica el error', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.goto('#lab');
+  await expect(page.locator('.graph-watermark')).toHaveText('Cantidad par de unos');
   await expect(page.locator('.simulator')).toBeHidden();
   expect((await page.locator('.graph-canvas').boundingBox())!.height).toBeGreaterThan(550);
   await page.locator('#simulation-toggle').click();
@@ -30,7 +63,7 @@ test('el ejemplo AFD avanza, retrocede y acepta; la entrada inválida explica el
 });
 
 test('los cuatro modelos ejecutan; Turing restaura la cinta al retroceder una escritura', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^AFN / }).click();
   await expect(page.locator('.state-chips .state-chip')).toHaveCount(2);
@@ -57,7 +90,7 @@ test('los cuatro modelos ejecutan; Turing restaura la cinta al retroceder una es
 });
 
 test('crear un grafo desde cero, editar roles y conservar el borrador', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('.file-menu > summary').click();
   await page.getByRole('button', { name: 'Crear desde cero', exact: true }).click();
   await page.getByRole('button', { name: 'Abrir lienzo vacío' }).click();
@@ -82,7 +115,7 @@ test('crear un grafo desde cero, editar roles y conservar el borrador', async ({
 });
 
 test('exportar e importar JSON y preservar el grafo ante un archivo inválido', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   const downloadPromise = page.waitForEvent('download');
   await page.locator('.file-menu > summary').click();
   await page.getByRole('button', { name: 'Exportar JSON', exact: true }).click();
@@ -106,7 +139,7 @@ test('un fallo al guardar se mantiene visible al reemplazar el borrador', async 
   await page.addInitScript(() => {
     Storage.prototype.setItem = () => { throw new DOMException('Sin espacio', 'QuotaExceededError'); };
   });
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('.file-menu > summary').click();
   await page.getByRole('button', { name: 'Crear desde cero', exact: true }).click();
   await page.getByRole('button', { name: 'Abrir lienzo vacío' }).click();
@@ -116,7 +149,7 @@ test('un fallo al guardar se mantiene visible al reemplazar el borrador', async 
 });
 
 test('Archivo se opera por teclado y cierra al elegir, pulsar Escape o tocar fuera', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   const menu = page.locator('.file-menu');
   const summary = menu.locator('summary');
   await summary.focus();
@@ -137,13 +170,13 @@ test('Archivo se opera por teclado y cierra al elegir, pulsar Escape o tocar fue
   await expect(menu).not.toHaveAttribute('open', '');
   await expect(summary).toBeFocused();
   await summary.press('Enter');
-  await page.locator('.react-flow__pane').click({ position: { x: 20, y: 20 } });
+  await page.locator('.react-flow__pane').click({ position: { x: 20, y: 120 } });
   await expect(menu).not.toHaveAttribute('open', '');
 });
 
 test('los avisos del modelo y las referencias respetan el editor y la barra inferior', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('');
+  await page.goto('#lab');
   const configure = page.getByRole('button', { name: 'Configurar modelo', exact: true });
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
   await configure.click();
@@ -162,7 +195,8 @@ test('los avisos del modelo y las referencias respetan el editor y la barra infe
     const dock = (await page.locator('.simulation-dock').boundingBox())!;
     const header = (await page.locator('.simulation-dock-header').boundingBox())!;
     const content = (await page.locator(`#${panel}-content`).boundingBox())!;
-    expect(canvas.y).toBeGreaterThanOrEqual(toolbar.y + toolbar.height);
+    expect(toolbar.x).toBeGreaterThanOrEqual(canvas.x);
+    expect(toolbar.y).toBeGreaterThanOrEqual(canvas.y);
     expect(dock.y).toBeGreaterThanOrEqual(canvas.y + canvas.height);
     expect(content.y).toBeGreaterThanOrEqual(header.y + header.height);
     expect(content.y + content.height).toBeLessThanOrEqual(dock.y + dock.height);
@@ -180,7 +214,7 @@ test('los avisos del modelo y las referencias respetan el editor y la barra infe
 
 test('en móvil abrir el modelo o seleccionar un estado lleva el inspector a la vista', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 667 });
-  await page.goto('');
+  await page.goto('#lab');
   const popup = page.getByRole('dialog', { name: 'Inspector del autómata' });
   await page.getByRole('button', { name: 'Configurar modelo', exact: true }).click();
   await expect(popup.getByRole('heading', { name: 'Modelo', exact: true })).toBeInViewport();
@@ -199,7 +233,7 @@ for (const width of [390, 768, 1366]) {
   test(`sin desbordamiento y con operación por teclado a ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('');
+    await page.goto('#lab');
     await page.locator('#simulation-toggle').click();
     for (const model of ['AFD', 'AFN', 'Pila', 'Turing']) {
       await page.getByRole('button', { name: new RegExp(`^${model}(?:\\s|$)`) }).click();

@@ -7,7 +7,7 @@ test('el teclado de símbolos añade, borra Unicode completo y respeta el límit
   machine.alphabet = ['😀', 'a'];
   machine.transitions = machine.transitions.map(edge => ({ ...edge, read: edge.read === '0' ? '😀' : 'a' }));
   await page.addInitScript(machine => localStorage.setItem('formal-languages:v1:dfa', JSON.stringify(machine)), machine);
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   const input = page.getByLabel('Cadena de entrada', { exact: true });
   const emoji = page.getByRole('button', { name: 'Añadir 😀', exact: true });
@@ -45,7 +45,7 @@ for (const [width, height] of [[1366, 768], [768, 900], [390, 667]]) {
   test(`cada modelo construye su entrada con Σ y permite probar ε a ${width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height });
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('');
+    await page.goto('#lab');
     await page.locator('#simulation-toggle').click();
     for (const [model, symbol] of [['AFD', '0'], ['AFN', '0'], ['Pila', 'a'], ['Turing', '0']]) {
       await page.getByRole('button', { name: new RegExp(`^${model}\\b`) }).click();
@@ -68,7 +68,7 @@ for (const [width, height] of [[1366, 768], [768, 900], [390, 667]]) {
 }
 
 test('el recorrido visita únicamente pasos calculados y conserva la entrada', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('010');
   const next = page.getByRole('button', { name: 'Paso siguiente', exact: true });
@@ -93,7 +93,7 @@ test('el recorrido visita únicamente pasos calculados y conserva la entrada', a
 });
 
 test('recorrer la cinta restaura escrituras y pausa la reproducción', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^Turing\b/ }).click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('01');
@@ -128,7 +128,7 @@ test('el recorrido de la pila distingue pasos ε de símbolos consumidos', async
     { id: 'consume', from: 'q', to: 'f', read: 'a', pop: 'A', push: [] },
   ];
   await page.addInitScript(machine => localStorage.setItem('formal-languages:v1:pda', JSON.stringify(machine)), machine);
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^Pila\b/ }).click();
   await page.getByLabel('Cadena de entrada', { exact: true }).fill('a');
@@ -153,7 +153,7 @@ test('el recorrido de la pila distingue pasos ε de símbolos consumidos', async
 });
 
 test('el detalle del paso es opcional y conserva el anuncio accesible', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   for (const model of ['AFD', 'AFN', 'Pila', 'Turing']) {
     await page.getByRole('button', { name: new RegExp(`^${model}\\b`) }).click();
@@ -176,7 +176,7 @@ test('un límite inconcluso mantiene su motivo visible con el detalle cerrado', 
     { id: 'overflow', from: 'p', to: 'p', read: '', pop: 'A', push: ['A', 'A'] },
   ];
   await page.addInitScript(machine => localStorage.setItem('formal-languages:v1:pda', JSON.stringify(machine)), machine);
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^Pila\b/ }).click();
   const next = page.getByRole('button', { name: 'Paso siguiente', exact: true });

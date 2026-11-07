@@ -4,7 +4,7 @@ import { LIMITS } from '../src/domain';
 import { EXAMPLES } from '../src/examples';
 
 test('los bloques apilan y desapilan símbolos repetidos, y restauran el historial y el inicio', async ({ page }) => {
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^Pila / }).click();
   const symbols = page.locator('.stack-symbol');
@@ -49,7 +49,7 @@ test('los bloques apilan y desapilan símbolos repetidos, y restauran el histori
 
 test('la pila sigue la reproducción y respeta cambios de movimiento reducido', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^Pila / }).click();
   await expect(page.locator('.stack-cell')).toHaveCSS('animation-name', 'none');
@@ -80,7 +80,7 @@ test('una pila vacía se distingue de una ejecución sin configuración', async 
   const machine = structuredClone(EXAMPLES.pda) as PdaMachine;
   machine.transitions = [{ id: 'empty', from: 'p', to: 'q', read: 'a', pop: '⊥', push: [] }];
   await page.addInitScript(machine => localStorage.setItem('formal-languages:v1:pda', JSON.stringify(machine)), machine);
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^Pila / }).click();
   const input = page.getByLabel('Cadena de entrada', { exact: true });
@@ -106,7 +106,7 @@ test('el reemplazo conserva el orden y los símbolos Unicode completos', async (
   machine.stackAlphabet.push('B', '😀');
   machine.transitions = [{ id: 'replace', from: 'p', to: 'q', read: 'a', pop: '⊥', push: ['😀', 'B', 'A', '⊥'] }];
   await page.addInitScript(machine => localStorage.setItem('formal-languages:v1:pda', JSON.stringify(machine)), machine);
-  await page.goto('');
+  await page.goto('#lab');
   await page.locator('#simulation-toggle').click();
   await page.getByRole('button', { name: /^Pila / }).click();
   await page.getByRole('button', { name: 'Paso siguiente', exact: true }).click();
@@ -124,7 +124,7 @@ for (const [width, height] of [[1366, 768], [375, 667]]) {
     await page.setViewportSize({ width, height });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.addInitScript(machine => localStorage.setItem('formal-languages:v1:pda', JSON.stringify(machine)), machine);
-    await page.goto('');
+    await page.goto('#lab');
     await page.locator('#simulation-toggle').click();
     await page.getByRole('button', { name: /^Pila\b/ }).click();
     await page.getByLabel('Cadena de entrada', { exact: true }).fill('ab');
