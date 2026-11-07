@@ -28,7 +28,7 @@ Las pruebas de navegador locales usan Google Chrome instalado. En CI se instala 
 2. Selecciona un estado para cambiar su nombre o sus roles; selecciona una etiqueta para editar su regla.
 3. Agrega estados y transiciones desde la barra. También puedes conectar el punto derecho de un estado con el izquierdo de otro, arrastrando o con dos clics.
 4. Escribe la entrada o constrúyela con los botones de Σ; **Borrar último símbolo** retira el último símbolo y **ε** vacía la entrada. Reproduce el cálculo, avanza o retrocede; el deslizador recorre los pasos ya calculados. Cambiar el modelo o la entrada reinicia la ejecución; mover un estado conserva el cálculo.
-5. Abre **Demostrar lenguaje** para comparar un AFD o AFN con un lenguaje y construir una prueba guiada. **Definición formal** permite editar estados o reglas desde su representación textual; **Entender este modelo** reúne la explicación y sus fuentes bajo demanda. Solo se abre un panel a la vez; cambiar de panel conserva el cálculo y la prueba y pausa la reproducción.
+5. Abre **Comprobar lenguaje** para comparar un AFD o AFN con un lenguaje. **Definición formal** permite editar estados o reglas desde su representación textual; **Entender este modelo** reúne la explicación y sus fuentes bajo demanda. Solo se abre un panel a la vez; cambiar de panel conserva el cálculo y la comprobación y pausa la reproducción.
 
 La cabecera conserva los cuatro modelos a la vista. **Archivo** reúne importar, exportar, cargar el ejemplo y crear un documento desde cero. En portátil, el grafo y la simulación comparten la primera pantalla; en móvil, las mismas herramientas se apilan sin perder los datos de los formularios.
 
@@ -38,17 +38,15 @@ Los estados admiten Tab, Enter/Espacio y las flechas del teclado. El formulario 
 
 El inspector aparece en una burbuja junto al estado, la regla o el control seleccionado, dentro del lienzo en todos los tamaños. La navegación y los controles usan transiciones breves; el foco responde inmediatamente. Abrir o cerrar por teclado es instantáneo. La selección de edición usa violeta; la ejecución activa, azul petróleo. Cada paso resalta los estados y las reglas utilizados y acompaña los cambios de entrada, pila y cinta; los datos se actualizan inmediatamente. En AFN y pila las reglas del paso se muestran a la vez. Las preferencias de movimiento reducido del sistema eliminan los efectos y conservan los indicadores estáticos, incluso al cambiar la preferencia con el laboratorio abierto.
 
-Los borradores se guardan por modelo en este navegador. **Exportar JSON** permite conservarlos o llevarlos a otro equipo. Importar valida el archivo antes de reemplazar el modelo y descarga una copia del borrador anterior. Los borradores con errores matemáticos se conservan; el simulador indica qué completar antes de ejecutarlos. No se guardan los historiales de ejecución ni las demostraciones.
+Los borradores se guardan por modelo en este navegador. **Exportar JSON** permite conservarlos o llevarlos a otro equipo. Importar valida el archivo antes de reemplazar el modelo y descarga una copia del borrador anterior. Los borradores con errores matemáticos se conservan; el simulador indica qué completar antes de ejecutarlos. No se guardan los historiales de ejecución ni las comprobaciones de lenguaje.
 
-## Demostrar un lenguaje
+## Comprobar un lenguaje
 
 El **Constructor** expresa una condición sobre el alfabeto del autómata: cantidad de un símbolo o longitud con determinado resto, o una palabra al principio, al final o en cualquier posición. **Expresión regular** admite unión `+`, concatenación implícita, estrella `*`, paréntesis, `ε` y `∅`; `\` escapa los símbolos reservados y los espacios literales. Un campo vacío queda pendiente.
 
-**Comprobar** compara todas las configuraciones alcanzables de ambos lenguajes. **Coinciden** certifica igualdad; **No coinciden** muestra una cadena mínima que los distingue y sus recorridos; **Sin concluir** indica que el cálculo alcanzó un límite. Probar unas cuantas cadenas no certifica equivalencia.
+**Comprobar** compara todas las configuraciones alcanzables de ambos lenguajes. **Coinciden** certifica igualdad; **No coinciden** muestra una cadena mínima que los distingue y sus recorridos; **Sin concluir** indica que el cálculo alcanzó un límite. **Ver fundamento** conserva la justificación matemática y la relación de parejas bajo demanda. Probar unas cuantas cadenas no certifica equivalencia.
 
-Cuando coinciden, **Construir prueba** guía tres obligaciones: la configuración inicial, todas las transiciones de cada pareja alcanzable y su aceptación. La relación finita resultante se conserva por inducción sobre la longitud de la cadena y demuestra ambas inclusiones. Los ejercicios resaltan estados y reglas; **Ver fundamento** conserva la justificación matemática bajo demanda. Una respuesta incorrecta necesita corregirse y no refuta el lenguaje.
-
-El trabajo se conserva durante la sesión al cambiar de panel o modelo. Mover o renombrar estados conserva la prueba; cambiar reglas, alfabeto o roles iniciales y finales la invalida. La comprobación y la prueba guiada están disponibles para AFD y AFN; Pila y Turing muestran la explicación de ese alcance.
+El trabajo se conserva durante la sesión al cambiar de panel o modelo. Mover o renombrar estados conserva la comprobación; cambiar reglas, alfabeto o roles iniciales y finales la invalida. La comprobación está disponible para AFD y AFN; Pila y Turing muestran la explicación de ese alcance.
 
 ## Convenciones matemáticas
 

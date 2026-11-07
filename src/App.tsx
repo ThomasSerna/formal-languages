@@ -22,7 +22,7 @@ type Simulation = { current: Run; entries: Entry[]; cursor: number };
 type Panel = 'simulation' | 'proof' | 'formal' | 'theory';
 const PANELS: { id: Panel; label: string; compact: string }[] = [
   { id: 'simulation', label: 'Probar cadena', compact: 'Probar' },
-  { id: 'proof', label: 'Demostrar lenguaje', compact: 'Demostrar' },
+  { id: 'proof', label: 'Comprobar lenguaje', compact: 'Comprobar' },
   { id: 'formal', label: 'Definición formal', compact: 'Definición' },
   { id: 'theory', label: 'Entender este modelo', compact: 'Modelo' },
 ];

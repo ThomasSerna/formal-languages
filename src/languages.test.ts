@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { FiniteMachine } from './domain'
 import { EXAMPLES } from './examples'
 import {
-  checkAcceptance, checkBase, checkStep, compareLanguage, finiteActivity, isProofComplete, semanticKey,
+  compareLanguage, semanticKey,
   type Certificate, type LanguageSpec,
 } from './languages'
 
@@ -63,8 +63,6 @@ describe('comparación exacta de lenguajes', () => {
     machine.initialStateIds.push('q0')
     machine.transitions.push({ id: 'cycle', from: 'q0', to: 's', read: '' })
     await certificate(machine, { kind: 'suffix', word: '01' })
-    expect(finiteActivity(machine, ['s']).states.sort()).toEqual(['q0', 's'])
-    expect(finiteActivity(machine, ['s', 'q0'], '0').states.sort()).toEqual(['q0', 'q1', 's'])
   })
 
   it('admite AFN sin iniciales y Σ vacío', async () => {
@@ -195,28 +193,7 @@ describe('expresiones regulares matemáticas y validación', () => {
   })
 })
 
-describe('obligaciones de la demostración', () => {
-  it('verifica base, cada símbolo y aceptación, sin admitir marcas parciales', async () => {
-    const proof = await certificate(finiteExample('dfa'), { kind: 'count', symbol: '1', modulus: 2, remainder: 0 })
-    expect(checkBase(proof, ['q0'])).toBe(true)
-    expect(checkBase(proof, [])).toBe(false)
-    expect(checkBase(proof, ['q0', 'q0'])).toBe(false)
-    expect(checkStep(proof, 0, { '0': ['q0'], '1': ['q1'] })).toBe(true)
-    expect(checkStep(proof, 0, { '0': ['q0'] })).toBe(false)
-    expect(checkStep(proof, 0, { '0': ['q0'], '1': ['q0'] })).toBe(false)
-    expect(checkStep(proof, 99, {})).toBe(false)
-    expect(checkAcceptance(proof, 0, true)).toBe(true)
-    expect(checkAcceptance(proof, 0, false)).toBe(false)
-    expect(checkAcceptance(proof, 0, 'different')).toBe(false)
-    expect(checkAcceptance(proof, 1, false)).toBe(true)
-    const progress = { base: true, steps: [true, true], acceptance: [true, true] }
-    expect(isProofComplete(proof, progress)).toBe(true)
-    expect(isProofComplete(proof, { ...progress, base: false })).toBe(false)
-    expect(isProofComplete(proof, { ...progress, steps: [true] })).toBe(false)
-    expect(isProofComplete(proof, { ...progress, acceptance: [true, false] })).toBe(false)
-    expect(proof.pairs.map(pair => pair.rightLabel)).toEqual(['Cantidad de 1: par', 'Cantidad de 1: impar'])
-  })
-
+describe('certificado de equivalencia y clave semántica', () => {
   it('identifica cada configuración de la ER sin confundir subconjuntos del mismo tamaño', async () => {
     const proof = await certificate(finiteExample('dfa'), { kind: 'regex', source: '(0+10*1)*' })
     const configurations = new Map(proof.pairs.map(pair => [JSON.stringify(pair.right), pair.rightLabel]))
@@ -225,19 +202,7 @@ describe('obligaciones de la demostración', () => {
     expect([...configurations.values()].every(label => /^r\d+ · /.test(label))).toBe(true)
   })
 
-  it('exige seleccionar explícitamente ∅ y comprueba toda la clausura inicial', async () => {
-    const machine = finiteExample('nfa')
-    const proof = await certificate(machine, { kind: 'suffix', word: '01' })
-    expect(checkBase(proof, ['s', 'q0'])).toBe(true)
-    expect(checkBase(proof, ['s'])).toBe(false)
-    machine.initialStateIds = []
-    const empty = await certificate(machine, { kind: 'regex', source: '∅' })
-    expect(checkBase(empty, [])).toBe(true)
-    expect(checkStep(empty, 0, {})).toBe(false)
-    expect(checkStep(empty, 0, { '0': [], '1': [] })).toBe(true)
-  })
-
-  it('conserva las pruebas al mover o renombrar e invalida cambios semánticos', () => {
+  it('conserva la comprobación al mover o renombrar e invalida cambios semánticos', () => {
     const machine = finiteExample('dfa')
     const before = semanticKey(machine)
     machine.name = 'Otro título'

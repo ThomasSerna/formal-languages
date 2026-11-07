@@ -178,11 +178,6 @@ function compileLanguage(spec: LanguageSpec, alphabet: string[]): Reference {
   }
 }
 
-export function finiteActivity(machine: FiniteMachine, states: string[], symbol?: string) {
-  const index = indexFiniteTransitions(machine.transitions)
-  return symbol === undefined ? epsilonClosure(states, index) : moveFinite(states, symbol, index)
-}
-
 export function semanticKey(machine: FiniteMachine): string {
   return JSON.stringify([
     machine.kind, [...machine.alphabet].sort(), machine.states.map(state => state.id).sort(),
@@ -273,30 +268,4 @@ export async function compareLanguage(
   }
   if (signal?.aborted) return cancelled()
   return { status: 'equivalent', certificate: { alphabet, pairs } }
-}
-
-const sameStates = (selected: string[], expected: string[]) =>
-  selected.length === expected.length && new Set(selected).size === selected.length && selected.every(state => expected.includes(state))
-
-export function checkBase(certificate: Certificate, selected: string[]): boolean {
-  return !!certificate.pairs.length && sameStates(selected, certificate.pairs[0].left)
-}
-
-export function checkStep(certificate: Certificate, index: number, answers: Record<string, string[]>): boolean {
-  const pair = certificate.pairs[index]
-  return !!pair && certificate.alphabet.every(symbol => {
-    const successor = certificate.pairs[pair.successors[symbol]]
-    return Object.hasOwn(answers, symbol) && Array.isArray(answers[symbol]) && !!successor && sameStates(answers[symbol], successor.left)
-  })
-}
-
-export function checkAcceptance(certificate: Certificate, index: number, answer: boolean | 'different'): boolean {
-  const pair = certificate.pairs[index]
-  return !!pair && (pair.acceptsLeft !== pair.acceptsRight ? answer === 'different' : answer === pair.acceptsLeft)
-}
-
-export function isProofComplete(certificate: Certificate, progress: { base: boolean; steps: boolean[]; acceptance: boolean[] }): boolean {
-  return certificate.pairs.length > 0 && progress.base && progress.steps.length === certificate.pairs.length
-    && progress.acceptance.length === certificate.pairs.length
-    && certificate.pairs.every((pair, index) => progress.steps[index] && progress.acceptance[index] && pair.acceptsLeft === pair.acceptsRight)
 }
