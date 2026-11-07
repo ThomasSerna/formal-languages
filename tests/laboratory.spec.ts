@@ -5,6 +5,9 @@ test('la página principal muestra el landing page con animación hover y navega
   await page.goto('');
   const landing = page.locator('.landing-screen');
   await expect(landing).toBeVisible();
+  await expect(landing.locator('.landing-badge')).toHaveCount(0);
+  await expect(landing.locator('.liquid-navbar-shell')).toBeVisible();
+  await expect(landing.getByRole('link', { name: 'Inicio', exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(landing.getByRole('heading', { name: 'Construye y ejecuta autómatas paso a paso', exact: true })).toBeVisible();
   const hoverCanvas = landing.locator('canvas.landing-dots-canvas');
   await expect(hoverCanvas).toHaveAttribute('data-hover-active', 'false');
@@ -18,11 +21,22 @@ test('la página principal muestra el landing page con animación hover y navega
 
   await landing.getByRole('button', { name: 'Abrir laboratorio', exact: true }).click();
   await expect(page.locator('.editor-screen')).toBeVisible();
-  await expect(page.locator('.app-header, .brand')).toHaveCount(0);
+  await expect(page.locator('.app-header, .brand, #nimbus-refract')).toHaveCount(0);
   await expect(page.locator('.liquid-navbar-shell')).toBeVisible();
-  await expect(page.locator('#nimbus-refract')).toHaveCount(1);
   await expect(page.locator('.graph-watermark')).toHaveText('Cantidad par de unos');
+  await expect(page.locator('.graph-watermark')).toHaveCSS('font-size', '12px');
   expect(await page.locator('.graph-watermark').evaluate(el => getComputedStyle(el).pointerEvents)).toBe('none');
+
+  const canvasBox = (await page.locator('.graph-canvas').boundingBox())!;
+  const controlsBox = (await page.locator('.react-flow__controls').boundingBox())!;
+  const toolbarBox = (await page.locator('.graph-toolbar').boundingBox())!;
+  const watermarkBox = (await page.locator('.graph-watermark').boundingBox())!;
+  expect(controlsBox.x).toBeGreaterThan(canvasBox.width / 2);
+  expect(controlsBox.y).toBeLessThan(canvasBox.y + 100);
+  expect(toolbarBox.x).toBeGreaterThan(canvasBox.width / 2);
+  expect(toolbarBox.y).toBeGreaterThan(canvasBox.y + canvasBox.height - 100);
+  expect(watermarkBox.x).toBeLessThan(canvasBox.width / 2);
+  expect(watermarkBox.y).toBeGreaterThan(canvasBox.y + canvasBox.height - 80);
 
   const afnButton = page.locator('.model-nav button').nth(1);
   await afnButton.click();
