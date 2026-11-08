@@ -21,7 +21,7 @@ test('la página principal muestra el landing page con animación hover y navega
 
   await landing.getByRole('button', { name: 'Abrir laboratorio', exact: true }).click();
   await expect(page.locator('.editor-screen')).toBeVisible();
-  await expect(page.locator('.app-header, .brand, #nimbus-refract')).toHaveCount(0);
+  await expect(page.locator('.app-header, .brand, #nimbus-refract, .react-flow__attribution')).toHaveCount(0);
   await expect(page.locator('.liquid-navbar-shell')).toBeVisible();
   await expect(page.locator('.graph-watermark')).toHaveText('Cantidad par de unos');
   await expect(page.locator('.graph-watermark')).toHaveCSS('font-size', '12px');

@@ -519,6 +519,7 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         maxZoom={2}
         defaultViewport={{ x: 0, y: 0, zoom: 0.95 }}
         connectionRadius={28}
+        proOptions={{ hideAttribution: true }}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#ddd8e5" />
         <CanvasRipples ripples={ripples} width={canvasSize.width} height={canvasSize.height} onExpire={expireRipples} />
