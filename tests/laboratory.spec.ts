@@ -41,7 +41,8 @@ test('la página principal muestra el landing page con animación hover y navega
   const afnButton = page.locator('.model-nav button').nth(1);
   await afnButton.click();
   await expect(page.locator('.model-nav')).toHaveAttribute('data-model', 'nfa');
-  await expect(afnButton.locator('.letter-swap__slot')).toHaveCount(3);
+  await expect(afnButton.locator('.model-abbr')).toHaveText('AFN');
+  await expect(afnButton.locator('.letter-swap__slot')).toHaveCount(0);
 
   await page.getByRole('link', { name: 'Inicio', exact: true }).click();
   await expect(landing).toBeVisible();

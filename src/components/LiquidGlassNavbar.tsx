@@ -1,7 +1,5 @@
-import { useEffect, useState } from 'react';
 import type { MachineKind } from '../domain';
 import { MODEL_SHORT } from '../format';
-import RandomLetterSwap from './RandomLetterSwap';
 
 const KINDS: MachineKind[] = ['dfa', 'nfa', 'pda', 'tm'];
 const MODEL_DESCRIPTIONS: Record<MachineKind, string> = {
@@ -22,21 +20,6 @@ export default function LiquidGlassNavbar({
   onSelectModel: (kind: MachineKind) => void;
   onGoHome: () => void;
 }) {
-  const [homeSeed, setHomeSeed] = useState(0);
-  const [seeds, setSeeds] = useState<Record<MachineKind, number>>({
-    dfa: 0,
-    nfa: 0,
-    pda: 0,
-    tm: 0,
-  });
-  const [swappingKey, setSwappingKey] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!swappingKey) return;
-    const timer = window.setTimeout(() => setSwappingKey(null), 380);
-    return () => window.clearTimeout(timer);
-  }, [swappingKey]);
-
   const isLab = activeView === 'lab';
 
   return (
@@ -50,11 +33,8 @@ export default function LiquidGlassNavbar({
         aria-current={!isLab ? 'page' : undefined}
         onClick={(event) => {
           event.preventDefault();
-          setHomeSeed((s) => s + 1);
-          setSwappingKey('home');
           onGoHome();
         }}
-        onPointerEnter={() => setHomeSeed((s) => s + 1)}
       >
         <svg className="liquid-nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
@@ -65,7 +45,7 @@ export default function LiquidGlassNavbar({
             strokeLinejoin="round"
           />
         </svg>
-        <RandomLetterSwap label="Inicio" seed={homeSeed} swapping={swappingKey === 'home'} />
+        <span>Inicio</span>
       </a>
 
       <span className="liquid-nav-divider" aria-hidden="true" />
@@ -85,20 +65,9 @@ export default function LiquidGlassNavbar({
               type="button"
               className={`nimbus-item${isActive ? ' active' : ''}`}
               aria-current={isActive ? 'page' : undefined}
-              onClick={() => {
-                setSeeds((prev) => ({ ...prev, [item]: prev[item] + 1 }));
-                setSwappingKey(item);
-                onSelectModel(item);
-              }}
-              onPointerEnter={() => setSeeds((prev) => ({ ...prev, [item]: prev[item] + 1 }))}
+              onClick={() => onSelectModel(item)}
             >
-              <span className="model-abbr">
-                <RandomLetterSwap
-                  label={MODEL_SHORT[item]}
-                  seed={seeds[item]}
-                  swapping={swappingKey === item}
-                />
-              </span>
+              <span className="model-abbr">{MODEL_SHORT[item]}</span>
               <span className="sr-only model-description"> {MODEL_DESCRIPTIONS[item]}</span>
             </button>
           );
