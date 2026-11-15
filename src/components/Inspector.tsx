@@ -7,7 +7,7 @@ interface Props {
   selectedStateId: string | null;
   selectedTransitionId: string | null;
   addingTransition: boolean;
-  connection?: { from: string; to: string } | null;
+  connection?: { from: string; to?: string; read?: string } | null;
   onChange: (machine: Machine) => void;
   onSelectState: (id: string | null) => void;
   onSelectTransition: (id: string | null) => void;
@@ -15,16 +15,22 @@ interface Props {
   onClose: () => void;
 }
 
-function TransitionForm({ machine, transition, initialFrom, initialTo, onSave, onCancel }: {
-  machine: Machine; transition?: Transition; initialFrom?: string; initialTo?: string;
+function TransitionForm({ machine, transition, initialFrom, initialTo, initialRead, onSave, onCancel }: {
+  machine: Machine; transition?: Transition; initialFrom?: string; initialTo?: string; initialRead?: string;
   onSave: (transition: Transition) => void; onCancel: () => void;
 }) {
   const [from, setFrom] = useState(transition?.from ?? initialFrom ?? machine.states[0]?.id ?? '');
   const [to, setTo] = useState(transition?.to ?? initialTo ?? machine.states[1]?.id ?? machine.states[0]?.id ?? '');
-  const [read, setRead] = useState(transition?.read ?? machine.alphabet[0] ?? '');
+  const [read, setRead] = useState(transition?.read ?? initialRead ?? machine.alphabet[0] ?? '');
   const [pop, setPop] = useState(transition && 'pop' in transition ? transition.pop : machine.kind === 'pda' ? machine.initialStackSymbol : '');
   const [push, setPush] = useState(transition && 'push' in transition ? transition.push.join('') : '');
-  const [write, setWrite] = useState(transition && 'write' in transition ? transition.write : machine.kind === 'tm' ? machine.tapeAlphabet[0] ?? '' : '');
+  const [write, setWrite] = useState(
+    transition && 'write' in transition
+      ? transition.write
+      : machine.kind === 'tm'
+        ? (initialRead && machine.tapeAlphabet.includes(initialRead) ? initialRead : machine.tapeAlphabet[0] ?? '')
+        : '',
+  );
   const [move, setMove] = useState<'L' | 'R'>(transition && 'move' in transition ? transition.move : 'R');
   const [error, setError] = useState('');
   const reads = machine.kind === 'tm' ? machine.tapeAlphabet : machine.alphabet;
@@ -115,7 +121,7 @@ export default function Inspector(props: Props) {
     </div>
     <div ref={body} className="inspector-body">
       {editingTransition ? <>
-        <TransitionForm key={`${machine.kind}-${transition?.id ?? 'new'}-${props.connection?.from ?? ''}-${props.connection?.to ?? ''}`} machine={machine} transition={transition} initialFrom={props.connection?.from ?? selectedStateId ?? undefined} initialTo={props.connection?.to} onCancel={() => { props.onSelectTransition(null); props.onCancelTransition(); props.onClose(); }} onSave={rule => { onChange({ ...machine, transitions: transition ? machine.transitions.map(item => item.id === rule.id ? rule : item) : [...machine.transitions, rule] } as Machine); props.onCancelTransition(); props.onSelectTransition(rule.id); }} />
+        <TransitionForm key={`${machine.kind}-${transition?.id ?? 'new'}-${props.connection?.from ?? ''}-${props.connection?.to ?? ''}-${props.connection?.read ?? ''}`} machine={machine} transition={transition} initialFrom={props.connection?.from ?? selectedStateId ?? undefined} initialTo={props.connection?.to} initialRead={props.connection?.read} onCancel={() => { props.onSelectTransition(null); props.onCancelTransition(); props.onClose(); }} onSave={rule => { onChange({ ...machine, transitions: transition ? machine.transitions.map(item => item.id === rule.id ? rule : item) : [...machine.transitions, rule] } as Machine); props.onCancelTransition(); props.onSelectTransition(rule.id); }} />
         {transition && <button className="danger subtle" onClick={() => { onChange({ ...machine, transitions: machine.transitions.filter(rule => rule.id !== transition.id) } as Machine); props.onSelectTransition(null); props.onClose(); }}>Eliminar transición</button>}
       </> : state ? <>
         <StateProperties machine={machine} state={state} onChange={onChange} onDelete={() => { props.onSelectState(null); props.onClose(); }} />

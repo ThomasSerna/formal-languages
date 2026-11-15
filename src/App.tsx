@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Machine, MachineKind } from './domain';
+import type { Machine, MachineKind, State, TmMachine } from './domain';
 import { createRun, stepRun, validateInput, validateMachine } from './engine';
 import type { Run } from './engine';
 import { createBlankMachine, EXAMPLES, EXAMPLE_INPUTS } from './examples';
 import { exportMachine, loadDraft, parseMachineJson, saveDraft } from './storage';
 import { MODEL_NAMES, MODEL_SHORT } from './format';
-import GraphEditor from './components/GraphEditor';
-import type { PopupAnchor } from './components/GraphEditor';
+import GraphEditor, { type SavedGraphViewport } from './components/GraphEditor';
+import type { PopupAnchor } from './components/AnchoredPopup';
+import TmTableEditor from './components/TmTableEditor';
+import TmViewSwitch, { type TmViewMode } from './components/TmViewSwitch';
 import Inspector from './components/Inspector';
 import Simulator from './components/Simulator';
 import FormalDefinition from './components/FormalDefinition';
@@ -55,6 +57,13 @@ function seekSimulation(sim: Simulation, target: number): Simulation {
   const current = sim.entries[target].run;
   return { ...sim, cursor: target, current: { ...current, configurations: current.configurations.map(config => ({ ...config, tape: restored })) } };
 }
+function nextStatePosition(states: State[]): { x: number; y: number } {
+  for (let slot = states.length; ; slot++) {
+    const x = 100 + (slot % 4) * 150;
+    const y = 100 + Math.floor(slot / 4) * 130;
+    if (states.every(state => Math.hypot(state.x - x, state.y - y) >= 85)) return { x, y };
+  }
+}
 
 export default function App() {
   const [view, setView] = useState<'landing' | 'lab'>(() => window.location.hash === '#lab' ? 'lab' : 'landing');
@@ -73,7 +82,9 @@ export default function App() {
   const [speed, setSpeed] = useState(800);
   const [notice, setNotice] = useState('');
   const [confirmReplace, setConfirmReplace] = useState<'blank' | 'example' | null>(null);
-  const [newConnection, setNewConnection] = useState<{from: string; to: string} | null>(null);
+  const [newConnection, setNewConnection] = useState<{ from: string; to?: string; read?: string } | null>(null);
+  const [tmView, setTmView] = useState<TmViewMode>('graph');
+  const tmViewportRef = useRef<SavedGraphViewport | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
   const fileMenuRef = useRef<HTMLDetailsElement>(null);
   const editorRef = useRef<HTMLElement>(null);
@@ -81,6 +92,7 @@ export default function App() {
   const focusInspector = useRef(false);
   const inspectorSession = useRef(0);
   const machine = machines[kind];
+  const isTmTable = kind === 'tm' && tmView === 'table';
   const input = inputs[kind];
   const issues = useMemo(() => validateMachine(machine), [machine]);
   const inputError = useMemo(() => validateInput(machine, input), [machine, input]);
@@ -117,13 +129,23 @@ export default function App() {
       (trigger?.isConnected ? trigger : editorRef.current?.querySelector<HTMLElement>('.graph-toolbar button'))?.focus({ preventScroll: true });
     });
   }, []);
-  function selectState(id: string | null, fromGraph = false) {
+  function selectState(id: string | null, fromEditor = false) {
     setSelectedStateId(id); setSelectedTransitionId(null); setAddingTransition(false); setNewConnection(null);
-    if (id) openInspector({ kind: 'state', id }, fromGraph ? `.react-flow__node[data-id="${CSS.escape(id)}"]` : undefined); else setInspectorOpen(false);
+    if (id) {
+      const selector = isTmTable ? `[data-state-id="${CSS.escape(id)}"]` : `.react-flow__node[data-id="${CSS.escape(id)}"]`;
+      openInspector({ kind: 'state', id }, fromEditor ? selector : undefined);
+    } else setInspectorOpen(false);
   }
-  function selectTransition(id: string | null, fromGraph = false) {
+  function selectTransition(id: string | null, fromEditor = false) {
     setSelectedTransitionId(id); setSelectedStateId(null); setAddingTransition(false); setNewConnection(null);
-    if (id) openInspector({ kind: 'transition', id }, fromGraph ? `[data-transition-id="${CSS.escape(id)}"]` : undefined); else setInspectorOpen(false);
+    if (id) openInspector({ kind: 'transition', id }, fromEditor ? `[data-transition-id="${CSS.escape(id)}"]` : undefined); else setInspectorOpen(false);
+  }
+  function createCellTransition(stateId: string, symbol: string) {
+    setSelectedStateId(stateId);
+    setSelectedTransitionId(null);
+    setNewConnection({ from: stateId, read: symbol });
+    setAddingTransition(true);
+    openInspector({ kind: 'cell', stateId, symbol }, `[data-tm-cell="${CSS.escape(`${stateId}:${symbol}`)}"]`);
   }
   function showModel() {
     setSelectedStateId(null); setSelectedTransitionId(null); setAddingTransition(false); setNewConnection(null); openInspector({ kind: 'toolbar', element: editorRef.current?.querySelector<HTMLButtonElement>('[data-configure-model]') ?? null });
@@ -140,6 +162,7 @@ export default function App() {
     if (next !== 'dfa' && next !== 'nfa' && activePanel === 'proof') setActivePanel(null);
   }
   function replaceMachine(action: 'blank' | 'example') {
+    if (kind === 'tm') tmViewportRef.current = null;
     const next = action === 'blank' ? createBlankMachine(kind) : structuredClone(EXAMPLES[kind]);
     const saveError = changeMachine(next); closeInspector(); setConfirmReplace(null);
     if (action === 'example') setInputs(current => ({ ...current, [kind]: EXAMPLE_INPUTS[kind] }));
@@ -150,7 +173,8 @@ export default function App() {
     let number = machine.states.length;
     while (machine.states.some(state => state.name === `q${number}`)) number++;
     const id = crypto.randomUUID();
-    changeMachine({ ...machine, states: [...machine.states, { id, name: `q${number}`, x: 100 + (machine.states.length % 4) * 150, y: 100 + Math.floor(machine.states.length / 4) * 130 }], initialStateIds: machine.states.length === 0 ? [id] : machine.initialStateIds });
+    const position = nextStatePosition(machine.states);
+    changeMachine({ ...machine, states: [...machine.states, { id, name: `q${number}`, ...position }], initialStateIds: machine.states.length === 0 ? [id] : machine.initialStateIds });
     selectState(id);
   }
   const nextStep = useCallback(() => {
@@ -216,6 +240,7 @@ export default function App() {
     try {
       if (file.size > 1024 * 1024) throw new Error('El archivo supera el límite de 1 MB.');
       const imported = parseMachineJson(await file.text());
+      if (imported.kind === 'tm') tmViewportRef.current = null;
       // Preserve the current draft before replacing it with an imported document.
       exportMachine(machines[imported.kind]);
       const saveError = changeMachine(imported); selectModel(imported.kind); setNotice(saveError ?? 'Archivo importado. Se descargó una copia del borrador anterior.');
@@ -231,12 +256,31 @@ export default function App() {
     );
   }
 
+  const activeStateIds = activePanel === 'proof' ? proofHighlight?.states ?? [] : run?.configurations.map(config => config.stateId) ?? [];
+  const activeTransitionIds = activePanel === 'proof' ? proofHighlight?.transitionIds ?? [] : run?.transitionIds ?? [];
+  const inspectorNode = inspectorOpen && (
+    <Inspector
+      key={`${kind}-${inspectorSession.current}`}
+      machine={machine}
+      selectedStateId={selectedStateId}
+      selectedTransitionId={selectedTransitionId}
+      addingTransition={addingTransition}
+      onChange={changeMachine}
+      onSelectState={selectState}
+      onSelectTransition={selectTransition}
+      onCancelTransition={() => { setAddingTransition(false); setNewConnection(null); }}
+      connection={newConnection}
+      onClose={() => closeInspector(true)}
+    />
+  );
+
   return <>
     <a className="skip-link" href="#input-word" onClick={event => { event.preventDefault(); togglePanel('simulation', true); }}>Ir a la simulación</a>
     <main className="app-main" data-input="keyboard" onPointerDownCapture={event => { event.currentTarget.dataset.input = 'pointer'; if (fileMenuRef.current && !fileMenuRef.current.contains(event.target as Node)) fileMenuRef.current.open = false; }} onKeyDownCapture={event => { event.currentTarget.dataset.input = 'keyboard'; }}>
       <section ref={editorRef} className="editor-screen" aria-label="Laboratorio de autómatas">
         <section className={`workspace workspace-${kind}`} aria-label="Editor del autómata">
           <LiquidGlassNavbar kind={kind} activeView="lab" onSelectModel={selectModel} onGoHome={goHome} />
+          {kind === 'tm' && <TmViewSwitch view={tmView} onChange={setTmView} />}
           <div className="graph-toolbar" role="toolbar" aria-label="Herramientas del grafo">
             <div className="button-row">
               <button onClick={addState}>Agregar estado</button>
@@ -257,8 +301,40 @@ export default function App() {
           </div>
           {notice && <div className="notice" role="status"><span>{notice}</span><button className="text-button" onClick={() => setNotice('')}>Cerrar aviso</button></div>}
           {confirmReplace && <div className="replace-confirm" role="group" aria-label="Confirmar reemplazo"><p>Se reemplazará el borrador de {MODEL_SHORT[kind]}. Puedes exportarlo antes para conservarlo.</p><div className="button-row"><button onClick={() => exportMachine(machine)}>Exportar borrador</button><button className="primary" onClick={() => replaceMachine(confirmReplace)}>{confirmReplace === 'blank' ? 'Abrir lienzo vacío' : 'Restaurar ejemplo'}</button><button onClick={() => setConfirmReplace(null)}>Cancelar</button></div></div>}
-          <GraphEditor step={activePanel === 'proof' ? proofHighlight?.step ?? 0 : run?.step ?? 0} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} activeStateIds={activePanel === 'proof' ? proofHighlight?.states ?? [] : run?.configurations.map(config => config.stateId) ?? []} activeTransitionIds={activePanel === 'proof' ? proofHighlight?.transitionIds ?? [] : run?.transitionIds ?? []} onSelectState={id => selectState(id, true)} onSelectTransition={id => selectTransition(id, true)} onMoveState={(id, x, y) => changeMachine({ ...machine, states: machine.states.map(state => state.id === id ? { ...state, x, y } : state) }, true)} onConnect={(from, to) => { setSelectedStateId(from); setSelectedTransitionId(null); setNewConnection({ from, to }); setAddingTransition(true); openInspector({ kind: 'state', id: to }); }} popupAnchor={popupAnchor} compactPopup={Boolean(selectedStateId) && !addingTransition}
-            popup={inspectorOpen && <Inspector key={`${kind}-${inspectorSession.current}`} machine={machine} selectedStateId={selectedStateId} selectedTransitionId={selectedTransitionId} addingTransition={addingTransition} onChange={changeMachine} onSelectState={selectState} onSelectTransition={selectTransition} onCancelTransition={() => { setAddingTransition(false); setNewConnection(null); }} connection={newConnection} onClose={() => closeInspector(true)} />} />
+          {isTmTable ? (
+            <TmTableEditor
+              machine={machine as TmMachine}
+              issues={issues}
+              selectedStateId={selectedStateId}
+              selectedTransitionId={selectedTransitionId}
+              activeStateIds={activeStateIds}
+              activeTransitionIds={activeTransitionIds}
+              onSelectState={id => selectState(id, true)}
+              onSelectTransition={id => selectTransition(id, true)}
+              onCreateCellTransition={createCellTransition}
+              popupAnchor={popupAnchor}
+              compactPopup={Boolean(selectedStateId) && !addingTransition}
+              popup={inspectorNode}
+            />
+          ) : (
+            <GraphEditor
+              step={activePanel === 'proof' ? proofHighlight?.step ?? 0 : run?.step ?? 0}
+              machine={machine}
+              selectedStateId={selectedStateId}
+              selectedTransitionId={selectedTransitionId}
+              activeStateIds={activeStateIds}
+              activeTransitionIds={activeTransitionIds}
+              onSelectState={id => selectState(id, true)}
+              onSelectTransition={id => selectTransition(id, true)}
+              onMoveState={(id, x, y) => changeMachine({ ...machine, states: machine.states.map(state => state.id === id ? { ...state, x, y } : state) }, true)}
+              onConnect={(from, to) => { setSelectedStateId(from); setSelectedTransitionId(null); setNewConnection({ from, to }); setAddingTransition(true); openInspector({ kind: 'state', id: to }); }}
+              popupAnchor={popupAnchor}
+              compactPopup={Boolean(selectedStateId) && !addingTransition}
+              savedViewport={kind === 'tm' ? tmViewportRef.current : null}
+              onViewportChange={kind === 'tm' ? (saved => { tmViewportRef.current = saved; }) : undefined}
+              popup={inspectorNode}
+            />
+          )}
         </section>
         <div className="simulation-dock">
         <div className="simulation-dock-header"><div className="graph-legend"><span><i className="legend-initial" />Inicial</span><span><i className="legend-final" />Aceptación</span><span><i className="legend-active" />Activo</span></div><div className="dock-controls">{visiblePanels.map(panel => <button key={panel.id} id={`${panel.id}-toggle`} className="text-button" aria-label={panel.label} aria-describedby={panel.id === 'simulation' && issues.length ? 'simulation-validation-count' : undefined} aria-expanded={activePanel === panel.id} aria-controls={`${panel.id}-content`} onClick={() => togglePanel(panel.id)}><span className="dock-label-full">{panel.label}</span><span className="dock-label-compact" aria-hidden="true">{panel.compact}</span>{panel.id === 'simulation' && issues.length > 0 && <span id="simulation-validation-count" className="validation-count">{issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</span>}<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ transform: activePanel === panel.id ? 'rotate(180deg)' : undefined }}><path d="m4 10 4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button>)}</div></div>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Background,
   BackgroundVariant,
@@ -20,14 +20,23 @@ import {
   type NodeChange,
   type NodeProps,
   type ReactFlowInstance,
+  type Viewport,
 } from '@xyflow/react';
 import type { Machine } from '../domain';
 import { ruleLabel } from '../format';
+import AnchoredPopup, { type PopupAnchor } from './AnchoredPopup';
 import CanvasRipples, { type CanvasRipple } from './CanvasRipples';
+import StateName from './StateName';
 import '@xyflow/react/dist/style.css';
 import './GraphEditor.css';
 
-export type PopupAnchor = { kind: 'state' | 'transition'; id: string } | { kind: 'toolbar'; element: HTMLElement | null };
+export type { PopupAnchor } from './AnchoredPopup';
+
+export type SavedGraphViewport = {
+  viewport: Viewport;
+  stateIds: string;
+  canvasSize: { width: number; height: number };
+};
 
 type GraphEditorProps = {
   machine: Machine;
@@ -43,6 +52,8 @@ type GraphEditorProps = {
   popup?: ReactNode;
   popupAnchor: PopupAnchor | null;
   compactPopup: boolean;
+  savedViewport?: SavedGraphViewport | null;
+  onViewportChange?: (saved: SavedGraphViewport) => void;
 };
 
 type StateData = {
@@ -85,7 +96,6 @@ const ariaLabels: Partial<AriaLabelConfig> = {
 };
 
 function StateCircle({ data, selected }: NodeProps<StateNode>) {
-  const stateName = /^([a-zA-Z]+)(\d+)$/.exec(data.name);
   return (
     <div
       className={`automaton-state${selected ? ' is-selected' : ''}${data.active ? ' is-active' : ''}${data.accepting ? ' is-accepting' : ''}`}
@@ -102,7 +112,7 @@ function StateCircle({ data, selected }: NodeProps<StateNode>) {
       )}
       <Handle type="target" position={Position.Left} id="in" className="automaton-state__handle" />
       <span className="automaton-state__name" title={data.name}>
-        {stateName ? <>{stateName[1]}<sub>{stateName[2]}</sub></> : data.name}
+        <StateName name={data.name} />
       </span>
       {(data.rejecting || data.haltingAcceptance) && <span className="automaton-state__role" aria-hidden="true">{data.rejecting ? 'r' : 't'}</span>}
       {data.active && <span className="automaton-state__status">Activo</span>}
@@ -201,21 +211,35 @@ function fitViewportForCanvas(bounds: { x: number; y: number; width: number; hei
   return { ...vp, y: vp.y + topClearance };
 }
 
-export default function GraphEditor({ machine, selectedStateId, selectedTransitionId, activeStateIds, activeTransitionIds, step, onSelectState, onSelectTransition, onMoveState, onConnect, popup, popupAnchor, compactPopup }: GraphEditorProps) {
+export default function GraphEditor({
+  machine,
+  selectedStateId,
+  selectedTransitionId,
+  activeStateIds,
+  activeTransitionIds,
+  step,
+  onSelectState,
+  onSelectTransition,
+  onMoveState,
+  onConnect,
+  popup,
+  popupAnchor,
+  compactPopup,
+  savedViewport,
+  onViewportChange,
+}: GraphEditorProps) {
   const [instance, setInstance] = useState<ReactFlowInstance<StateNode, TransitionEdge> | null>(null);
   const container = useRef<HTMLDivElement>(null);
-  const popupSurface = useRef<HTMLDivElement>(null);
-  const popupContainer = useRef<HTMLDivElement>(null);
-  const positionFrame = useRef(0);
+  const repositionPopupRef = useRef<() => void>(() => {});
   const rippleSequence = useRef(0);
   const [ripples, setRipples] = useState<CanvasRipple[]>([]);
   const expireRipples = useCallback((ids: number[]) => setRipples(current => current.filter(ripple => !ids.includes(ripple.id))), []);
-  const lastPopup = useRef<{ kind: Machine['kind']; node: ReactNode; compact: boolean } | null>(null);
-  const [popupPresent, setPopupPresent] = useState(false);
-  const popupOpen = Boolean(popup);
-  const interruptedPopup = useRef<Keyframe | null>(null);
   const latestMachine = useRef(machine);
   latestMachine.current = machine;
+  const savedViewportRef = useRef(savedViewport);
+  savedViewportRef.current = savedViewport;
+  const onViewportChangeRef = useRef(onViewportChange);
+  onViewportChangeRef.current = onViewportChange;
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 380 });
   const stateIds = JSON.stringify(machine.states.map((state) => state.id));
   const activeIds = JSON.stringify(activeStateIds);
@@ -233,132 +257,22 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
     return () => preference.removeEventListener('change', clearRipples);
   }, []);
 
-  const positionPopup = useCallback(() => {
-    const panel = popupContainer.current;
-    const canvas = container.current;
-    if (!popupOpen || !panel || !canvas) return;
-    const element = popupAnchor?.kind === 'toolbar' ? popupAnchor.element : popupAnchor
-      ? canvas.querySelector<HTMLElement>(popupAnchor.kind === 'state' ? `.react-flow__node[data-id="${CSS.escape(popupAnchor.id)}"]` : `[data-transition-id="${CSS.escape(popupAnchor.id)}"]`) : null;
-    const bounds = canvas.getBoundingClientRect();
-    const anchor = element?.getBoundingClientRect();
-    const navbar = canvas.closest('.workspace')?.querySelector<HTMLElement>('.liquid-navbar-shell')?.getBoundingClientRect();
-    const margin = 12;
-    const safeTop = navbar ? Math.max(margin, Math.ceil(navbar.bottom - bounds.top + 8)) : margin;
-    const width = panel.offsetWidth;
-    panel.style.maxHeight = `${Math.max(0, bounds.height - safeTop - margin)}px`;
-    let left = margin;
-    let top = safeTop;
-    let originX = 0;
-    let originY = safeTop;
-    if (anchor && popupAnchor?.kind !== 'toolbar') {
-      const right = anchor.right - bounds.left + margin;
-      const before = anchor.left - bounds.left - width - margin;
-      const centerY = (anchor.top + anchor.bottom) / 2 - bounds.top;
-      if (right + width <= bounds.width - margin || before >= margin) {
-        left = right + width <= bounds.width - margin ? right : before;
-        top = centerY - panel.offsetHeight / 2;
-        originX = left === right ? 0 : width;
-        originY = centerY;
-      } else {
-        left = (anchor.left + anchor.right) / 2 - bounds.left - width / 2;
-        const above = anchor.top - bounds.top - safeTop - margin;
-        const below = bounds.bottom - anchor.bottom - margin * 2;
-        const space = Math.max(above, below);
-        panel.style.maxHeight = `${Math.max(0, Math.min(bounds.height - safeTop - margin, space))}px`;
-        top = below >= above ? anchor.bottom - bounds.top + margin : anchor.top - bounds.top - panel.offsetHeight - margin;
-        originX = width / 2;
-        originY = below >= above ? top : top + panel.offsetHeight;
-      }
-    } else if (anchor) {
-      const aboveToolbar = Math.max(180, Math.floor(anchor.top - bounds.top - safeTop - 8));
-      panel.style.maxHeight = `${Math.max(0, Math.min(bounds.height - safeTop - margin, aboveToolbar))}px`;
-      left = anchor.left - bounds.left;
-      top = Math.max(safeTop, Math.floor(anchor.top - bounds.top - panel.offsetHeight - 8));
-      originX = (anchor.left + anchor.right) / 2 - bounds.left - left;
-      originY = top + panel.offsetHeight;
+  const resolveAnchor = useCallback((canvas: HTMLElement, anchor: Exclude<PopupAnchor, { kind: 'toolbar' }>) => {
+    if (anchor.kind === 'state') {
+      return canvas.querySelector<HTMLElement>(`.react-flow__node[data-id="${CSS.escape(anchor.id)}"]`);
     }
-    left = Math.max(margin, Math.min(left, bounds.width - width - margin));
-    top = Math.max(safeTop, Math.min(top, bounds.height - panel.offsetHeight - margin));
-    panel.style.left = `${left}px`;
-    panel.style.top = `${top}px`;
-    popupSurface.current?.style.setProperty('--popup-origin', `${originX}px ${Math.max(0, Math.min(panel.offsetHeight, originY - top))}px`);
-  }, [popupOpen, popupAnchor, canvasSize]);
-  const schedulePopupPosition = useCallback(() => {
-    cancelAnimationFrame(positionFrame.current);
-    positionFrame.current = requestAnimationFrame(positionPopup);
-  }, [positionPopup]);
-  useLayoutEffect(() => {
-    positionPopup();
-  }, [positionPopup, machine]);
-  useLayoutEffect(() => {
-    if (!popupOpen || !popupContainer.current) return;
-    const observer = new ResizeObserver(positionPopup);
-    observer.observe(popupContainer.current);
-    return () => observer.disconnect();
-  }, [popupOpen, positionPopup]);
-  useEffect(() => () => cancelAnimationFrame(positionFrame.current), []);
+    if (anchor.kind === 'cell') {
+      return canvas.querySelector<HTMLElement>(`.react-flow__node[data-id="${CSS.escape(anchor.stateId)}"]`);
+    }
+    return canvas.querySelector<HTMLElement>(`[data-transition-id="${CSS.escape(anchor.id)}"]`);
+  }, []);
 
-  useLayoutEffect(() => {
-    if (popupOpen) lastPopup.current = { kind: machine.kind, node: popup, compact: compactPopup };
-  });
-  useLayoutEffect(() => {
-    const surface = popupSurface.current;
-    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const from = interruptedPopup.current;
-    interruptedPopup.current = null;
-    let current = true;
-    const discard = () => {
-      if (!current) return;
-      lastPopup.current = null;
-      setPopupPresent(false);
-    };
-    if (!surface || (!popupOpen && lastPopup.current?.kind !== machine.kind)) {
-      discard();
-      return;
-    }
-    if (popupOpen) setPopupPresent(true);
-    if (preference.matches || surface.closest('[data-input="keyboard"]')) {
-      if (!popupOpen) discard();
-      return;
-    }
-    surface.style.willChange = 'transform, opacity';
-    const animation = surface.animate(popupOpen ? [
-      from ?? { opacity: 0, transform: 'scale(.94)' },
-      { opacity: 1, transform: 'scale(1.01)', offset: .72 },
-      { opacity: 1, transform: 'scale(1)' },
-    ] : [
-      from ?? { opacity: 1, transform: 'scale(1)' },
-      { opacity: 0, transform: 'scale(.97)' },
-    ], { duration: popupOpen ? 220 : 140, easing: 'cubic-bezier(.16, 1, .3, 1)' });
-    animation.onfinish = () => {
-      if (!current) return;
-      surface.style.willChange = '';
-      if (!popupOpen) discard();
-    };
-    const stopMotion = () => {
-      if (!preference.matches) return;
-      animation.cancel();
-      surface.style.willChange = '';
-      if (!popupOpen) discard();
-    };
-    preference.addEventListener('change', stopMotion);
-    return () => {
-      current = false;
-      if (animation.playState === 'running' || animation.playState === 'paused') {
-        const style = getComputedStyle(surface);
-        interruptedPopup.current = { opacity: style.opacity, transform: style.transform };
-      }
-      animation.onfinish = null;
-      animation.cancel();
-      surface.style.willChange = '';
-      preference.removeEventListener('change', stopMotion);
-    };
-  }, [popupOpen, machine.kind]);
   const fitAll = useCallback(() => {
     if (!instance || !canvasSize.width || !machine.states.length) return;
     const viewport = fitViewportForCanvas(graphBounds(machine), canvasSize.width, canvasSize.height);
     void instance.setViewport(viewport, { duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 240 });
-  }, [instance, machine, canvasSize]);
+    onViewportChangeRef.current?.({ viewport, stateIds, canvasSize });
+  }, [instance, machine, canvasSize, stateIds]);
 
   const nodes = useMemo<StateNode[]>(() => machine.states.map((state) => {
     const initial = machine.initialStateIds.includes(state.id);
@@ -429,28 +343,48 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
 
   useEffect(() => {
     if (!instance || !canvasSize.width) return;
+    let cancelled = false;
     const frame = requestAnimationFrame(() => {
-      const document = latestMachine.current;
-      const key = `${document.kind}:${stateIds}`;
-      const previous = previousCanvas.current;
-      previousCanvas.current = { ...canvasSize, document: key };
-      if (previous?.document === key) {
-        const viewport = instance.getViewport();
-        void instance.setViewport({ ...viewport, x: viewport.x + (canvasSize.width - previous.width) / 2, y: viewport.y + (canvasSize.height - previous.height) / 2 }, { duration: 0 });
-        return;
-      }
-      if (!document.states.length) return;
-      const documentBounds = graphBounds(document);
-      const topClearance = window.matchMedia('(max-width: 680px)').matches ? 96 : 48;
-      const readableFit = documentBounds.width * 0.95 <= canvasSize.width - 24 && documentBounds.height * 0.95 <= canvasSize.height - topClearance - 50;
-      if (!readableFit) {
-        const initial = document.states.find((state) => document.initialStateIds.includes(state.id)) ?? document.states[0];
-        void instance.setCenter(initial.x + RADIUS, initial.y + RADIUS - 35, { zoom: 0.95, duration: 0 });
-      } else {
-        void instance.setViewport(fitViewportForCanvas(documentBounds, canvasSize.width, canvasSize.height), { duration: 0 });
-      }
+      void (async () => {
+        const document = latestMachine.current;
+        const key = `${document.kind}:${stateIds}`;
+        const previous = previousCanvas.current;
+        previousCanvas.current = { ...canvasSize, document: key };
+        if (previous?.document === key) {
+          const viewport = instance.getViewport();
+          const nextViewport = { ...viewport, x: viewport.x + (canvasSize.width - previous.width) / 2, y: viewport.y + (canvasSize.height - previous.height) / 2 };
+          await instance.setViewport(nextViewport, { duration: 0 });
+          if (!cancelled) onViewportChangeRef.current?.({ viewport: instance.getViewport(), stateIds, canvasSize });
+          return;
+        }
+        if (!document.states.length) return;
+        const restored = !previous ? savedViewportRef.current : null;
+        if (restored && restored.stateIds === stateIds) {
+          const nextViewport = {
+            ...restored.viewport,
+            x: restored.viewport.x + (canvasSize.width - restored.canvasSize.width) / 2,
+            y: restored.viewport.y + (canvasSize.height - restored.canvasSize.height) / 2,
+          };
+          await instance.setViewport(nextViewport, { duration: 0 });
+          if (!cancelled) onViewportChangeRef.current?.({ viewport: instance.getViewport(), stateIds, canvasSize });
+          return;
+        }
+        const documentBounds = graphBounds(document);
+        const topClearance = window.matchMedia('(max-width: 680px)').matches ? 96 : 48;
+        const readableFit = documentBounds.width * 0.95 <= canvasSize.width - 24 && documentBounds.height * 0.95 <= canvasSize.height - topClearance - 50;
+        if (!readableFit) {
+          const initial = document.states.find((state) => document.initialStateIds.includes(state.id)) ?? document.states[0];
+          await instance.setCenter(initial.x + RADIUS, initial.y + RADIUS - 35, { zoom: 0.95, duration: 0 });
+        } else {
+          await instance.setViewport(fitViewportForCanvas(documentBounds, canvasSize.width, canvasSize.height), { duration: 0 });
+        }
+        if (!cancelled) onViewportChangeRef.current?.({ viewport: instance.getViewport(), stateIds, canvasSize });
+      })();
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
   }, [instance, stateIds, machine.kind, canvasSize]);
 
   useEffect(() => {
@@ -501,7 +435,15 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onInit={setInstance}
-        onMove={schedulePopupPosition}
+        onMove={() => {
+          repositionPopupRef.current();
+          if (instance && onViewportChangeRef.current) {
+            onViewportChangeRef.current({ viewport: instance.getViewport(), stateIds, canvasSize });
+          }
+        }}
+        onMoveEnd={(_, viewport) => {
+          onViewportChangeRef.current?.({ viewport, stateIds, canvasSize });
+        }}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={(_, node) => { onSelectState(node.id); }}
@@ -531,9 +473,17 @@ export default function GraphEditor({ machine, selectedStateId, selectedTransiti
       </ReactFlow>
       {machine.states.length === 0 && <div className="graph-editor__empty"><svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true"><circle cx="28" cy="26" r="18" stroke="currentColor" strokeWidth="1.5" /><path d="M1 26H10M5 21L10 26L5 31" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg><strong>Tu autómata empieza aquí</strong><p>Añade un estado para comenzar a construir el grafo.</p></div>}
       </div>
-      {(popupOpen || popupPresent) && (popupOpen || lastPopup.current?.kind === machine.kind) && <div ref={popupContainer} className="graph-popup" data-compact={popupOpen ? compactPopup : lastPopup.current?.compact} data-state={popupOpen ? 'open' : 'closing'} role="dialog" aria-label="Inspector del autómata" aria-modal="false" aria-hidden={!popupOpen || undefined} inert={!popupOpen}>
-        <div ref={popupSurface} className="graph-popup__surface">{popupOpen ? popup : lastPopup.current?.node}</div>
-      </div>}
+      <AnchoredPopup
+        kind={machine.kind}
+        containerRef={container}
+        canvasSize={canvasSize}
+        popup={popup}
+        popupAnchor={popupAnchor}
+        compactPopup={compactPopup}
+        resolveAnchor={resolveAnchor}
+        layoutDeps={machine}
+        repositionRef={repositionPopupRef}
+      />
     </section>
   );
 }
