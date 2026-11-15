@@ -1,4 +1,5 @@
 import type { Machine } from '../domain';
+import { formatRhs, groupProductionsByLeft } from '../cfg';
 import { ruleLabel, stateName, transitionEquations, tuple } from '../format';
 
 interface Props {
@@ -11,6 +12,26 @@ interface Props {
 const setNotation = (values: string[]) => values.length ? `{${values.join(', ')}}` : '∅';
 
 export default function FormalDefinition({ machine, onSelectState, onSelectTransition, compact = false }: Props) {
+  if (machine.kind === 'cfg') {
+    const groups = groupProductionsByLeft(machine.nonterminals, machine.productions);
+    return <section className={`formal-definition${compact ? ' formal-definition--compact' : ''}`} aria-label="Definición formal de la gramática">
+      <p className="formula">{tuple(machine)}</p>
+      <dl className="formal-components">
+        <div><dt>N</dt><dd><code>{setNotation(machine.nonterminals)}</code></dd></div>
+        <div><dt>Σ</dt><dd><code>{setNotation(machine.alphabet)}</code></dd></div>
+        <div><dt>S</dt><dd><code>{machine.startSymbol || 'sin definir'}</code></dd></div>
+      </dl>
+      {!compact && <div className="transition-functions">
+        <h3>Conjunto de producciones · P</h3>
+        <p className="transition-domain"><code>P ⊆ N × (N ∪ Σ)*</code></p>
+        {groups.length ? <ul>{groups.map(group => <li className="transition-function" key={group.left}>
+          <code className="transition-function__equation">{`${group.left} → ${group.productions.map(prod => formatRhs(prod.right)).join(' | ')}`}</code>
+        </li>)}</ul> : <p className="field-hint">Todavía no hay producciones definidas en P.</p>}
+        <p className="field-hint">Un paso de derivación reemplaza un no terminal por el lado derecho de una producción: β A γ → β α γ cuando (A → α) ∈ P. El lenguaje generado es L(G) = {'{'}x ∈ Σ* | S →* x{'}'}.</p>
+      </div>}
+      {compact && <p className="transition-domain"><code>P ⊆ N × (N ∪ Σ)*</code></p>}
+    </section>;
+  }
   const names = (ids: string[]) => ids.map(id => stateName(machine, id));
   const symbol = machine.kind === 'nfa' ? 'Δ' : 'δ';
   const signature = machine.kind === 'dfa' ? 'δ: Q × Σ → Q'

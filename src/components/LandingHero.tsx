@@ -4,12 +4,13 @@ import { MODEL_NAMES, MODEL_SHORT } from '../format';
 import HoverDotsBackground from './HoverDotsBackground';
 import LiquidGlassNavbar from './LiquidGlassNavbar';
 
-const KINDS: MachineKind[] = ['dfa', 'nfa', 'pda', 'tm'];
+const KINDS: MachineKind[] = ['dfa', 'nfa', 'pda', 'tm', 'cfg'];
 const MODEL_DESCRIPTIONS: Record<MachineKind, string> = {
   dfa: 'Un símbolo, un camino.',
   nfa: 'Varios caminos, una posibilidad.',
   pda: 'Una memoria en forma de pila.',
   tm: 'Lee, escribe y vuelve atrás.',
+  cfg: 'Reglas de producción y árboles de derivación.',
 };
 
 const PROFESSOR_PAGE_URL =

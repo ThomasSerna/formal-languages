@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Machine, MachineKind, State, TmMachine } from './domain';
+import type { CfgMachine, Machine, MachineKind, State, TmMachine } from './domain';
 import { createRun, stepRun, validateInput, validateMachine } from './engine';
 import type { Run } from './engine';
 import { createBlankMachine, EXAMPLES, EXAMPLE_INPUTS } from './examples';
@@ -9,6 +9,7 @@ import GraphEditor, { type SavedGraphViewport } from './components/GraphEditor';
 import type { PopupAnchor } from './components/AnchoredPopup';
 import TmTableEditor from './components/TmTableEditor';
 import TmViewSwitch, { type TmViewMode } from './components/TmViewSwitch';
+import CfgWorkspace from './components/CfgWorkspace';
 import Inspector from './components/Inspector';
 import Simulator from './components/Simulator';
 import FormalDefinition from './components/FormalDefinition';
@@ -18,7 +19,7 @@ import LandingHero from './components/LandingHero';
 import LiquidGlassNavbar from './components/LiquidGlassNavbar';
 import { semanticKey } from './languages';
 
-const KINDS: MachineKind[] = ['dfa', 'nfa', 'pda', 'tm'];
+const KINDS: MachineKind[] = ['dfa', 'nfa', 'pda', 'tm', 'cfg'];
 type TapeChange = { index: number; before: string | undefined; after: string | undefined };
 type Entry = { run: Run; change?: TapeChange };
 type Simulation = { current: Run; entries: Entry[]; cursor: number };
@@ -96,11 +97,14 @@ export default function App() {
   const input = inputs[kind];
   const issues = useMemo(() => validateMachine(machine), [machine]);
   const inputError = useMemo(() => validateInput(machine, input), [machine, input]);
-  const initialRun = useMemo(() => issues.length || inputError ? null : createRun(machine, input), [machine, input, issues.length, inputError]);
+  const initialRun = useMemo(() => kind === 'cfg' || issues.length || inputError ? null : createRun(machine, input), [kind, machine, input, issues.length, inputError]);
   const run = simulation?.current ?? initialRun;
   const proofKey = useMemo(() => machine.kind === 'dfa' || machine.kind === 'nfa' ? semanticKey(machine) : '', [machine]);
   const hasProof = kind === 'dfa' || kind === 'nfa';
-  const visiblePanels = useMemo(() => hasProof ? PANELS : PANELS.filter(panel => panel.id !== 'proof'), [hasProof]);
+  const visiblePanels = useMemo(() => {
+    if (kind === 'cfg') return PANELS.filter(panel => panel.id === 'formal' || panel.id === 'theory');
+    return hasProof ? PANELS : PANELS.filter(panel => panel.id !== 'proof');
+  }, [hasProof, kind]);
   const proofHighlight = activePanel === 'proof' && proofActivity?.kind === kind && proofActivity.key === proofKey ? proofActivity : null;
   const reset = useCallback(() => { setPlaying(false); setSimulation(null); }, []);
 
@@ -160,6 +164,7 @@ export default function App() {
   function selectModel(next: MachineKind) {
     reset(); closeInspector(); setKind(next); setConfirmReplace(null); setNotice('');
     if (next !== 'dfa' && next !== 'nfa' && activePanel === 'proof') setActivePanel(null);
+    if (next === 'cfg' && (activePanel === 'simulation' || activePanel === 'proof')) setActivePanel(null);
   }
   function replaceMachine(action: 'blank' | 'example') {
     if (kind === 'tm') tmViewportRef.current = null;
@@ -275,73 +280,87 @@ export default function App() {
   );
 
   return <>
-    <a className="skip-link" href="#input-word" onClick={event => { event.preventDefault(); togglePanel('simulation', true); }}>Ir a la simulación</a>
+    <a className="skip-link" href="#input-word" onClick={event => { event.preventDefault(); if (kind === 'cfg') document.getElementById('input-word')?.focus(); else togglePanel('simulation', true); }}>Ir a la simulación</a>
     <main className="app-main" data-input="keyboard" onPointerDownCapture={event => { event.currentTarget.dataset.input = 'pointer'; if (fileMenuRef.current && !fileMenuRef.current.contains(event.target as Node)) fileMenuRef.current.open = false; }} onKeyDownCapture={event => { event.currentTarget.dataset.input = 'keyboard'; }}>
       <section ref={editorRef} className="editor-screen" aria-label="Laboratorio de autómatas">
-        <section className={`workspace workspace-${kind}`} aria-label="Editor del autómata">
+        <section className={`workspace workspace-${kind}`} aria-label={kind === 'cfg' ? 'Editor de gramática libre de contexto' : 'Editor del autómata'}>
           <LiquidGlassNavbar kind={kind} activeView="lab" onSelectModel={selectModel} onGoHome={goHome} />
-          {kind === 'tm' && <TmViewSwitch view={tmView} onChange={setTmView} />}
-          <div className="graph-toolbar" role="toolbar" aria-label="Herramientas del grafo">
-            <div className="button-row">
-              <button onClick={addState}>Agregar estado</button>
-              <button disabled={!machine.states.length} onClick={event => { setSelectedTransitionId(null); setAddingTransition(true); setNewConnection(null); openInspector({ kind: 'toolbar', element: event.currentTarget }); }}>Agregar transición</button>
-              <button data-configure-model onClick={showModel}>Configurar modelo</button>
-              <details ref={fileMenuRef} className="file-menu" onKeyDown={event => { if (event.key === 'Escape' && event.currentTarget.open) { event.preventDefault(); event.stopPropagation(); event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }} onClickCapture={event => { if ((event.target as HTMLElement).closest('button')) { event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }}>
-                <summary>Archivo<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m4 5.5 3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
-                <div className="file-menu-actions">
-                  <button onClick={() => importRef.current?.click()}>Importar</button>
-                  <button onClick={() => exportMachine(machine)}>Exportar JSON</button>
-                  <hr />
-                  <button onClick={() => setConfirmReplace('example')}>Cargar ejemplo</button>
-                  <button onClick={() => setConfirmReplace('blank')}>Crear desde cero</button>
-                </div>
-              </details>
-              <input ref={importRef} className="sr-only" type="file" accept=".json,application/json" aria-label="Importar autómata JSON" onChange={event => void importFile(event.target.files?.[0])} />
-            </div>
-          </div>
-          {notice && <div className="notice" role="status"><span>{notice}</span><button className="text-button" onClick={() => setNotice('')}>Cerrar aviso</button></div>}
-          {confirmReplace && <div className="replace-confirm" role="group" aria-label="Confirmar reemplazo"><p>Se reemplazará el borrador de {MODEL_SHORT[kind]}. Puedes exportarlo antes para conservarlo.</p><div className="button-row"><button onClick={() => exportMachine(machine)}>Exportar borrador</button><button className="primary" onClick={() => replaceMachine(confirmReplace)}>{confirmReplace === 'blank' ? 'Abrir lienzo vacío' : 'Restaurar ejemplo'}</button><button onClick={() => setConfirmReplace(null)}>Cancelar</button></div></div>}
-          {isTmTable ? (
-            <TmTableEditor
-              machine={machine as TmMachine}
-              issues={issues}
-              selectedStateId={selectedStateId}
-              selectedTransitionId={selectedTransitionId}
-              activeStateIds={activeStateIds}
-              activeTransitionIds={activeTransitionIds}
-              onSelectState={id => selectState(id, true)}
-              onSelectTransition={id => selectTransition(id, true)}
-              onCreateCellTransition={createCellTransition}
-              popupAnchor={popupAnchor}
-              compactPopup={Boolean(selectedStateId) && !addingTransition}
-              popup={inspectorNode}
+          {kind === 'cfg' ? (
+            <CfgWorkspace
+              machine={machine as CfgMachine}
+              input={input}
+              onInput={value => { setInputs(current => ({ ...current, cfg: value })); }}
+              onChangeMachine={next => changeMachine(next)}
+              onImportFile={importFile}
+              notice={notice}
+              onNotice={setNotice}
             />
           ) : (
-            <GraphEditor
-              step={activePanel === 'proof' ? proofHighlight?.step ?? 0 : run?.step ?? 0}
-              machine={machine}
-              selectedStateId={selectedStateId}
-              selectedTransitionId={selectedTransitionId}
-              activeStateIds={activeStateIds}
-              activeTransitionIds={activeTransitionIds}
-              onSelectState={id => selectState(id, true)}
-              onSelectTransition={id => selectTransition(id, true)}
-              onMoveState={(id, x, y) => changeMachine({ ...machine, states: machine.states.map(state => state.id === id ? { ...state, x, y } : state) }, true)}
-              onConnect={(from, to) => { setSelectedStateId(from); setSelectedTransitionId(null); setNewConnection({ from, to }); setAddingTransition(true); openInspector({ kind: 'state', id: to }); }}
-              popupAnchor={popupAnchor}
-              compactPopup={Boolean(selectedStateId) && !addingTransition}
-              savedViewport={kind === 'tm' ? tmViewportRef.current : null}
-              onViewportChange={kind === 'tm' ? (saved => { tmViewportRef.current = saved; }) : undefined}
-              popup={inspectorNode}
-            />
+            <>
+              {kind === 'tm' && <TmViewSwitch view={tmView} onChange={setTmView} />}
+              <div className="graph-toolbar" role="toolbar" aria-label="Herramientas del grafo">
+                <div className="button-row">
+                  <button onClick={addState}>Agregar estado</button>
+                  <button disabled={!machine.states.length} onClick={event => { setSelectedTransitionId(null); setAddingTransition(true); setNewConnection(null); openInspector({ kind: 'toolbar', element: event.currentTarget }); }}>Agregar transición</button>
+                  <button data-configure-model onClick={showModel}>Configurar modelo</button>
+                  <details ref={fileMenuRef} className="file-menu" onKeyDown={event => { if (event.key === 'Escape' && event.currentTarget.open) { event.preventDefault(); event.stopPropagation(); event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }} onClickCapture={event => { if ((event.target as HTMLElement).closest('button')) { event.currentTarget.open = false; event.currentTarget.querySelector('summary')?.focus(); } }}>
+                    <summary>Archivo<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="m4 5.5 3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
+                    <div className="file-menu-actions">
+                      <button onClick={() => importRef.current?.click()}>Importar</button>
+                      <button onClick={() => exportMachine(machine)}>Exportar JSON</button>
+                      <hr />
+                      <button onClick={() => setConfirmReplace('example')}>Cargar ejemplo</button>
+                      <button onClick={() => setConfirmReplace('blank')}>Crear desde cero</button>
+                    </div>
+                  </details>
+                  <input ref={importRef} className="sr-only" type="file" accept=".json,application/json" aria-label="Importar autómata JSON" onChange={event => void importFile(event.target.files?.[0])} />
+                </div>
+              </div>
+              {notice && <div className="notice" role="status"><span>{notice}</span><button className="text-button" onClick={() => setNotice('')}>Cerrar aviso</button></div>}
+              {confirmReplace && <div className="replace-confirm" role="group" aria-label="Confirmar reemplazo"><p>Se reemplazará el borrador de {MODEL_SHORT[kind]}. Puedes exportarlo antes para conservarlo.</p><div className="button-row"><button onClick={() => exportMachine(machine)}>Exportar borrador</button><button className="primary" onClick={() => replaceMachine(confirmReplace)}>{confirmReplace === 'blank' ? 'Abrir lienzo vacío' : 'Restaurar ejemplo'}</button><button onClick={() => setConfirmReplace(null)}>Cancelar</button></div></div>}
+              {isTmTable ? (
+                <TmTableEditor
+                  machine={machine as TmMachine}
+                  issues={issues}
+                  selectedStateId={selectedStateId}
+                  selectedTransitionId={selectedTransitionId}
+                  activeStateIds={activeStateIds}
+                  activeTransitionIds={activeTransitionIds}
+                  onSelectState={id => selectState(id, true)}
+                  onSelectTransition={id => selectTransition(id, true)}
+                  onCreateCellTransition={createCellTransition}
+                  popupAnchor={popupAnchor}
+                  compactPopup={Boolean(selectedStateId) && !addingTransition}
+                  popup={inspectorNode}
+                />
+              ) : (
+                <GraphEditor
+                  step={activePanel === 'proof' ? proofHighlight?.step ?? 0 : run?.step ?? 0}
+                  machine={machine}
+                  selectedStateId={selectedStateId}
+                  selectedTransitionId={selectedTransitionId}
+                  activeStateIds={activeStateIds}
+                  activeTransitionIds={activeTransitionIds}
+                  onSelectState={id => selectState(id, true)}
+                  onSelectTransition={id => selectTransition(id, true)}
+                  onMoveState={(id, x, y) => changeMachine({ ...machine, states: machine.states.map(state => state.id === id ? { ...state, x, y } : state) }, true)}
+                  onConnect={(from, to) => { setSelectedStateId(from); setSelectedTransitionId(null); setNewConnection({ from, to }); setAddingTransition(true); openInspector({ kind: 'state', id: to }); }}
+                  popupAnchor={popupAnchor}
+                  compactPopup={Boolean(selectedStateId) && !addingTransition}
+                  savedViewport={kind === 'tm' ? tmViewportRef.current : null}
+                  onViewportChange={kind === 'tm' ? (saved => { tmViewportRef.current = saved; }) : undefined}
+                  popup={inspectorNode}
+                />
+              )}
+            </>
           )}
         </section>
         <div className="simulation-dock">
-        <div className="simulation-dock-header"><div className="graph-legend"><span><i className="legend-initial" />Inicial</span><span><i className="legend-final" />Aceptación</span><span><i className="legend-active" />Activo</span></div><div className="dock-controls">{visiblePanels.map(panel => <button key={panel.id} id={`${panel.id}-toggle`} className="text-button" aria-label={panel.label} aria-describedby={panel.id === 'simulation' && issues.length ? 'simulation-validation-count' : undefined} aria-expanded={activePanel === panel.id} aria-controls={`${panel.id}-content`} onClick={() => togglePanel(panel.id)}><span className="dock-label-full">{panel.label}</span><span className="dock-label-compact" aria-hidden="true">{panel.compact}</span>{panel.id === 'simulation' && issues.length > 0 && <span id="simulation-validation-count" className="validation-count">{issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</span>}<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ transform: activePanel === panel.id ? 'rotate(180deg)' : undefined }}><path d="m4 10 4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button>)}</div></div>
-        <div id="simulation-content" className="dock-content" role="region" aria-labelledby="simulation-toggle" hidden={activePanel !== 'simulation'}>
+        <div className="simulation-dock-header">{kind === 'cfg' ? <div className="graph-legend"><span><i className="legend-nonterminal" />No terminal</span><span><i className="legend-terminal" />Terminal</span><span><i className="legend-active" />Expansión</span></div> : <div className="graph-legend"><span><i className="legend-initial" />Inicial</span><span><i className="legend-final" />Aceptación</span><span><i className="legend-active" />Activo</span></div>}<div className="dock-controls">{visiblePanels.map(panel => <button key={panel.id} id={`${panel.id}-toggle`} className="text-button" aria-label={panel.label} aria-describedby={panel.id === 'simulation' && issues.length ? 'simulation-validation-count' : undefined} aria-expanded={activePanel === panel.id} aria-controls={`${panel.id}-content`} onClick={() => togglePanel(panel.id)}><span className="dock-label-full">{panel.label}</span><span className="dock-label-compact" aria-hidden="true">{panel.compact}</span>{panel.id === 'simulation' && issues.length > 0 && <span id="simulation-validation-count" className="validation-count">{issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</span>}<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style={{ transform: activePanel === panel.id ? 'rotate(180deg)' : undefined }}><path d="m4 10 4-4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button>)}</div></div>
+        {kind !== 'cfg' && <div id="simulation-content" className="dock-content" role="region" aria-labelledby="simulation-toggle" hidden={activePanel !== 'simulation'}>
         {issues.length > 0 && <details className="validation" open><summary>Completa el modelo antes de ejecutar · {issues.length} {issues.length === 1 ? 'detalle' : 'detalles'}</summary><ul>{issues.slice(0, 12).map((issue, index) => <li key={index}><button onClick={() => { if (issue.transitionId) selectTransition(issue.transitionId); else if (issue.stateId) selectState(issue.stateId); else showModel(); }}>{issue.message}</button></li>)}</ul>{issues.length > 12 && <p>Hay {issues.length - 12} detalles adicionales. Completa los primeros para continuar.</p>}</details>}
         <Simulator machine={machine} input={input} onInput={value => { reset(); setInputs(current => ({ ...current, [kind]: value })); }} run={run} error={inputError || (issues.length ? 'Completa los detalles del modelo que aparecen arriba.' : null)} playing={playing} speed={speed} onSpeed={setSpeed} onNext={() => { setPlaying(false); nextStep(); }} onPrevious={() => { setPlaying(false); setSimulation(previous => previous && previous.cursor > 0 ? seekSimulation(previous, previous.cursor - 1) : previous); }} onReset={reset} onTogglePlay={() => setPlaying(value => !value)} trace={simulation?.entries.map(entry => ({ step: entry.run.step, status: entry.run.status, message: entry.run.message })) ?? []} cursor={simulation?.cursor ?? 0} onSeek={index => { setPlaying(false); setSimulation(previous => previous ? seekSimulation(previous, index) : null); }} />
-        </div>
+        </div>}
         <div id="proof-content" className="dock-content" role="region" aria-labelledby="proof-toggle" hidden={!hasProof || activePanel !== 'proof'}>
           {(['dfa', 'nfa'] as const).map(model => {
             const finite = machines[model];
@@ -353,7 +372,7 @@ export default function App() {
           <div id="formal-reference"><FormalDefinition machine={machine} onSelectState={selectState} onSelectTransition={selectTransition} /></div>
         </div>
         <div id="theory-content" className="dock-content reference-content" role="region" aria-labelledby="theory-toggle" hidden={activePanel !== 'theory'}>
-          <div className="theory"><p><strong>{MODEL_NAMES[kind]}.</strong> {kind === 'dfa' ? 'Tiene exactamente una transición por cada par estado–símbolo. Un estado final solo acepta cuando ya no queda entrada. Durante la construcción puedes guardar un borrador incompleto; para ejecutarlo, δ debe estar definida en todo Q × Σ.' : kind === 'nfa' ? 'Mantiene un conjunto de estados posibles, comenzando por S. Cada símbolo actualiza ese conjunto. La clausura ε añade todos los estados alcanzables sin consumir entrada, incluso al inicio y al final. Se acepta si algún estado activo pertenece a F al terminar la cadena.' : kind === 'pda' ? 'La configuración incluye estado, entrada pendiente y contenido de la pila. Una transición retira el tope A y lo reemplaza por una palabra γ de Γ*. El extremo izquierdo de γ queda arriba. ε permite no leer entrada o retirar sin reemplazar; no significa que se pueda ignorar el tope. Aquí aceptamos por estado final con la entrada consumida, aunque la pila no esté vacía.' : 'Tiene una cinta infinita hacia la derecha. La configuración inicial pone el cabezal sobre el marcador ⊢ y la entrada a su derecha; las otras celdas contienen blanco ␣. Una regla lee, escribe, mueve L o R y cambia de estado. El marcador nunca se sobrescribe ni se cruza. Alcanzar t acepta; alcanzar r rechaza. Una ejecución puede no terminar.'}</p><p>ε es la cadena vacía; ∅ es un conjunto sin elementos. Un resultado inconcluso indica que la simulación alcanzó un límite de recursos, y no demuestra rechazo.</p><details className="theory-sources"><summary>Fuentes</summary><a href="https://www.cs.cornell.edu/courses/cs6861/2024sp/Handouts/ACLec7-12.pdf" target="_blank" rel="noreferrer">Kozen · Automata and Computability</a><a href="https://sites.google.com/site/sergiosramirezrico/eafit/si2002-st0270?authuser=0" target="_blank" rel="noreferrer">Material del curso</a></details></div>
+          <div className="theory"><p><strong>{MODEL_NAMES[kind]}.</strong> {kind === 'dfa' ? 'Tiene exactamente una transición por cada par estado–símbolo. Un estado final solo acepta cuando ya no queda entrada. Durante la construcción puedes guardar un borrador incompleto; para ejecutarlo, δ debe estar definida en todo Q × Σ.' : kind === 'nfa' ? 'Mantiene un conjunto de estados posibles, comenzando por S. Cada símbolo actualiza ese conjunto. La clausura ε añade todos los estados alcanzables sin consumir entrada, incluso al inicio y al final. Se acepta si algún estado activo pertenece a F al terminar la cadena.' : kind === 'pda' ? 'La configuración incluye estado, entrada pendiente y contenido de la pila. Una transición retira el tope A y lo reemplaza por una palabra γ de Γ*. El extremo izquierdo de γ queda arriba. ε permite no leer entrada o retirar sin reemplazar; no significa que se pueda ignorar el tope. Aquí aceptamos por estado final con la entrada consumida, aunque la pila no esté vacía.' : kind === 'tm' ? 'Tiene una cinta infinita hacia la derecha. La configuración inicial pone el cabezal sobre el marcador ⊢ y la entrada a su derecha; las otras celdas contienen blanco ␣. Una regla lee, escribe, mueve L o R y cambia de estado. El marcador nunca se sobrescribe ni se cruza. Alcanzar t acepta; alcanzar r rechaza. Una ejecución puede no terminar.' : 'G = (N, Σ, P, S) consta de un conjunto finito de no terminales N, un conjunto disjunto de terminales Σ, un símbolo inicial S ∈ N y producciones P ⊆ N × (N ∪ Σ)*. Un paso de derivación β A γ → β α γ sustituye el no terminal A por α cuando (A → α) ∈ P. El lenguaje generado es L(G) = {x ∈ Σ* | S →* x}. La derivación más a la izquierda (→_L) expande siempre el no terminal situado más a la izquierda; la más a la derecha (→_R), el situado más a la derecha. Todo árbol de derivación tiene por frontera (yield) la secuencia de sus hojas terminales de izquierda a derecha; la gramática es ambigua si una cadena admite dos o más árboles de derivación distintos.'}</p><p>ε es la cadena vacía; ∅ es un conjunto sin elementos.{kind !== 'cfg' && ' Un resultado inconcluso indica que la simulación alcanzó un límite de recursos, y no demuestra rechazo.'}</p><details className="theory-sources"><summary>Fuentes</summary><a href="https://www.cs.cornell.edu/courses/cs6861/2024sp/Handouts/ACLec7-12.pdf" target="_blank" rel="noreferrer">Kozen · Automata and Computability</a><a href="https://sites.google.com/site/sergiosramirezrico/eafit/si2002-st0270?authuser=0" target="_blank" rel="noreferrer">Material del curso</a></details></div>
         </div>
         </div>
       </section>

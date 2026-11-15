@@ -41,7 +41,7 @@ test('la página principal muestra el landing page con animación hover y navega
   await expect(exploreBtn).toHaveAttribute('aria-expanded', 'true');
   await expect(refsBtn).toHaveAttribute('aria-expanded', 'false');
   await expect(refsRegion).toBeHidden();
-  await expect(landing.locator('.landing-model-card')).toHaveCount(4);
+  await expect(landing.locator('.landing-model-card')).toHaveCount(5);
 
   await landing.locator('.landing-model-card').first().click();
   await expect(page.locator('.editor-screen')).toBeVisible();

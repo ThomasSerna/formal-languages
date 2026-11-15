@@ -4,7 +4,7 @@
   width: 100%;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow: clip;
   background: var(--paper);
   isolation: isolate;
 }
@@ -14,10 +14,10 @@
   flex: 1;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
+  overflow: clip;
 }
 
-.graph-canvas > .react-flow { position: absolute; inset: 0; }
+.graph-canvas > .react-flow { position: absolute; inset: 0; overflow: clip !important; }
 
 .graph-watermark {
   position: absolute;
