@@ -1,4 +1,5 @@
-import { LIMITS, type Machine, type TmMachine } from './domain'
+import { LIMITS, type CfgMachine, type Machine, type TmMachine } from './domain'
+import { buildDerivationSteps, deriveCfgString, validateCfg, validateCfgInput, type CfgDerivationStep } from './cfg'
 import { epsilonClosure, indexFiniteTransitions, moveFinite } from './finite'
 
 export interface ValidationIssue {
@@ -25,6 +26,8 @@ export interface Run {
   message: string
   visited?: ReadonlySet<string>
   applications?: number
+  cfgSteps?: CfgDerivationStep[]
+  cfgAccepted?: boolean
 }
 
 const record = (value: unknown): value is Record<string, unknown> =>
@@ -39,8 +42,16 @@ export function validateMachine(value: unknown): ValidationIssue[] {
   const add = (message: string, location: Omit<ValidationIssue, 'message'> = {}) =>
     issues.push({ message, ...location })
 
-  if (!record(value) || value.schemaVersion !== 1 || !['dfa', 'nfa', 'pda', 'tm'].includes(String(value.kind))) {
+  if (!record(value) || value.schemaVersion !== 1 || !['dfa', 'nfa', 'pda', 'tm', 'cfg'].includes(String(value.kind))) {
     return [{ message: 'El documento no contiene un autómata de versión 1 reconocido.' }]
+  }
+  if (value.kind === 'cfg') {
+    if (typeof value.name !== 'string' || !strings(value.alphabet) || !strings(value.nonterminals) || typeof value.startSymbol !== 'string'
+      || !Array.isArray(value.productions) || !value.productions.every((prod) => record(prod)
+        && typeof prod.id === 'string' && prod.id.length > 0 && typeof prod.left === 'string' && strings(prod.right))) {
+      return [{ message: 'Define los conjuntos N, Σ, el símbolo inicial S y las producciones P de la gramática.', field: 'productions' }]
+    }
+    return validateCfg(value as unknown as CfgMachine)
   }
   if (typeof value.name !== 'string' || !value.name.trim()) add('Escribe un nombre para el autómata.', { field: 'name' })
   if (!strings(value.alphabet) || !strings(value.initialStateIds) || !strings(value.acceptingStateIds)) {
@@ -151,6 +162,7 @@ export function validateMachine(value: unknown): ValidationIssue[] {
 }
 
 export function validateInput(machine: Machine, input: string): string | null {
+  if (machine.kind === 'cfg') return validateCfgInput(machine, input)
   const letters = Array.from(input)
   if (letters.length > LIMITS.input) return `La entrada puede tener hasta ${LIMITS.input} símbolos.`
   const invalid = letters.find((letter) => !machine.alphabet.includes(letter))
@@ -170,6 +182,21 @@ export function createRun(machine: Machine, input: string): Run {
   }
   const error = validateMachine(machine)[0]?.message ?? validateInput(machine, input)
   if (error) return { ...run, status: 'inconclusive', message: error }
+  if (machine.kind === 'cfg') {
+    const result = deriveCfgString(machine, input)
+    if (!result.accepted) {
+      return { ...run, status: 'rejected', cfgAccepted: false, message: result.message }
+    }
+    const cfgSteps = buildDerivationSteps(result.trees[0], 'leftmost', machine)
+    const status = cfgSteps.length <= 1 ? 'accepted' : 'running'
+    return {
+      ...run,
+      status,
+      cfgSteps,
+      cfgAccepted: true,
+      message: status === 'accepted' ? result.message : cfgSteps[0].message,
+    }
+  }
   if (machine.kind === 'tm') {
     const tape: Record<number, string> = { 0: machine.leftMarker }
     run.input.forEach((letter, index) => { tape[index + 1] = letter })
@@ -229,6 +256,21 @@ function stepTuring(machine: TmMachine, run: Run): Run {
 
 export function stepRun(machine: Machine, run: Run): Run {
   if (run.status !== 'running') return run
+  if (machine.kind === 'cfg') {
+    const steps = run.cfgSteps ?? []
+    const nextStepIndex = run.step + 1
+    if (nextStepIndex >= steps.length) {
+      return { ...run, status: run.cfgAccepted ? 'accepted' : 'rejected' }
+    }
+    const nextCfgStep = steps[nextStepIndex]
+    const done = nextStepIndex === steps.length - 1
+    return {
+      ...run,
+      step: nextStepIndex,
+      status: done ? (run.cfgAccepted ? 'accepted' : 'rejected') : 'running',
+      message: nextCfgStep.message,
+    }
+  }
   if (machine.kind === 'tm') return stepTuring(machine, run)
   if (machine.kind === 'pda') {
     const visited = new Set(run.visited)

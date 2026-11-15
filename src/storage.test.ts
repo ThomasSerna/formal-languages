@@ -33,6 +33,19 @@ const machines: Machine[] = [
     rejectStateId: '',
     transitions: [{ ...finite.transitions[0], write: '1', move: 'R' }],
   },
+  {
+    schemaVersion: 1,
+    name: 'Mi gramática',
+    kind: 'cfg',
+    alphabet: ['a', 'b'],
+    nonterminals: ['S'],
+    startSymbol: 'S',
+    productions: [{ id: 'p0', left: 'S', right: ['a', 'S', 'b'] }, { id: 'p1', left: 'S', right: [] }],
+    states: [],
+    initialStateIds: [],
+    acceptingStateIds: [],
+    transitions: [],
+  },
 ];
 
 function parse(value: unknown): Machine {

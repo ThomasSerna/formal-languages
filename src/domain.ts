@@ -1,4 +1,4 @@
-export type MachineKind = 'dfa' | 'nfa' | 'pda' | 'tm'
+export type MachineKind = 'dfa' | 'nfa' | 'pda' | 'tm' | 'cfg'
 
 export interface State {
   id: string
@@ -45,7 +45,20 @@ export type TmMachine = BaseMachine & {
   rejectStateId: string
   transitions: TmTransition[]
 }
-export type Machine = FiniteMachine | PdaMachine | TmMachine
+export interface CfgProduction {
+  id: string
+  left: string
+  right: string[]
+}
+
+export type CfgMachine = BaseMachine & {
+  kind: 'cfg'
+  nonterminals: string[]
+  startSymbol: string
+  productions: CfgProduction[]
+  transitions: FiniteTransition[]
+}
+export type Machine = FiniteMachine | PdaMachine | TmMachine | CfgMachine
 
 export const LIMITS = {
   states: 50,
@@ -56,4 +69,9 @@ export const LIMITS = {
   pdaConfigurations: 2_000,
   pdaApplications: 10_000,
   pdaStack: 256,
+  cfgNonterminals: 30,
+  cfgProductions: 120,
+  cfgRhsSymbols: 16,
+  cfgInput: 48,
+  cfgDerivationSteps: 120,
 } as const

@@ -1,9 +1,86 @@
-import type { Machine, MachineKind, State, PdaTransition, TmTransition } from './domain'
+import type { CfgMachine, CfgProduction, Machine, MachineKind, State, PdaTransition, TmTransition } from './domain'
 
 const state = (id: string, x: number, y: number): State => ({ id, name: id, x, y })
 const finite = (id: string, from: string, to: string, read: string) => ({ id, from, to, read })
 const pda = (id: string, from: string, to: string, read: string, pop: string, push: string[]): PdaTransition => ({ id, from, to, read, pop, push })
 const tm = (id: string, from: string, to: string, read: string, write: string, move: 'L' | 'R'): TmTransition => ({ id, from, to, read, write, move })
+const prod = (id: string, left: string, right: string[]): CfgProduction => ({ id, left, right })
+
+const CFG_ANBN: CfgMachine = {
+  schemaVersion: 1, kind: 'cfg', name: 'aⁿbⁿ · bloques balanceados',
+  alphabet: ['a', 'b'], nonterminals: ['S'], startSymbol: 'S',
+  productions: [prod('c0', 'S', ['a', 'S', 'b']), prod('c1', 'S', [])],
+  states: [], initialStateIds: [], acceptingStateIds: [], transitions: [],
+}
+
+export interface CfgPreset {
+  id: string
+  label: string
+  description: string
+  sampleInput: string
+  machine: CfgMachine
+}
+
+export const CFG_PRESETS: CfgPreset[] = [
+  {
+    id: 'anbn',
+    label: 'aⁿbⁿ',
+    description: 'S → aSb | ε',
+    sampleInput: 'aabb',
+    machine: CFG_ANBN,
+  },
+  {
+    id: 'palindromes',
+    label: 'Palíndromos',
+    description: 'S → aSa | bSb | a | b | ε',
+    sampleInput: 'ababa',
+    machine: {
+      schemaVersion: 1, kind: 'cfg', name: 'Palíndromos sobre {a, b}',
+      alphabet: ['a', 'b'], nonterminals: ['S'], startSymbol: 'S',
+      productions: [
+        prod('pal0', 'S', ['a', 'S', 'a']),
+        prod('pal1', 'S', ['b', 'S', 'b']),
+        prod('pal2', 'S', ['a']),
+        prod('pal3', 'S', ['b']),
+        prod('pal4', 'S', []),
+      ],
+      states: [], initialStateIds: [], acceptingStateIds: [], transitions: [],
+    },
+  },
+  {
+    id: 'parentheses',
+    label: 'Paréntesis',
+    description: 'S → SS | (S) | ε',
+    sampleInput: '(()())',
+    machine: {
+      schemaVersion: 1, kind: 'cfg', name: 'Paréntesis balanceados',
+      alphabet: ['(', ')'], nonterminals: ['S'], startSymbol: 'S',
+      productions: [
+        prod('par0', 'S', ['S', 'S']),
+        prod('par1', 'S', ['(', 'S', ')']),
+        prod('par2', 'S', []),
+      ],
+      states: [], initialStateIds: [], acceptingStateIds: [], transitions: [],
+    },
+  },
+  {
+    id: 'ambiguous',
+    label: 'Ambigüedad a+a*a',
+    description: 'E → E+E | E*E | (E) | a',
+    sampleInput: 'a+a*a',
+    machine: {
+      schemaVersion: 1, kind: 'cfg', name: 'Expresiones aritméticas ambiguas',
+      alphabet: ['a', '+', '*', '(', ')'], nonterminals: ['E'], startSymbol: 'E',
+      productions: [
+        prod('e0', 'E', ['E', '+', 'E']),
+        prod('e1', 'E', ['E', '*', 'E']),
+        prod('e2', 'E', ['(', 'E', ')']),
+        prod('e3', 'E', ['a']),
+      ],
+      states: [], initialStateIds: [], acceptingStateIds: [], transitions: [],
+    },
+  },
+]
 
 export const EXAMPLES: Record<MachineKind, Machine> = {
   dfa: {
@@ -36,14 +113,20 @@ export const EXAMPLES: Record<MachineKind, Machine> = {
       tm('t12', 'q2', 'q0', '⊢', '⊢', 'R'), tm('t13', 'q3', 'q3', 'Y', 'Y', 'R'), tm('t14', 'q3', 't', '␣', '␣', 'R'),
     ],
   },
+  cfg: CFG_ANBN,
 }
 
-export const EXAMPLE_INPUTS: Record<MachineKind, string> = { dfa: '1010', nfa: '1101', pda: 'aabb', tm: '0011' }
+export const EXAMPLE_INPUTS: Record<MachineKind, string> = { dfa: '1010', nfa: '1101', pda: 'aabb', tm: '0011', cfg: 'aabb' }
 
 export function createBlankMachine(kind: MachineKind): Machine {
   const common = {
-    schemaVersion: 1 as const, name: 'Mi autómata', alphabet: kind === 'pda' ? ['a', 'b'] : ['0', '1'],
+    schemaVersion: 1 as const,
+    name: kind === 'cfg' ? 'Mi gramática' : 'Mi autómata',
+    alphabet: kind === 'pda' || kind === 'cfg' ? ['a', 'b'] : ['0', '1'],
     states: [] as State[], initialStateIds: [] as string[], acceptingStateIds: [] as string[],
+  }
+  if (kind === 'cfg') return {
+    ...common, kind, nonterminals: ['S'], startSymbol: 'S', productions: [], transitions: [],
   }
   if (kind === 'pda') return { ...common, kind, stackAlphabet: ['⊥', 'A'], initialStackSymbol: '⊥', transitions: [] }
   if (kind === 'tm') return {

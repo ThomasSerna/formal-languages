@@ -34,7 +34,8 @@ describe('ejemplos y aceptación formal', () => {
     expect(machine.acceptingStateIds).toEqual([])
     expect(machine.transitions).toEqual([])
     if (machine.kind === 'tm') expect(machine.rejectStateId).toBe('')
-    expect(validateMachine(machine).some((issue) => issue.field === 'states')).toBe(true)
+    const expectedField = machine.kind === 'cfg' ? 'productions' : 'states'
+    expect(validateMachine(machine).some((issue) => issue.field === expectedField)).toBe(true)
     expect(createRun(machine, '').status).toBe('inconclusive')
   })
 
@@ -43,12 +44,13 @@ describe('ejemplos y aceptación formal', () => {
     ['nfa', ['01', '001', '1101'], ['', '0', '1', '011', '010']],
     ['pda', ['', 'ab', 'aabb', 'aaabbb'], ['a', 'b', 'abb', 'abab', 'ba']],
     ['tm', ['', '01', '0011', '000111'], ['0', '1', '001', '011', '0101', '00101']],
+    ['cfg', ['', 'ab', 'aabb', 'aaabbb'], ['a', 'b', 'abb', 'abab', 'ba']],
   ] as [MachineKind, string[], string[]][])('%s acepta y rechaza las cadenas esperadas', (kind, yes, no) => {
     for (const input of yes) expect(finish(EXAMPLES[kind], input).status, input).toBe('accepted')
     for (const input of no) expect(finish(EXAMPLES[kind], input).status, input).toBe('rejected')
   })
 
-  it('comprueba exhaustivamente cadenas pequeñas de los cuatro lenguajes', () => {
+  it('comprueba exhaustivamente cadenas pequeñas de los modelos', () => {
     for (const kind of Object.keys(EXAMPLES) as MachineKind[]) {
       const machine = EXAMPLES[kind]
       let words = ['']
@@ -56,7 +58,7 @@ describe('ejemplos y aceptación formal', () => {
         for (const word of words) {
           const expected = kind === 'dfa' ? Array.from(word).filter((letter) => letter === '1').length % 2 === 0
             : kind === 'nfa' ? word.endsWith('01')
-              : kind === 'pda' ? word.length % 2 === 0 && word === 'a'.repeat(word.length / 2) + 'b'.repeat(word.length / 2)
+              : kind === 'pda' || kind === 'cfg' ? word.length % 2 === 0 && word === 'a'.repeat(word.length / 2) + 'b'.repeat(word.length / 2)
                 : word.length % 2 === 0 && word === '0'.repeat(word.length / 2) + '1'.repeat(word.length / 2)
           expect(finish(machine, word).status, `${kind}: ${word}`).toBe(expected ? 'accepted' : 'rejected')
         }

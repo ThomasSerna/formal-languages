@@ -76,6 +76,6 @@ describe('funciones de transición de la definición formal', () => {
   });
 
   it('un borrador vacío no inventa reglas', () => {
-    for (const kind of ['dfa', 'nfa', 'pda', 'tm'] as const) expect(transitionEquations(createBlankMachine(kind))).toEqual([]);
+    for (const kind of ['dfa', 'nfa', 'pda', 'tm', 'cfg'] as const) expect(transitionEquations(createBlankMachine(kind))).toEqual([]);
   });
 });

@@ -1,8 +1,8 @@
-import type { Machine } from './domain';
+import { LIMITS, type Machine } from './domain';
 
 const MAX_JSON_BYTES = 1024 * 1024;
 const STORAGE_PREFIX = 'formal-languages:v1:';
-const KINDS = ['dfa', 'nfa', 'pda', 'tm'] as const;
+const KINDS = ['dfa', 'nfa', 'pda', 'tm', 'cfg'] as const;
 
 function invalid(message: string): never {
   throw new Error(`No se pudo importar el autómata: ${message}`);
@@ -106,11 +106,38 @@ export function parseMachineJson(source: string): Machine {
     if (machine.initialStackSymbol !== '') symbol(machine.initialStackSymbol, 'El símbolo inicial de la pila');
   }
   if (machine.kind === 'tm') {
-    alphabet(machine.tapeAlphabet, 'El alfabeto de la cinta');
+    alphabet(machine.tapeAlphabet, 'El alfabeto de cinta');
     symbol(machine.leftMarker, 'El marcador izquierdo');
     symbol(machine.blankSymbol, 'El símbolo blanco');
     text(machine.rejectStateId, 'El estado de rechazo', true);
     if (machine.rejectStateId !== '') reference(machine.rejectStateId, ids, 'El estado de rechazo');
+  }
+  if (machine.kind === 'cfg') {
+    const nonterminals = array(machine.nonterminals, 'El conjunto de no terminales N').map((item) =>
+      symbol(item, 'El conjunto de no terminales N'),
+    );
+    unique(nonterminals, 'El conjunto de no terminales N');
+    if (nonterminals.length > LIMITS.cfgNonterminals) {
+      invalid(`se permiten como máximo ${LIMITS.cfgNonterminals} símbolos no terminales.`);
+    }
+    text(machine.startSymbol, 'El símbolo inicial S', true);
+    if (machine.startSymbol !== '') symbol(machine.startSymbol, 'El símbolo inicial S');
+    const productions = array(machine.productions, 'Las producciones P');
+    if (productions.length > LIMITS.cfgProductions) {
+      invalid(`se permiten como máximo ${LIMITS.cfgProductions} producciones.`);
+    }
+    const productionIds = productions.map((value) => {
+      const prod = record(value, 'Cada producción');
+      const id = text(prod.id, 'El identificador de la producción');
+      symbol(prod.left, 'El lado izquierdo de la producción');
+      const rhs = array(prod.right, 'El lado derecho de la producción');
+      if (rhs.length > LIMITS.cfgRhsSymbols) {
+        invalid(`cada producción admite como máximo ${LIMITS.cfgRhsSymbols} símbolos.`);
+      }
+      rhs.forEach((item) => symbol(item, 'Cada símbolo del lado derecho'));
+      return id;
+    });
+    unique(productionIds, 'Los identificadores de las producciones');
   }
 
   const transitionIds = transitions.map((value) => {
