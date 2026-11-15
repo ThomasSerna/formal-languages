@@ -15,14 +15,11 @@ test('la página principal muestra el landing page con animación hover y navega
   await expect(hoverCanvas).toHaveAttribute('data-hover-active', 'true');
 
   const exploreBtn = landing.getByRole('button', { name: 'Explorar autómatas', exact: true });
-  const courseLink = landing.getByRole('link', { name: 'Página oficial · SI2002-ST0270', exact: true });
   const refsBtn = landing.getByRole('button', { name: 'Referencias', exact: true });
 
+  await expect(landing.locator('.landing-actions > *')).toHaveCount(2);
   await expect(exploreBtn).toHaveClass(/landing-btn-primary/);
   await expect(exploreBtn).toHaveCSS('background-color', 'rgb(30, 41, 59)');
-  await expect(courseLink).toHaveClass(/landing-btn-secondary/);
-  await expect(courseLink).toHaveAttribute('href', 'https://sites.google.com/site/sergiosramirezrico/eafit/si2002-st0270');
-  await expect(courseLink).toHaveAttribute('target', '_blank');
   await expect(refsBtn).toHaveClass(/landing-btn-secondary/);
 
   await refsBtn.click();
@@ -30,6 +27,7 @@ test('la página principal muestra el landing page con animación hover y navega
   const refsRegion = landing.getByRole('region', { name: 'Referencias del curso', exact: true });
   await expect(refsRegion).toBeVisible();
   await expect(refsRegion.locator('.landing-ref-card')).toHaveCount(3);
+  await expect(refsRegion.getByRole('link', { name: 'Página oficial · SI2002-ST0270', exact: true })).toHaveAttribute('href', 'https://sites.google.com/site/sergiosramirezrico/eafit/si2002-st0270');
   await expect(refsRegion.getByRole('link', { name: 'Parciales de semestres anteriores', exact: true })).toHaveAttribute('href', 'https://drive.google.com/drive/folders/1eP4MxLXJWFJvOATiJQVb9D6PoUP3jyC0?usp=sharing');
   await expect(refsRegion).toContainText('Kozen');
   await expect(refsRegion).toContainText('Sipser');
