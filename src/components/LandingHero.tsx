@@ -199,26 +199,6 @@ export default function LandingHero({
             </svg>
           </button>
 
-          <a
-            className="landing-btn-secondary"
-            href={PROFESSOR_PAGE_URL}
-            target="_blank"
-            rel="noreferrer"
-            title="Sergio Ramírez Rico - SI2002-ST0270"
-          >
-            <span>Página oficial · SI2002-ST0270</span>
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path
-                d="M3.5 8.5 8.5 3.5M4.5 3.5h4v4"
-                stroke="currentColor"
-                strokeOpacity=".65"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </a>
-
           <button
             type="button"
             className="landing-btn-secondary"
